@@ -5,6 +5,7 @@ const dotenv = require("dotenv");
 const authRoutes = require("./routes/authRoutes");
 const postRoutes = require("./routes/postRoutes")
 const passwordRoutes = require('./routes/passwordRoutes')
+const adminRoutes = require('./routes/adminRoutes')
 
 dotenv.config();
 
@@ -16,6 +17,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
 app.use('/api/password', passwordRoutes)
+app.use('/api/admin', adminRoutes)
 
 app.get("/", (req, res) => {
   res.json({ message: "ScholarHub API is running" });
