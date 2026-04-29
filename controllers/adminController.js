@@ -43,7 +43,7 @@ const rejectPost = async (req, res) => {
 
 const getAllUsers = async (req, res) => {
   try {
-    const users = (await User.find().select("-password")).toSorted({
+    const users = await User.find().select("-password").sort({
       coins: -1,
     });
     res.json(users);
