@@ -6,6 +6,8 @@ const authRoutes = require("./routes/authRoutes");
 const postRoutes = require("./routes/postRoutes")
 const passwordRoutes = require('./routes/passwordRoutes')
 const adminRoutes = require('./routes/adminRoutes')
+const schoolRoutes = require("./routes/schoolRoutes")
+const notificationRoutes = require('./routes/notificationRoutes')
 
 dotenv.config();
 
@@ -16,9 +18,10 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postRoutes);
-app.use('/api/password', passwordRoutes)
-app.use('/api/admin', adminRoutes)
-
+app.use('/api/password', passwordRoutes);
+app.use('/api/admin', adminRoutes);
+app.use("/api/schools", schoolRoutes);
+app.use("/api/notifications", notificationRoutes);
 app.get("/", (req, res) => {
   res.json({ message: "ScholarHub API is running" });
 });
