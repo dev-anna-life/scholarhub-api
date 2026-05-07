@@ -178,4 +178,71 @@ const getLeaderboard = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, getMe, googleLogin, getLeaderboard };
+const updateProfile = async (req, res) => {
+  try {
+    const { name, phone } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { name, phone },
+      { new: true },
+    ).select("-password");
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const updateSchool = async (req, res) => {
+  try {
+    const { level, school, state } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { level, school, state },
+      { new: true },
+    ).select("-password");
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findById(req.user.id);
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid)
+      return res.status(400).json({ message: "Current password is incorrect" });
+    user.password = await bcrypt.hash(newPassword, 12);
+    await user.save();
+    res.json({ message: "Password changed successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+const toggle2FA = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+    user.twoFactorEnabled = !user.twoFactorEnabled;
+    await user.save();
+    res.json({
+      message: user.twoFactorEnabled ? "2FA enabled" : "2FA disabled",
+      twoFactorEnabled: user.twoFactorEnabled,
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+module.exports = {
+  signup,
+  login,
+  getMe,
+  googleLogin,
+  getLeaderboard,
+  updateProfile,
+  updateSchool,
+  changePassword,
+  toggle2FA,
+};

@@ -17,6 +17,7 @@ const userSchema = new mongoose.Schema({
     isVerified: { type: Boolean, default: false },
     resetToken: { type: String },
     resetTokenExpiry: { type: Date },
+    twoFactorEnabled: { type: Boolean, default: false },
 }, { timestamps: true })
 
 module.exports = mongoose.model('User', userSchema)
