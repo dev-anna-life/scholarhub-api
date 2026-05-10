@@ -12,6 +12,8 @@ const schoolRoutes = require("./routes/schoolRoutes")
 const notificationRoutes = require('./routes/notificationRoutes')
 const botRoutes = require('./routes/botRoutes')
 const chatRoutes = require('./routes/chatRoutes')
+const sosRoutes = require('./routes/sosRoutes')
+
 
 const app = express();
 
@@ -26,6 +28,7 @@ app.use("/api/schools", schoolRoutes);
 app.use("/api/notifications", notificationRoutes);
 app.use("/api/bot", botRoutes);
 app.use("/api/chat", chatRoutes);
+app.use('/api/sos', sosRoutes)
 app.get("/", (req, res) => {
   res.json({ message: "ScholarHub API is running" });
 });
