@@ -1,3 +1,5 @@
+require("dotenv").config()
+
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -8,8 +10,8 @@ const passwordRoutes = require('./routes/passwordRoutes')
 const adminRoutes = require('./routes/adminRoutes')
 const schoolRoutes = require("./routes/schoolRoutes")
 const notificationRoutes = require('./routes/notificationRoutes')
-
-dotenv.config();
+const botRoutes = require('./routes/botRoutes')
+const chatRoutes = require('./routes/chatRoutes')
 
 const app = express();
 
@@ -22,6 +24,8 @@ app.use('/api/password', passwordRoutes);
 app.use('/api/admin', adminRoutes);
 app.use("/api/schools", schoolRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/bot", botRoutes);
+app.use("/api/chat", chatRoutes);
 app.get("/", (req, res) => {
   res.json({ message: "ScholarHub API is running" });
 });
