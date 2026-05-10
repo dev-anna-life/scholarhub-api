@@ -13,20 +13,19 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const botRoutes = require("./routes/botRoutes");
 const chatRoutes = require("./routes/chatRoutes");
 const sosRoutes = require("./routes/sosRoutes");
-const { Credentials } = require("@anthropic-ai/sdk/resources/beta/vaults.js");
 
 const app = express();
 
 app.use(cors({
-     origin: [
+  origin: [
     'https://scholar-hub-seven.vercel.app',
     'http://localhost:5173',
     'http://localhost:3000',
-     ],
-     Credentials: true,
-      methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS']
-  
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
 }));
+
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
@@ -40,17 +39,12 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/sos", sosRoutes);
 
 app.get("/", (req, res) => {
-  res.json({ message: "ScholarHub API is running " });
+  res.json({ message: "ScholarHub API is running" });
 });
 
-const PORT = process.env.PORT;
+const PORT = process.env.PORT || 8080;
 
-if (!PORT) {
-  console.error("❌ PORT is missing from environment variables");
-  process.exit(1);
-}
-
-console.log(" Starting server...");
+console.log("Starting server...");
 console.log("PORT:", PORT);
 console.log("MONGO_URI exists:", !!process.env.MONGO_URI);
 
@@ -60,7 +54,6 @@ mongoose
   })
   .then(() => {
     console.log("✅ MongoDB connected");
-
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`✅ Server running on port ${PORT}`);
     });
