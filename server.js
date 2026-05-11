@@ -56,6 +56,9 @@ mongoose
     console.log("✅ MongoDB connected");
     app.listen(PORT, "0.0.0.0", () => {
       console.log(`✅ Server running on port ${PORT}`);
+      setInterval(() => {
+        console.log("💓 Server heartbeat - still running");
+      }, 1000 * 60 * 4);
     });
   })
   .catch((err) => {
