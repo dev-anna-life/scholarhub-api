@@ -17,7 +17,6 @@ const forgotPassword = async (req, res) => {
         await user.save()
 
         const transporter = nodemailer.createTransport({
-
             service: 'gmail',
             auth: {
                 user: process.env.EMAIL_USER,
@@ -25,7 +24,7 @@ const forgotPassword = async (req, res) => {
             }
         })
 
-        const resetUrl = `http://localhost:5173/reset-password/${resetToken}`
+        const resetUrl = `https://scholar-hub-seven.vercel.app/reset-password/${resetToken}`
 
         await transporter.sendMail({
             from: `"ScholarHub" <${process.env.EMAIL_USER}>`,
@@ -43,7 +42,7 @@ const forgotPassword = async (req, res) => {
         })
 
         res.json({ message: 'Password reset link sent to your email' })
-    } catch  (error) { 
+    } catch (error) { 
         res.status(500).json({ message: 'Server error', error: error.message })
     }
 }
@@ -74,4 +73,4 @@ const resetPassword = async (req, res) => {
     }
 }
 
-module.exports = { forgotPassword, resetPassword}
+module.exports = { forgotPassword, resetPassword }
