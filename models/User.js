@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     phone: { type: String },
     password: { type: String },
     googleId: { type: String },
-    level: { type: String, enum: ['JSS', 'SSS', 'University', 'Postgrad' ]},
+    level: { type: String, enum: ['JSS', 'SSS', 'University', 'Postgrad'] },
     school: { type: String },
     state: { type: String },
     interests: [{ type: String }],
@@ -18,6 +18,8 @@ const userSchema = new mongoose.Schema({
     resetToken: { type: String },
     resetTokenExpiry: { type: Date },
     twoFactorEnabled: { type: Boolean, default: false },
+    followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true })
 
 module.exports = mongoose.model('User', userSchema)
