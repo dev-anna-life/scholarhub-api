@@ -6,9 +6,11 @@ export default async function handler(req, res) {
     const user = await protect(req, res)
     if (!user) return
 
-    // In production, use cloud storage (Cloudinary, S3, etc.)
-    // For now, return a placeholder URL
-    const { filename } = req.body
+    const { image, filename } = req.body
+    if (image && image.startsWith('data:image')) {
+      return res.json({ url: image, path: image })
+    }
+
     const url = `https://placeholder.scholarhub.app/uploads/${filename || 'file'}`
     res.json({ url })
   } catch (error) {
