@@ -9,6 +9,11 @@ export default async function handler(req, res) {
     const user = await protect(req, res)
     if (!user) return
 
+    if (!user.referralCode) {
+      user.referralCode = user.username?.toLowerCase() + Math.floor(Math.random() * 1000)
+      await user.save()
+    }
+
     const refCount = await User.countDocuments({ referredBy: user._id })
     const refEarnings = refCount * 20
 
