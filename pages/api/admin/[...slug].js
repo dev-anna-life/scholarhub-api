@@ -33,16 +33,32 @@ export default async function handler(req, res) {
 
     if (method === 'posts') {
       if (req.method === 'GET') {
+        if (subpath === 'pending') {
+          const posts = await Post.find({ status: 'pending' }).populate('author', 'name username avatar').sort({ createdAt: -1 }).lean()
+          return res.json(posts)
+        }
         const posts = await Post.find({}).populate('author', 'name username avatar').sort({ createdAt: -1 }).lean()
         return res.json(posts)
       }
       if (req.method === 'PUT' && subpath) {
-        const post = await Post.findByIdAndUpdate(subpath, req.body, { new: true }).populate('author', 'name username avatar')
+        const [postId, action] = subpath.split('/')
+        if (action === 'approve') {
+          const post = await Post.findByIdAndUpdate(postId, { status: 'approved' }, { new: true }).populate('author', 'name username avatar')
+          if (!post) return res.status(404).json({ message: 'Post not found' })
+          return res.json(post)
+        }
+        if (action === 'reject') {
+          const post = await Post.findByIdAndUpdate(postId, { status: 'rejected' }, { new: true }).populate('author', 'name username avatar')
+          if (!post) return res.status(404).json({ message: 'Post not found' })
+          return res.json(post)
+        }
+        const post = await Post.findByIdAndUpdate(postId, req.body, { new: true }).populate('author', 'name username avatar')
         if (!post) return res.status(404).json({ message: 'Post not found' })
         return res.json(post)
       }
       if (req.method === 'DELETE' && subpath) {
-        await Post.findByIdAndDelete(subpath)
+        const [postId] = subpath.split('/')
+        await Post.findByIdAndDelete(postId)
         return res.json({ message: 'Post deleted' })
       }
     }

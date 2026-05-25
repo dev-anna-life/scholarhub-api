@@ -10,7 +10,8 @@ export default async function handler(req, res) {
     if (!user) return
 
     if (!user.referralCode) {
-      user.referralCode = user.username?.toLowerCase() + Math.floor(Math.random() * 1000)
+      const base = (user.username || user.name || 'user').toLowerCase().replace(/\s+/g, '')
+      user.referralCode = base + Math.floor(Math.random() * 10000)
       await user.save()
     }
 
