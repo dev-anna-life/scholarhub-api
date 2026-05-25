@@ -20,4 +20,4 @@ const sosSchema = new mongoose.Schema(
   { timestamps: true },
 );
 
-module.exports = mongoose.model("SOS", sosSchema);
+module.exports = mongoose.models.SOS || mongoose.model("SOS", sosSchema);

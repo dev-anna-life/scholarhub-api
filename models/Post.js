@@ -17,4 +17,4 @@ const postSchema = new mongoose.Schema({
     trending: { type: Boolean, default: false },
 }, { timestamps: true })
 
-module.exports = mongoose.model("Post", postSchema)
+module.exports = mongoose.models.Post || mongoose.model("Post", postSchema)

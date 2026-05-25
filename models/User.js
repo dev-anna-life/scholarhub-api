@@ -14,15 +14,21 @@ const userSchema = new mongoose.Schema({
     interests: [{ type: String }],
     achievements: [{ type: String }],
     coins: { type: Number, default: 50 },
+    lifetimeCoins: { type: Number, default: 50 },
     streak: { type: Number, default: 0 },
     lastPostDate: { type: Date },
     badge: { type: String, default: 'Beginner' },
+    activatedFeatures: [{ type: String, enum: ['badge', 'transfer', 'community'] }],
+    weeklyEngagementCoins: { type: Number, default: 0 },
+    lastWeeklyPayout: { type: Date },
     isVerified: { type: Boolean, default: false },
     resetToken: { type: String },
     resetTokenExpiry: { type: Date },
     twoFactorEnabled: { type: Boolean, default: false },
+    referralCode: { type: String, unique: true, sparse: true },
+    referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true })
 
-module.exports = mongoose.model('User', userSchema)
+module.exports = mongoose.models.User || mongoose.model('User', userSchema)

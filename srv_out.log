@@ -1,0 +1,12 @@
+   ▲ Next.js 15.5.18
+   - Local:        http://localhost:3011
+   - Network:      http://10.208.143.224:3011
+   - Environments: .env
+
+ ✓ Starting...
+ ✓ Ready in 5.4s
+ ○ Compiling /api/shop/buy ...
+ ✓ Compiled /api/shop/buy in 854ms (138 modules)
+◇ injected env (0) from .next\server\pages\api\.env // tip: ◈ secrets for agents [www.dotenvx.com]
+◇ injected env (0) from .next\server\pages\api\.env // tip: ⌘ enable debugging { debug: true }
+ POST /api/shop/buy 200 in 10010ms

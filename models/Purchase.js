@@ -6,7 +6,7 @@ const purchaseSchema = new mongoose.Schema({
   itemId: { type: String, required: true },
   itemName: { type: String, required: true },
   price: { type: Number, required: true },
-  type: { type: String, enum: ['buy', 'gift'], required: true },
+  type: { type: String, enum: ['buy', 'gift', 'activation', 'transfer'], required: true },
 }, { timestamps: true })
 
-module.exports = mongoose.model('Purchase', purchaseSchema)
+module.exports = mongoose.models.Purchase || mongoose.model('Purchase', purchaseSchema)

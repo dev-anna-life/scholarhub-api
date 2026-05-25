@@ -5,4 +5,4 @@ const conversationSchema = new mongoose.Schema({
   lastMessage: { type: mongoose.Schema.Types.ObjectId, ref: 'Message' },
 }, { timestamps: true })
 
-module.exports = mongoose.model('Conversation', conversationSchema)
+module.exports = mongoose.models.Conversation || mongoose.model('Conversation', conversationSchema)
