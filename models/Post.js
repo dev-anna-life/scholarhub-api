@@ -15,6 +15,7 @@ const postSchema = new mongoose.Schema({
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     commentsData: [commentSchema],
     trending: { type: Boolean, default: false },
+    image: { type: String, default: '' },
 }, { timestamps: true })
 
 module.exports = mongoose.models.Post || mongoose.model("Post", postSchema)
