@@ -72,4 +72,27 @@ const getStats = async (req, res) => {
   }
 };
 
-module.exports = { getPendingPosts, approvePost, rejectPost, getAllUsers, getStats };
+const deleteUser = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: "User not found" });
+
+    await Post.deleteMany({ author: userId });
+    await Message.deleteMany({ sender: userId });
+    await Conversation.deleteMany({ participants: userId });
+    await Notification.deleteMany({ $or: [{ user: userId }, { fromUser: userId }] });
+    await SOS.deleteMany({ student: userId });
+    await User.updateMany(
+      { $or: [{ followers: userId }, { following: userId }] },
+      { $pull: { followers: userId, following: userId } },
+    );
+    await User.findByIdAndDelete(userId);
+
+    res.json({ message: `User "${user.name}" and all associated data deleted` });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+module.exports = { getPendingPosts, approvePost, rejectPost, getAllUsers, getStats, deleteUser };
