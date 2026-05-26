@@ -1,8 +1,16 @@
 const User = require('../../../models/User')
 const Post = require('../../../models/Post')
+const Message = require('../../../models/Message')
+const Conversation = require('../../../models/Conversation')
+const Notification = require('../../../models/Notification')
+const SOS = require('../../../models/SOS')
 const { protect } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
+  res.setHeader('Access-Control-Allow-Origin', '*')
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PUT,PATCH,DELETE,OPTIONS')
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type,Authorization')
+  if (req.method === 'OPTIONS') return res.status(200).end()
   try {
     const user = await protect(req, res)
     if (!user) return
@@ -26,7 +34,17 @@ export default async function handler(req, res) {
         return res.json(target)
       }
       if (req.method === 'DELETE' && subpath) {
-        await User.findByIdAndDelete(subpath)
+        const [userId] = subpath.split('/')
+        await Post.deleteMany({ author: userId })
+        await Message.deleteMany({ sender: userId })
+        await Conversation.deleteMany({ participants: userId })
+        await Notification.deleteMany({ $or: [{ user: userId }, { fromUser: userId }] })
+        await SOS.deleteMany({ student: userId })
+        await User.updateMany(
+          { $or: [{ followers: userId }, { following: userId }] },
+          { $pull: { followers: userId, following: userId } },
+        )
+        await User.findByIdAndDelete(userId)
         return res.json({ message: 'User deleted' })
       }
     }
