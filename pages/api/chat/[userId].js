@@ -26,6 +26,12 @@ export default async function handler(req, res) {
       .limit(50)
       .lean()
 
+    // Mark messages from the other user as read
+    await Message.updateMany(
+      { conversation: conv._id, sender: { $ne: user._id }, read: false },
+      { read: true }
+    )
+
     return res.json(messages.reverse())
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })

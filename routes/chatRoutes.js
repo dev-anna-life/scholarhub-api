@@ -66,6 +66,22 @@ router.get("/:userId", protect, async (req, res) => {
   }
 });
 
+router.put("/read", protect, async (req, res) => {
+  try {
+    const { senderId } = req.body;
+    if (!senderId) return res.status(400).json({ message: "senderId required" });
+
+    const result = await Message.updateMany(
+      { sender: senderId, receiver: req.user.id, read: false },
+      { read: true },
+    );
+
+    res.json({ message: "Messages marked as read", modifiedCount: result.modifiedCount });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 router.post("/send", protect, async (req, res) => {
   try {
     const { receiverId, text } = req.body;
@@ -118,7 +134,7 @@ router.get("/users/search", protect, async (req, res) => {
 router.get('/users/:id', protect, async (req, res) => {
     try {
         const user = await User.findById(req.params.id)
-            .select('name school level badge')
+            .select('name school level badge lastActive')
         if (!user) return res.status(404).json({ message: 'User not found' })
         res.json(user)
     } catch (error) {

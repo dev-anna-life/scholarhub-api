@@ -29,6 +29,7 @@ const userSchema = new mongoose.Schema({
     referredBy: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
+    lastActive: { type: Date },
 }, { timestamps: true })
 
 module.exports = mongoose.models.User || mongoose.model('User', userSchema)

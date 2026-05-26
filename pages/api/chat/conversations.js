@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     const currentUser = await protect(req, res)
     if (!currentUser) return
     const conversations = await Conversation.find({ participants: currentUser._id })
-      .populate('participants', 'name school level badge')
+      .populate('participants', 'name school level badge lastActive')
       .populate('lastMessage')
       .sort({ updatedAt: -1 })
       .lean()

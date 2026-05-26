@@ -107,6 +107,8 @@ export default async function handler(req, res) {
       }
       for (const [keepId, dupIdArr] of Object.entries(keepMap)) {
         await Message.updateMany({ conversation: { $in: dupIdArr } }, { conversation: keepId })
+        const latest = await Message.findOne({ conversation: keepId }).sort({ createdAt: -1 }).lean()
+        if (latest) await Conversation.findByIdAndUpdate(keepId, { lastMessage: latest._id })
       }
       await Conversation.deleteMany({ _id: { $in: dupIds } })
 
