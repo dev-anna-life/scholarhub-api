@@ -22,6 +22,7 @@ const userSchema = new mongoose.Schema({
     weeklyEngagementCoins: { type: Number, default: 0 },
     lastWeeklyPayout: { type: Date },
     isVerified: { type: Boolean, default: false },
+    isAdmin: { type: Boolean, default: false },
     resetToken: { type: String },
     resetTokenExpiry: { type: Date },
     twoFactorEnabled: { type: Boolean, default: false },
