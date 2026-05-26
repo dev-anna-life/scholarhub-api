@@ -82,29 +82,61 @@ export default async function handler(req, res) {
     }
 
     if (method === 'cleanup') {
+      // --- Deduplicate conversations for same participant pair ---
       const allConvs = await Conversation.find({}).lean()
-      const badConvIds = []
+      const pairMap = {}
+      for (const conv of allConvs) {
+        const p = conv.participants || []
+        if (p.length < 2) continue
+        const sorted = p.map(id => id.toString()).sort().join('|')
+        if (!pairMap[sorted]) {
+          pairMap[sorted] = []
+        }
+        pairMap[sorted].push(conv)
+      }
+      const dupIds = []
+      const keepMap = {}
+      for (const [key, convs] of Object.entries(pairMap)) {
+        if (convs.length > 1) {
+          convs.sort((a, b) => new Date(b.updatedAt || b._id.getTimestamp()) - new Date(a.updatedAt || a._id.getTimestamp()))
+          const keep = convs[0]
+          const dups = convs.slice(1).map(c => c._id)
+          keepMap[keep._id.toString()] = dups.map(id => id.toString())
+          dupIds.push(...dups)
+        }
+      }
+      for (const [keepId, dupIdArr] of Object.entries(keepMap)) {
+        await Message.updateMany({ conversation: { $in: dupIdArr } }, { conversation: keepId })
+      }
+      await Conversation.deleteMany({ _id: { $in: dupIds } })
+
+      // --- Remove orphan conversations (deleted users) ---
+      const orphanConvIds = []
       for (const conv of allConvs) {
         if (!conv.participants || conv.participants.length === 0) {
-          badConvIds.push(conv._id)
+          orphanConvIds.push(conv._id)
           continue
         }
         const validUsers = await User.find({ _id: { $in: conv.participants } }).lean()
-        if (validUsers.length < 2) badConvIds.push(conv._id)
+        if (validUsers.length < 2) orphanConvIds.push(conv._id)
       }
-      const delConv = await Conversation.deleteMany({ _id: { $in: badConvIds } })
-      const delMsg1 = await Message.deleteMany({ conversation: { $in: badConvIds } })
+      const delOrphanConv = await Conversation.deleteMany({ _id: { $in: orphanConvIds } })
+      const delOrphanMsg = await Message.deleteMany({ conversation: { $in: orphanConvIds } })
+
+      // --- Remove messages with deleted senders ---
       const allUserIds = (await User.find({}).select('_id').lean()).map(u => u._id)
-      const delMsg2 = await Message.deleteMany({
+      const delBadMsg = await Message.deleteMany({
         $and: [
           { $or: [{ sender: { $nin: allUserIds } }, { receiver: { $nin: allUserIds } }] },
           { sender: { $ne: null }, receiver: { $ne: null } },
         ]
       })
+
       return res.json({
         message: 'Cleanup done',
-        deletedConversations: delConv.deletedCount,
-        deletedMessages: delMsg1.deletedCount + delMsg2.deletedCount,
+        deduplicatedConversations: dupIds.length,
+        deletedConversations: delOrphanConv.deletedCount,
+        deletedMessages: delOrphanMsg.deletedCount + delBadMsg.deletedCount,
       })
     }
 

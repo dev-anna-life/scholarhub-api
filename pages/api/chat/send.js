@@ -13,13 +13,11 @@ export default async function handler(req, res) {
 
     let conv = await Conversation.findOne({
       participants: { $all: [user._id, receiverId] },
-      type: 'direct',
     })
 
     if (!conv) {
       conv = await Conversation.create({
         participants: [user._id, receiverId],
-        type: 'direct',
       })
     }
 
