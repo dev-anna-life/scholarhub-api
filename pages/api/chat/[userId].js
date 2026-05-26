@@ -11,7 +11,10 @@ export default async function handler(req, res) {
     const { userId } = req.query
 
     let conv = await Conversation.findOne({
-      participants: { $all: [user._id, userId] },
+      $and: [
+        { participants: user._id },
+        { participants: userId },
+      ],
     })
 
     if (!conv) {

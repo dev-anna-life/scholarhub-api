@@ -12,7 +12,10 @@ export default async function handler(req, res) {
     if (!receiverId || !text) return res.status(400).json({ message: 'receiverId and text required' })
 
     let conv = await Conversation.findOne({
-      participants: { $all: [user._id, receiverId] },
+      $and: [
+        { participants: user._id },
+        { participants: receiverId },
+      ],
     })
 
     if (!conv) {
