@@ -122,11 +122,18 @@ const cleanupChats = async (req, res) => {
       if (validUsers.length < 2) badConvIds.push(conv._id);
     }
     const delConv = await Conversation.deleteMany({ _id: { $in: badConvIds } });
-    const delMsg = await Message.deleteMany({ conversation: { $in: badConvIds } });
+    const delMsg1 = await Message.deleteMany({ conversation: { $in: badConvIds } });
+    const allUserIds = (await User.find({}).select('_id').lean()).map(u => u._id);
+    const delMsg2 = await Message.deleteMany({
+      $and: [
+        { $or: [{ sender: { $nin: allUserIds } }, { receiver: { $nin: allUserIds } }] },
+        { sender: { $ne: null }, receiver: { $ne: null } },
+      ]
+    });
     res.json({
       message: 'Chat cleanup done',
       deletedConversations: delConv.deletedCount,
-      deletedMessages: delMsg.deletedCount,
+      deletedMessages: delMsg1.deletedCount + delMsg2.deletedCount,
     });
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message });

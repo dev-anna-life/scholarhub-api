@@ -17,6 +17,7 @@ router.get("/conversations", protect, async (req, res) => {
 
     const conversationMap = {};
     messages.forEach((msg) => {
+      if (!msg.sender || !msg.receiver) return
       const other =
         msg.sender._id.toString() === userId ? msg.receiver : msg.sender;
       const otherId = other._id.toString();

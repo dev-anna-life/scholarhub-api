@@ -82,7 +82,6 @@ export default async function handler(req, res) {
     }
 
     if (method === 'cleanup') {
-      // Delete conversations with no valid participants
       const allConvs = await Conversation.find({}).lean()
       const badConvIds = []
       for (const conv of allConvs) {
@@ -91,16 +90,21 @@ export default async function handler(req, res) {
           continue
         }
         const validUsers = await User.find({ _id: { $in: conv.participants } }).lean()
-        if (validUsers.length < 2) {
-          badConvIds.push(conv._id)
-        }
+        if (validUsers.length < 2) badConvIds.push(conv._id)
       }
       const delConv = await Conversation.deleteMany({ _id: { $in: badConvIds } })
-      const delMsg = await Message.deleteMany({ conversation: { $in: badConvIds } })
+      const delMsg1 = await Message.deleteMany({ conversation: { $in: badConvIds } })
+      const allUserIds = (await User.find({}).select('_id').lean()).map(u => u._id)
+      const delMsg2 = await Message.deleteMany({
+        $and: [
+          { $or: [{ sender: { $nin: allUserIds } }, { receiver: { $nin: allUserIds } }] },
+          { sender: { $ne: null }, receiver: { $ne: null } },
+        ]
+      })
       return res.json({
         message: 'Cleanup done',
         deletedConversations: delConv.deletedCount,
-        deletedMessages: delMsg.deletedCount,
+        deletedMessages: delMsg1.deletedCount + delMsg2.deletedCount,
       })
     }
 
