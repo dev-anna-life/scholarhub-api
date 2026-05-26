@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
     course: { type: String },
     interests: [{ type: String }],
     achievements: [{ type: String }],
+    badges: [{ type: String }],
     coins: { type: Number, default: 50 },
     lifetimeCoins: { type: Number, default: 50 },
     streak: { type: Number, default: 0 },
