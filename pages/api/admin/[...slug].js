@@ -81,6 +81,29 @@ export default async function handler(req, res) {
       }
     }
 
+    if (method === 'cleanup') {
+      // Delete conversations with no valid participants
+      const allConvs = await Conversation.find({}).lean()
+      const badConvIds = []
+      for (const conv of allConvs) {
+        if (!conv.participants || conv.participants.length === 0) {
+          badConvIds.push(conv._id)
+          continue
+        }
+        const validUsers = await User.find({ _id: { $in: conv.participants } }).lean()
+        if (validUsers.length < 2) {
+          badConvIds.push(conv._id)
+        }
+      }
+      const delConv = await Conversation.deleteMany({ _id: { $in: badConvIds } })
+      const delMsg = await Message.deleteMany({ conversation: { $in: badConvIds } })
+      return res.json({
+        message: 'Cleanup done',
+        deletedConversations: delConv.deletedCount,
+        deletedMessages: delMsg.deletedCount,
+      })
+    }
+
     return res.status(404).json({ message: 'Not found' })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })

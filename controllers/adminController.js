@@ -109,4 +109,28 @@ const deleteAnyPost = async (req, res) => {
   }
 };
 
-module.exports = { getPendingPosts, approvePost, rejectPost, getAllUsers, getStats, deleteUser, deleteAnyPost };
+const cleanupChats = async (req, res) => {
+  try {
+    const allConvs = await Conversation.find({}).lean();
+    const badConvIds = [];
+    for (const conv of allConvs) {
+      if (!conv.participants || conv.participants.length === 0) {
+        badConvIds.push(conv._id);
+        continue;
+      }
+      const validUsers = await User.find({ _id: { $in: conv.participants } }).lean();
+      if (validUsers.length < 2) badConvIds.push(conv._id);
+    }
+    const delConv = await Conversation.deleteMany({ _id: { $in: badConvIds } });
+    const delMsg = await Message.deleteMany({ conversation: { $in: badConvIds } });
+    res.json({
+      message: 'Chat cleanup done',
+      deletedConversations: delConv.deletedCount,
+      deletedMessages: delMsg.deletedCount,
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error: error.message });
+  }
+};
+
+module.exports = { getPendingPosts, approvePost, rejectPost, getAllUsers, getStats, deleteUser, deleteAnyPost, cleanupChats };
