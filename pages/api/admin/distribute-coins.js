@@ -6,6 +6,10 @@ export default async function handler(req, res) {
   try {
     const admin = await protect(req, res)
     if (!admin) return
+    const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase())
+    if (!adminEmails.includes(admin.email?.toLowerCase())) {
+      return res.status(403).json({ message: 'Admin only' })
+    }
     await dbConnect()
 
     const mongoose = require('mongoose')
