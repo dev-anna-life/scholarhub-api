@@ -13,9 +13,10 @@ export default async function handler(req, res) {
       .lean()
 
     const result = conversations.map(conv => {
-      const other = conv.participants?.find(p => p._id.toString() !== currentUser._id.toString())
+      const others = (conv.participants || []).filter(p => p && p._id && p._id.toString() !== currentUser._id.toString())
+      const other = others[0] || { _id: '', name: 'Unknown', school: '', level: '' }
       return {
-        user: other || { _id: '', name: 'Unknown', school: '', level: '' },
+        user: other,
         lastMessage: conv.lastMessage || null,
         unread: 0,
       }
