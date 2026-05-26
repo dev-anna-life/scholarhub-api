@@ -6,6 +6,8 @@ export default async function handler(req, res) {
   try {
     const currentUser = await protect(req, res)
     if (!currentUser) return
+    const currentUserId = currentUser._id.toString()
+
     const conversations = await Conversation.find({ participants: currentUser._id })
       .populate('participants', 'name school level badge lastActive')
       .populate('lastMessage')
@@ -13,7 +15,7 @@ export default async function handler(req, res) {
       .lean()
 
     const result = conversations.map(conv => {
-      const others = (conv.participants || []).filter(p => p && p._id && p._id.toString() !== currentUser._id.toString())
+      const others = (conv.participants || []).filter(p => p && p._id && p._id.toString() !== currentUserId)
       const other = others[0] || { _id: '', name: 'Unknown', school: '', level: '' }
       return {
         user: other,

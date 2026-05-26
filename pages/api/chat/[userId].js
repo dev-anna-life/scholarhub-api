@@ -9,18 +9,19 @@ export default async function handler(req, res) {
     if (!user) return
 
     const { userId } = req.query
+    if (!userId) return res.status(400).json({ message: 'userId required' })
 
-    let conv = await Conversation.findOne({
-      $and: [
-        { participants: user._id },
-        { participants: userId },
-      ],
-    })
+    // Find all conversations for current user, then find the one with the other participant
+    const allConvs = await Conversation.find({ participants: user._id }).lean()
+    let conv = allConvs.find(c =>
+      c.participants && c.participants.some(p => p.toString() === userId)
+    )
 
     if (!conv) {
       conv = await Conversation.create({
         participants: [user._id, userId],
       })
+      conv = conv.toObject()
     }
 
     const messages = await Message.find({ conversation: conv._id })
