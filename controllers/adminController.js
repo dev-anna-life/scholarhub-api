@@ -1,5 +1,9 @@
 const Post = require("../models/Post");
 const User = require("../models/User");
+const Message = require("../models/Message");
+const Conversation = require("../models/Conversation");
+const Notification = require("../models/Notification");
+const SOS = require("../models/SOS");
 
 const getPendingPosts = async (req, res) => {
   try {
