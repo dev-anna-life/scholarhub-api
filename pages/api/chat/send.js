@@ -28,7 +28,7 @@ export default async function handler(req, res) {
     conv.updatedAt = new Date()
     await conv.save()
 
-    const populated = await Message.findById(message._id).populate('sender', 'name username avatar').lean()
+    const populated = await Message.findById(message._id).populate('sender', 'name school level').lean()
     return res.status(201).json(populated)
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })
