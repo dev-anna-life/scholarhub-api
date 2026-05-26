@@ -99,4 +99,14 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { getPendingPosts, approvePost, rejectPost, getAllUsers, getStats, deleteUser };
+const deleteAnyPost = async (req, res) => {
+  try {
+    const post = await Post.findByIdAndDelete(req.params.id);
+    if (!post) return res.status(404).json({ message: "Post not found" });
+    res.json({ message: "Post deleted by admin" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+};
+
+module.exports = { getPendingPosts, approvePost, rejectPost, getAllUsers, getStats, deleteUser, deleteAnyPost };
