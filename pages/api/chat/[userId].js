@@ -23,7 +23,7 @@ export default async function handler(req, res) {
     }
 
     const messages = await Message.find({ conversation: conv._id })
-      .populate('sender', 'name username avatar')
+      .populate('sender', 'name school level')
       .sort({ createdAt: -1 })
       .limit(50)
       .lean()
