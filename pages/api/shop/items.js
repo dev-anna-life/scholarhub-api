@@ -1,7 +1,33 @@
 const badgeItems = [
-  { id: 'badge_basic', name: 'Basic', description: '1 month badge', price: 3000, durationMonths: 1, icon: '⭐', color: '#94A3B8' },
-  { id: 'badge_premium', name: 'Premium', description: '3 months badge', price: 10000, durationMonths: 3, icon: '💎', color: '#F59E0B' },
-  { id: 'badge_extra_premium', name: 'Extra Premium', description: '12 months badge', price: 20000, durationMonths: 12, icon: '👑', color: '#8B5CF6' },
+  {
+    id: 'badge_basic', name: 'Basic', price: 3000, durationMonths: 1, icon: '⭐', color: '#94A3B8',
+    description: '1 month badge — get started with the basics',
+    features: [
+      'Badge displayed on your profile',
+      'Access to badge system',
+      'Basic supporter tag',
+    ],
+  },
+  {
+    id: 'badge_premium', name: 'Premium', price: 10000, durationMonths: 3, icon: '💎', color: '#F59E0B',
+    description: '3 months badge — unlock more perks',
+    features: [
+      'Everything in Basic',
+      'Send coins to other users',
+      'Badge with gold highlight',
+    ],
+  },
+  {
+    id: 'badge_extra_premium', name: 'Extra Premium', price: 20000, durationMonths: 12, icon: '👑', color: '#8B5CF6',
+    description: '12 months badge — the ultimate experience',
+    features: [
+      'Everything in Premium',
+      'Create and manage communities',
+      'Priority support',
+      'Exclusive purple badge',
+      'Early access to new features',
+    ],
+  },
 ]
 
 const airtimeItems = [
