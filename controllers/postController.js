@@ -9,6 +9,23 @@ const createPost = async (req, res) => {
     if (!title || !content || !category) {
       return res.status(400).json({ message: "Title, content and category are required" });
     }
+
+    const FREE_LIMIT = 250
+    const user = await User.findById(req.user.id)
+    if (!user) return res.status(404).json({ message: "User not found" })
+
+    const badgeTiers = [
+      { id: 'badge_extra_premium', limit: 100000 }, { id: 'badge_premium', limit: 1000 }, { id: 'badge_basic', limit: 500 },
+    ]
+    const subs = user.badgeSubscriptions || []
+    const active = subs.filter(s => new Date(s.expiresAt) > new Date())
+    const highest = badgeTiers.find(t => active.some(s => s.id === t.id))
+    const maxChars = highest ? highest.limit : FREE_LIMIT
+
+    if (content.length > maxChars) {
+      return res.status(400).json({ message: `Post exceeds ${maxChars} character limit for your badge tier. Upgrade to write more.` })
+    }
+
     const post = await Post.create({
       author: req.user.id,
       title, content, category,
