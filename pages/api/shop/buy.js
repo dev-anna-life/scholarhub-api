@@ -4,14 +4,9 @@ const Purchase = require('../../../models/Purchase')
 const { protect } = require('../../../lib/auth')
 
 const badgeItems = [
-  { id: 'badge_1', name: 'Scholar', price: 100 },
-  { id: 'badge_2', name: 'Helper', price: 100 },
-  { id: 'badge_3', name: 'Innovator', price: 150 },
-  { id: 'badge_4', name: 'Athlete', price: 100 },
-  { id: 'badge_5', name: 'Leader', price: 200 },
-  { id: 'badge_6', name: 'Artist', price: 100 },
-  { id: 'badge_7', name: 'MVP', price: 300 },
-  { id: 'badge_8', name: 'Veteran', price: 250 },
+  { id: 'badge_basic', name: 'Basic', price: 3000, durationMonths: 1 },
+  { id: 'badge_premium', name: 'Premium', price: 10000, durationMonths: 3 },
+  { id: 'badge_extra_premium', name: 'Extra Premium', price: 20000, durationMonths: 12 },
 ]
 
 export default async function handler(req, res) {
@@ -21,35 +16,48 @@ export default async function handler(req, res) {
     const user = await protect(req, res)
     if (!user) return
 
-    if (!user.activatedFeatures.includes('badge')) {
-      return res.status(400).json({ message: 'Badge system not activated. Go to shop and activate for 500 coins first.' })
-    }
-
-    const { itemId } = req.body
+    const { itemId, recipientEmail } = req.body
     if (!itemId) return res.status(400).json({ message: 'itemId is required' })
 
     const item = badgeItems.find(i => i.id === itemId)
     if (!item) return res.status(404).json({ message: 'Badge not found' })
 
-    if (user.coins < item.price) {
+    let targetUser = user
+    if (recipientEmail) {
+      targetUser = await User.findOne({ email: recipientEmail })
+      if (!targetUser) return res.status(404).json({ message: 'Recipient not found' })
+    }
+
+    const buyer = recipientEmail ? user : targetUser
+    if (buyer.coins < item.price) {
       return res.status(400).json({ message: `Not enough coins. You need ${item.price} coins.` })
     }
 
-    if (user.achievements && user.achievements.includes(itemId)) {
-      return res.status(400).json({ message: 'You already own this badge' })
+    buyer.coins -= item.price
+    await buyer.save()
+
+    const expiresAt = new Date()
+    expiresAt.setMonth(expiresAt.getMonth() + item.durationMonths)
+
+    if (!targetUser.badgeSubscriptions) targetUser.badgeSubscriptions = []
+    const existing = targetUser.badgeSubscriptions.find(s => s.id === itemId)
+    if (existing) {
+      existing.expiresAt = new Date(Math.max(new Date(existing.expiresAt).getTime(), Date.now()) + item.durationMonths * 30 * 24 * 60 * 60 * 1000)
+    } else {
+      targetUser.badgeSubscriptions.push({ id: itemId, purchasedAt: new Date(), expiresAt })
     }
+    await targetUser.save()
 
-    user.coins -= item.price
-    if (!user.achievements) user.achievements = []
-    user.achievements.push(itemId)
-    await user.save()
-
-    await Purchase.create({ user: user._id, itemId, itemName: item.name, price: item.price, type: 'buy' })
+    await Purchase.create({
+      user: targetUser._id, itemId, itemName: item.name,
+      price: item.price, type: recipientEmail ? 'gift' : 'buy',
+      giftedBy: recipientEmail ? user._id : undefined,
+    })
 
     res.json({
-      message: `You bought the ${item.name} badge!`,
+      message: recipientEmail ? `${item.name} badge gifted!` : `${item.name} badge purchased!`,
       coins: user.coins,
-      achievements: user.achievements,
+      badgeSubscriptions: user.badgeSubscriptions,
     })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })

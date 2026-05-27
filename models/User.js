@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
     interests: [{ type: String }],
     achievements: [{ type: String }],
     badges: [{ type: String }],
+    badgeSubscriptions: [{ id: String, purchasedAt: Date, expiresAt: Date }],
     coins: { type: Number, default: 50 },
     lifetimeCoins: { type: Number, default: 50 },
     streak: { type: Number, default: 0 },

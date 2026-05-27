@@ -194,10 +194,12 @@ const updateProfile = async (req, res) => {
 
 const updateSchool = async (req, res) => {
   try {
-    const { level, school, state } = req.body;
+    const { level, school, state, interests } = req.body;
+    const update = { level, school, state };
+    if (interests) update.interests = interests;
     const user = await User.findByIdAndUpdate(
       req.user.id,
-      { level, school, state },
+      update,
       { new: true },
     ).select("-password");
     res.json(user);
