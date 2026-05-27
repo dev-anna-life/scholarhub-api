@@ -14,6 +14,19 @@ const dataItems = {
   data_10gb_30d: { code: '10GB-30D', price: 3200 },
 }
 
+const NETWORK_MAP = { mtn: 'mtn', glo: 'glo', airtel: 'airtel', '9mobile': '9mobile' }
+
+async function callVTU(phone, network) {
+  const axios = require('axios')
+  const baseURL = process.env.VTU_API_URL || 'https://vtu.ng/wp-json'
+
+  const loginRes = await axios.post(`${baseURL}/jwt-auth/v1/token`, {
+    username: process.env.VTU_USERNAME,
+    password: process.env.VTU_PASSWORD,
+  })
+  return loginRes.data.token
+}
+
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' })
   try {
@@ -29,14 +42,23 @@ export default async function handler(req, res) {
 
     if (user.coins < item.price) return res.status(400).json({ message: 'Insufficient coins' })
 
-    if (process.env.VTU_API_KEY && process.env.VTU_API_URL) {
+    if (process.env.VTU_USERNAME && process.env.VTU_PASSWORD) {
       const axios = require('axios')
-      await axios.post(`${process.env.VTU_API_URL}/data`, {
-        apiKey: process.env.VTU_API_KEY,
-        phone,
-        plan: item.code,
-        network: network || 'mtn',
-      })
+      const baseURL = process.env.VTU_API_URL || 'https://vtu.ng/wp-json'
+      try {
+        const token = await callVTU(phone, network || 'mtn')
+        const request_id = `sh_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`
+        await axios.post(`${baseURL}/api/v2/data`, {
+          request_id,
+          phone,
+          service_id: NETWORK_MAP[network] || network || 'mtn',
+          variation_id: item.code,
+        }, {
+          headers: { Authorization: `Bearer ${token}` },
+        })
+      } catch (vtuErr) {
+        return res.status(502).json({ message: 'VTU provider error', error: vtuErr.message })
+      }
     }
 
     user.coins -= item.price

@@ -16,19 +16,19 @@ export default async function handler(req, res) {
     const user = await protect(req, res)
     if (!user) return
 
-    const { itemId, recipientEmail } = req.body
+    const { itemId, recipientUsername } = req.body
     if (!itemId) return res.status(400).json({ message: 'itemId is required' })
 
     const item = badgeItems.find(i => i.id === itemId)
     if (!item) return res.status(404).json({ message: 'Badge not found' })
 
     let targetUser = user
-    if (recipientEmail) {
-      targetUser = await User.findOne({ email: recipientEmail })
+    if (recipientUsername) {
+      targetUser = await User.findOne({ username: recipientUsername.toLowerCase() })
       if (!targetUser) return res.status(404).json({ message: 'Recipient not found' })
     }
 
-    const buyer = recipientEmail ? user : targetUser
+    const buyer = recipientUsername ? user : targetUser
     if (buyer.coins < item.price) {
       return res.status(400).json({ message: `Not enough coins. You need ${item.price} coins.` })
     }
@@ -50,12 +50,12 @@ export default async function handler(req, res) {
 
     await Purchase.create({
       user: targetUser._id, itemId, itemName: item.name,
-      price: item.price, type: recipientEmail ? 'gift' : 'buy',
-      giftedBy: recipientEmail ? user._id : undefined,
+      price: item.price, type: recipientUsername ? 'gift' : 'buy',
+      giftedBy: recipientUsername ? user._id : undefined,
     })
 
     res.json({
-      message: recipientEmail ? `${item.name} badge gifted!` : `${item.name} badge purchased!`,
+      message: recipientUsername ? `${item.name} badge gifted!` : `${item.name} badge purchased!`,
       coins: user.coins,
       badgeSubscriptions: user.badgeSubscriptions,
     })
