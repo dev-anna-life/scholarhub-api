@@ -37,10 +37,16 @@ export default async function handler(req, res) {
         if (msgs.length > 0) lastMessage = msgs[0]
       }
 
+      const unreadCount = await db.collection('messages').countDocuments({
+        conversation: conv._id,
+        sender: { $ne: userIdObj },
+        read: false,
+      })
+
       result.push({
         user: otherUser,
         lastMessage,
-        unread: 0,
+        unread: unreadCount,
       })
     }
 

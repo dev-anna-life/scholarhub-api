@@ -33,6 +33,7 @@ const userSchema = new mongoose.Schema({
     followers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     following: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     lastActive: { type: Date },
+    botUsage: { date: String, count: { type: Number, default: 0 } },
 }, { timestamps: true })
 
 module.exports = mongoose.models.User || mongoose.model('User', userSchema)

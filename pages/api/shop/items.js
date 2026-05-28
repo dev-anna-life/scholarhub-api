@@ -4,6 +4,7 @@ const badgeItems = [
     description: '1 month badge — get started with the basics',
     maxChars: 500,
     canUploadVideo: false,
+    dailyBotMessages: 20,
     features: [
       'Badge displayed on your profile',
       'Write up to 500 characters per post',
@@ -15,6 +16,7 @@ const badgeItems = [
     description: '3 months badge — unlock more perks',
     maxChars: 1000,
     canUploadVideo: false,
+    dailyBotMessages: 50,
     features: [
       'Everything in Basic',
       'Write up to 1,000 characters per post',
@@ -27,6 +29,7 @@ const badgeItems = [
     description: '12 months badge — the ultimate experience',
     maxChars: 100000,
     canUploadVideo: true,
+    dailyBotMessages: 9999,
     features: [
       'Everything in Premium',
       'Unlimited characters per post',

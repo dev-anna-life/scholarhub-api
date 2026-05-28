@@ -57,6 +57,17 @@ export default async function handler(req, res) {
       { $set: { lastMessage: messageId } }
     )
 
+    // Create notification for receiver
+    await db.collection('notifications').insertOne({
+      user: recvOid,
+      fromUser: myOid,
+      type: 'message',
+      text: text.substring(0, 200),
+      read: false,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    })
+
     // Return populated message
     const populated = await db.collection('messages')
       .aggregate([
