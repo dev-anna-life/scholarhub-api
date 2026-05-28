@@ -44,8 +44,6 @@ export default async function handler(req, res) {
     }
 
     sender.coins -= item.price
-    if (!recipient.achievements) recipient.achievements = []
-    recipient.achievements.push(itemId)
     await sender.save()
     await recipient.save()
 

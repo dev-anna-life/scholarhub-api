@@ -169,7 +169,7 @@ const googleLogin = async (req, res) => {
 const getLeaderboard = async (req, res) => {
   try {
     const users = await User.find()
-      .select("name school level badge coins streak")
+      .select("name school level badge")
       .sort({ coins: -1 })
       .limit(20);
     res.json(users);

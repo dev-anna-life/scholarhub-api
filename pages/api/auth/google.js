@@ -24,7 +24,7 @@ export default async function handler(req, res) {
         user: {
           id: user._id, name: user.name, email: user.email, username: user.username,
           avatar: user.avatar, school: user.school, level: user.level, course: user.course,
-          bio: user.bio, coins: user.coins, achievements: user.achievements || [],
+          bio: user.bio, coins: user.coins,
         },
       })
     }
@@ -38,7 +38,7 @@ export default async function handler(req, res) {
       user: {
         id: user._id, name: user.name, email: user.email, username: user.username,
         avatar: user.avatar, school: user.school, level: user.level, course: user.course,
-        bio: user.bio, coins: user.coins, achievements: [],
+        bio: user.bio, coins: user.coins,
       },
     })
   } catch (error) {

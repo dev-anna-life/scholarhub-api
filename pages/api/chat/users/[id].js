@@ -18,10 +18,14 @@ export default async function handler(req, res) {
     const isFollowing = currentUserId
       ? (user.followers || []).some(f => (f._id || f)?.toString() === currentUserId)
       : false
+    const isFollowedBy = currentUserId
+      ? (user.following || []).some(f => (f._id || f)?.toString() === currentUserId)
+      : false
 
     res.json({
       ...user,
       isFollowing,
+      isFollowedBy,
       followersCount: (user.followers || []).length,
       followingCount: (user.following || []).length,
     })
