@@ -7,7 +7,7 @@ const userSchema = new mongoose.Schema({
     phone: { type: String },
     password: { type: String },
     googleId: { type: String },
-    level: { type: String, enum: ['JSS', 'SSS', 'University'] },
+    level: { type: String, enum: ['JSS', 'SSS', 'Secondary', 'University'] },
     school: { type: String },
     state: { type: String },
     course: { type: String },
