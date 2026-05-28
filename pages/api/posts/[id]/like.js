@@ -1,4 +1,5 @@
 const Post = require('../../../../models/Post')
+const Notification = require('../../../../models/Notification')
 const { protect } = require('../../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -11,7 +12,12 @@ export default async function handler(req, res) {
 
     const idx = post.likes.indexOf(user._id)
     if (idx > -1) post.likes.splice(idx, 1)
-    else post.likes.push(user._id)
+    else {
+      post.likes.push(user._id)
+      if (post.author.toString() !== user._id.toString()) {
+        await Notification.create({ user: post.author, fromUser: user._id, type: 'like', text: 'liked your post' })
+      }
+    }
     await post.save()
 
     res.json({ likes: post.likes, likesCount: post.likes.length, liked: idx === -1 })

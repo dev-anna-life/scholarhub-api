@@ -1,6 +1,6 @@
 const mongoose = require('mongoose')
 const Post = require('../../../../models/Post')
-const User = require('../../../../models/User')
+const Notification = require('../../../../models/Notification')
 const { protect } = require('../../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -20,6 +20,9 @@ export default async function handler(req, res) {
       const comment = { _id: new mongoose.Types.ObjectId(), author: user._id, text, createdAt: new Date() }
       post.commentsData.push(comment)
       await post.save()
+      if (post.author.toString() !== user._id.toString()) {
+        await Notification.create({ user: post.author, fromUser: user._id, type: 'comment', text: 'commented on your post' })
+      }
       const populated = await Post.findById(post._id).populate('commentsData.author', 'name username avatar school level').lean()
       const newComment = populated.commentsData[populated.commentsData.length - 1]
       return res.status(201).json(newComment)

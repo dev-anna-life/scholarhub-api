@@ -1,4 +1,5 @@
 const User = require('../../../../../models/User')
+const Notification = require('../../../../../models/Notification')
 const { protect } = require('../../../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -19,6 +20,7 @@ export default async function handler(req, res) {
     } else {
       user.following.push(targetId)
       target.followers.push(user._id)
+      await Notification.create({ user: targetId, fromUser: user._id, type: 'follow', text: 'started following you' })
     }
     await user.save()
     await target.save()
