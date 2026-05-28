@@ -16,6 +16,7 @@ const postSchema = new mongoose.Schema({
     commentsData: [commentSchema],
     trending: { type: Boolean, default: false },
     image: { type: String, default: '' },
+    video: { type: String, default: '' },
 }, { timestamps: true })
 
 module.exports = mongoose.models.Post || mongoose.model("Post", postSchema)

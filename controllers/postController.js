@@ -5,7 +5,7 @@ const User = require("../models/User");
 
 const createPost = async (req, res) => {
   try {
-    const { title, content, category } = req.body;
+    const { title, content, category, image, video } = req.body;
     if (!title || !content || !category) {
       return res.status(400).json({ message: "Title, content and category are required" });
     }
@@ -15,7 +15,7 @@ const createPost = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" })
 
     const badgeTiers = [
-      { id: 'badge_extra_premium', limit: 100000 }, { id: 'badge_premium', limit: 1000 }, { id: 'badge_basic', limit: 500 },
+      { id: 'badge_extra_premium', limit: 100000, canUploadVideo: true }, { id: 'badge_premium', limit: 1000 }, { id: 'badge_basic', limit: 500 },
     ]
     const subs = user.badgeSubscriptions || []
     const active = subs.filter(s => new Date(s.expiresAt) > new Date())
@@ -26,9 +26,13 @@ const createPost = async (req, res) => {
       return res.status(400).json({ message: `Post exceeds ${maxChars} character limit for your badge tier. Upgrade to write more.` })
     }
 
+    if (video && !highest?.canUploadVideo) {
+      return res.status(403).json({ message: "Only Extra Premium badge holders can upload videos. Upgrade your badge." })
+    }
+
     const post = await Post.create({
       author: req.user.id,
-      title, content, category,
+      title, content, category, image, video,
       status: "pending",
     });
     res.status(201).json({ message: "Post submitted for review successfully", post });
@@ -40,7 +44,7 @@ const createPost = async (req, res) => {
 const getPosts = async (req, res) => {
   try {
     const posts = await Post.find({ status: "approved" })
-      .populate("author", "name level school badge")
+      .populate("author", "name level school badgeSubscriptions")
       .sort({ createdAt: -1 });
     res.json(posts);
   } catch (error) {
