@@ -1,5 +1,7 @@
 const dbConnect = require('../../../lib/db')
 const Post = require('../../../models/Post')
+const User = require('../../../models/User')
+const Notification = require('../../../models/Notification')
 const { protect } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -18,6 +20,18 @@ export default async function handler(req, res) {
       const { title, content, category, community, image } = req.body
       if (!title || !content) return res.status(400).json({ message: 'Title and content are required' })
       const post = await Post.create({ author: user._id, title, content, category: category || '', community: community || '', image: image || '' })
+      if (user.school) {
+        const schoolUsers = await User.find({ school: user.school, _id: { $ne: user._id } }).select('_id').lean()
+        if (schoolUsers.length > 0) {
+          const notifs = schoolUsers.map(u => ({
+            user: u._id,
+            fromUser: user._id,
+            type: 'post',
+            text: `${user.name.split(' ')[0]} posted in ${user.school}`,
+          }))
+          await Notification.insertMany(notifs)
+        }
+      }
       const populated = await Post.findById(post._id).populate('author', 'name username avatar school level').lean()
       return res.status(201).json({ ...populated, liked: false, saved: false, likesCount: 0 })
     }

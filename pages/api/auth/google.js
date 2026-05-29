@@ -34,7 +34,7 @@ export default async function handler(req, res) {
     user = await User.create({ name, email: payload.email, username, googleId: payload.sub || '', coins: 50 })
     const token = generateToken(user._id)
     res.status(201).json({
-      token,
+      token, isNewUser: true,
       user: {
         id: user._id, name: user.name, email: user.email, username: user.username,
         avatar: user.avatar, school: user.school, level: user.level, course: user.course,

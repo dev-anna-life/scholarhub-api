@@ -8,11 +8,12 @@ export default async function handler(req, res) {
     await dbConnect()
     const user = await protect(req, res)
     if (!user) return
-    const { school, level, course } = req.body
+    const { school, level, course, state } = req.body
     const updates = {}
     if (school !== undefined) updates.school = school
     if (level !== undefined) updates.level = level
     if (course !== undefined) updates.course = course
+    if (state !== undefined) updates.state = state
     const updated = await User.findByIdAndUpdate(user._id, { $set: updates }, { new: true }).select('-password')
     res.json({ user: updated.toObject() })
   } catch (error) {
