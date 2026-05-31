@@ -15,6 +15,10 @@ export default async function handler(req, res) {
     const community = await Community.findById(communityId)
     if (!community) return res.status(404).json({ message: 'Community not found' })
 
+    if (community.type !== 'general' && community.faculty && community.faculty !== (user.faculty || '')) {
+      return res.status(403).json({ message: 'You can only join communities within your faculty' })
+    }
+
     if (action === 'join') {
       if (community.members.includes(user._id)) {
         return res.json({ message: 'Already a member' })

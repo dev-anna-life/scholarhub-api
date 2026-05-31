@@ -15,17 +15,13 @@ export default async function handler(req, res) {
     for (const c of communities) {
       const posts = await Post.find({
         status: 'approved',
-        visibility: { $in: ['department', 'faculty', 'school', 'general'] },
-        $or: [
-          { community: c._id },
-          { visibility: 'department', community: { $in: communities.filter(x => x.type === 'department').map(x => x._id) } },
-        ]
+        communities: c._id,
       })
         .populate('author', 'name username avatar school level faculty department')
         .sort({ createdAt: -1 })
         .limit(20)
         .lean()
-      postsByCommunity[c._id] = posts
+      postsByCommunity[c._id] = posts.map(p => ({ ...p, liked: p.likes?.includes(user._id) || false, likesCount: (p.likes || []).length }))
     }
 
     return res.json({ communities, postsByCommunity })

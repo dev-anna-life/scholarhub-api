@@ -5,13 +5,15 @@ const { protect } = require('../../../lib/auth')
 export default async function handler(req, res) {
   try {
     await dbConnect()
-    
+
     if (req.method === 'GET') {
-      const { search, type, school } = req.query
+      const { search, type, school, faculty, notMember } = req.query
       const filter = {}
       if (search) filter.name = { $regex: search, $options: 'i' }
       if (type) filter.type = type
       if (school) filter.school = school
+      if (faculty) filter.faculty = faculty
+      if (notMember) filter.members = { $ne: notMember }
       const communities = await Community.find(filter).sort({ type: 1, name: 1 }).limit(30).lean()
       return res.json(communities)
     }

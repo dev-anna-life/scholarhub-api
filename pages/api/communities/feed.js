@@ -12,49 +12,46 @@ export default async function handler(req, res) {
 
     if (!user.school) return res.json([])
 
-    const generalHub = await Community.findOne({ type: 'general', school: { $exists: false } }).lean()
-
     const myCommunities = await Community.find({ members: user._id }).lean()
-    const myCommunityIds = myCommunities.map(c => c._id)
+    if (!myCommunities.length) return res.json([])
 
-    const userDeptCommunity = myCommunities.find(c => c.type === 'department' && c.school === user.school && c.department === user.department)
-    const userFacultyCommunity = myCommunities.find(c => c.type === 'faculty' && c.school === user.school && c.faculty === user.faculty)
-    const userSchoolCommunity = myCommunities.find(c => c.type === 'school' && c.school === user.school)
+    const userDeptCom = myCommunities.find(c => c.type === 'department' && c.school === user.school && c.department === user.department)
+    const userFacultyComs = myCommunities.filter(c => c.type === 'faculty' && c.school === user.school)
+    const userSchoolComs = myCommunities.filter(c => c.type === 'school' && c.school === user.school)
+    const userGeneralComs = myCommunities.filter(c => c.type === 'general')
 
     const cascadeOrder = []
+    let seenIds = []
 
-    if (userDeptCommunity) {
-      const deptPosts = await Post.find({
+    const fetchPosts = async (communities, limit) => {
+      if (!communities.length || limit <= 0) return []
+      const posts = await Post.find({
         status: 'approved',
-        $or: [
-          { community: userDeptCommunity._id, visibility: 'department' },
-          { community: userDeptCommunity._id, visibility: 'faculty' },
-        ]
-      }).populate('author', 'name username avatar school faculty department level').sort({ createdAt: -1 }).limit(20).lean()
-      cascadeOrder.push({ type: 'department', community: userDeptCommunity.name, posts: deptPosts.map(p => ({ ...p, liked: p.likes?.includes(user._id) || false, likesCount: (p.likes || []).length })) })
+        _id: { $nin: seenIds },
+        communities: { $in: communities.map(c => c._id) }
+      })
+        .populate('author', 'name username avatar school faculty department level')
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .lean()
+      seenIds = [...seenIds, ...posts.map(p => p._id.toString())]
+      return posts.map(p => ({ ...p, liked: p.likes?.includes(user._id) || false, likesCount: (p.likes || []).length }))
     }
 
-    const deptIds = myCommunities.filter(c => c.type === 'department').map(c => c._id)
-    const facultyIds = myCommunities.filter(c => c.type === 'faculty').map(c => c._id)
-    const schoolIds = myCommunities.filter(c => c.type === 'school').map(c => c._id)
-    
-    const generalIds = myCommunities.filter(c => c.type === 'general').map(c => c._id)
-    if (generalHub) generalIds.push(generalHub._id)
+    const deptPosts = await fetchPosts(userDeptCom ? [userDeptCom] : [], 20)
+    if (deptPosts.length) cascadeOrder.push({ type: 'department', community: userDeptCom?.name || '', posts: deptPosts })
 
-    const userDeptPosts = cascadeOrder[0]?.posts || []
+    const remaining = 20 - deptPosts.length
+    const facultyPosts = await fetchPosts(userFacultyComs, remaining)
+    if (facultyPosts.length) cascadeOrder.push({ type: 'faculty', posts: facultyPosts })
 
-    if (userDeptPosts.length < 20) {
-      const existingIds = userDeptPosts.map(p => p._id.toString())
-      const facultyPosts = await Post.find({
-        status: 'approved',
-        _id: { $nin: existingIds },
-        $or: [
-          { community: { $in: facultyIds.filter(id => !deptIds.includes(id)) } },
-          { community: { $in: myCommunityIds }, visibility: 'faculty' },
-        ]
-      }).populate('author', 'name username avatar school faculty department level').sort({ createdAt: -1 }).limit(20 - userDeptPosts.length).lean()
-      cascadeOrder.push({ type: 'faculty', posts: facultyPosts.map(p => ({ ...p, liked: p.likes?.includes(user._id) || false, likesCount: (p.likes || []).length })) })
-    }
+    const remaining2 = 20 - facultyPosts.length
+    const schoolPosts = await fetchPosts(userSchoolComs, remaining2)
+    if (schoolPosts.length) cascadeOrder.push({ type: 'school', posts: schoolPosts })
+
+    const remaining3 = 20 - schoolPosts.length
+    const generalPosts = await fetchPosts(userGeneralComs, remaining3)
+    if (generalPosts.length) cascadeOrder.push({ type: 'general', posts: generalPosts })
 
     return res.json(cascadeOrder)
   } catch (error) {

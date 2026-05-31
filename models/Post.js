@@ -17,8 +17,7 @@ const postSchema = new mongoose.Schema({
     trending: { type: Boolean, default: false },
     image: { type: String, default: '' },
     video: { type: String, default: '' },
-    visibility: { type: String, enum: ['department', 'faculty', 'school', 'general'], default: 'department' },
-    community: { type: mongoose.Schema.Types.ObjectId, ref: 'Community' },
+    communities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Community' }],
 }, { timestamps: true })
 
 module.exports = mongoose.models.Post || mongoose.model("Post", postSchema)
