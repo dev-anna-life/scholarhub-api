@@ -2,43 +2,7 @@ const axios = require('axios')
 const dbConnect = require('../../../lib/db')
 const SchoolRequest = require('../../../models/SchoolRequest')
 const { getAllNigerianUniversities } = require('../../../lib/nigerianUniversities')
-
-const secondarySeed = {
-  Nigeria: [
-    { name: "King's College, Lagos", state: 'Lagos' },
-    { name: 'Loyola Jesuit College', state: 'FCT (Abuja)' },
-    { name: "Queen's College", state: 'Lagos' },
-    { name: 'Government Secondary School, Enugu', state: 'Enugu' },
-    { name: 'Federal Government College, Ilorin', state: 'Kwara' },
-  ],
-  Kenya: [
-    { name: 'Alliance High School', state: 'Nairobi, Kenya' },
-    { name: "St. George's College", state: 'Nairobi, Kenya' },
-    { name: "St. Mary's School", state: 'Nairobi, Kenya' },
-    { name: 'International School of Kenya', state: 'Nairobi, Kenya' },
-    { name: 'Mpesa Foundation Academy', state: 'Nairobi, Kenya' },
-    { name: 'Hillcrest Secondary School', state: 'Nairobi, Kenya' },
-  ],
-  Ghana: [
-    { name: 'Achimota School', state: 'Accra, Ghana' },
-    { name: 'Ghana National College', state: 'Cape Coast, Ghana' },
-    { name: "St. Augustine's College", state: 'Cape Coast, Ghana' },
-  ],
-  'South Africa': [
-    { name: "St. John's College", state: 'Johannesburg, South Africa' },
-    { name: 'Bishops Diocesan College', state: 'Cape Town, South Africa' },
-    { name: "St. Joseph's College", state: 'Durban, South Africa' },
-  ],
-  Uganda: [
-    { name: "St. Charles Lwanga School", state: 'Kampala, Uganda' },
-  ],
-  Ethiopia: [
-    { name: 'SOS Hermann Gmeiner School', state: 'Addis Ababa, Ethiopia' },
-  ],
-  "C\u00f4te d'Ivoire": [
-    { name: "Lyc\u00e9e Sainte Famille", state: "Abidjan, C\u00f4te d'Ivoire" },
-  ],
-}
+const { getAllSecondarySchools } = require('../../../lib/africanSecondarySchools')
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ message: 'Method not allowed' })
@@ -51,9 +15,7 @@ export default async function handler(req, res) {
     let schools = []
 
     if (level === 'secondary') {
-      schools = (secondarySeed[country] || []).map(s => ({
-        name: s.name, country, level: 'Secondary', state: s.state,
-      }))
+      schools = getAllSecondarySchools(country)
     } else if (country === 'Nigeria') {
       schools = getAllNigerianUniversities()
     } else {
