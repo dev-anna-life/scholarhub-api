@@ -9,6 +9,8 @@ const userSchema = new mongoose.Schema({
     googleId: { type: String },
     level: { type: String, enum: ['JSS', 'SSS', 'Secondary', 'University'] },
     school: { type: String },
+    faculty: { type: String },
+    department: { type: String },
     state: { type: String },
     course: { type: String },
     interests: [{ type: String }],
