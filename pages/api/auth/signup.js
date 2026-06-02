@@ -1,13 +1,25 @@
 const bcrypt = require('bcryptjs')
 const dbConnect = require('../../../lib/db')
 const User = require('../../../models/User')
+const Community = require('../../../models/Community')
 const { generateToken } = require('../../../lib/auth')
+
+async function ensureCommunity(name, type, school, faculty, department, userId) {
+  let community = await Community.findOne({ name, type, school, faculty, department })
+  if (!community) {
+    community = await Community.create({ name, type, school, faculty, department, members: [userId], createdBy: userId })
+  } else if (!community.members.includes(userId)) {
+    community.members.push(userId)
+    await community.save()
+  }
+  return community
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' })
   try {
     await dbConnect()
-    const { name, email, username, password, school, level, course, referralCode } = req.body
+    const { name, email, username, password, school, level, course, track, state, faculty, department, interests, referralCode } = req.body
     if (!name || !email || !username || !password) {
       return res.status(400).json({ message: 'Name, email, username, and password are required' })
     }
@@ -23,7 +35,10 @@ export default async function handler(req, res) {
     const user = await User.create({
       name, email, username, password: hashedPassword,
       school: school || '', level: level || 'University',
-      course: course || '', coins: 50,
+      course: course || '', track: track || '', state: state || '',
+      faculty: faculty || '', department: department || '',
+      interests: interests || [],
+      coins: 50,
       referralCode: username.toLowerCase() + Math.floor(Math.random() * 1000),
       referredBy: referrer ? referrer._id : null,
     })
@@ -33,13 +48,33 @@ export default async function handler(req, res) {
       await referrer.save()
     }
 
+    if (school && level?.toLowerCase() === 'university') {
+      await ensureCommunity(
+        `${school} - ${faculty || 'General'} - ${department || 'General'}`,
+        'department', school, faculty || '', department || '', user._id
+      )
+      if (faculty) {
+        await ensureCommunity(`${school} - ${faculty}`, 'faculty', school, faculty, '', user._id)
+      }
+      await ensureCommunity(school, 'school', school, '', '', user._id)
+      await ensureCommunity('General University Hub', 'general', '', '', '', user._id)
+    }
+
+    if (school && level?.toLowerCase() === 'secondary') {
+      await ensureCommunity(school, 'school', school, '', '', user._id)
+      await ensureCommunity('General Secondary Hub', 'general', '', '', '', user._id)
+    }
+
     const token = generateToken(user._id)
     res.status(201).json({
       token,
+      isNewUser: true,
       user: {
         id: user._id, name: user.name, email: user.email, username: user.username,
         avatar: user.avatar, school: user.school, level: user.level, course: user.course,
-        bio: user.bio, coins: user.coins, 
+        track: user.track, state: user.state, faculty: user.faculty, department: user.department,
+        interests: user.interests,
+        bio: user.bio, coins: user.coins,
         referralCode: user.referralCode,
         createdAt: user.createdAt,
       },

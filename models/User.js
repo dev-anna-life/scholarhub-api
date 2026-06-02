@@ -13,6 +13,7 @@ const userSchema = new mongoose.Schema({
     department: { type: String },
     state: { type: String },
     course: { type: String },
+    track: { type: String, enum: ['Science', 'Art', 'Commercial'] },
     interests: [{ type: String }],
     badges: [{ type: String }],
     badgeSubscriptions: [{ id: String, purchasedAt: Date, expiresAt: Date }],

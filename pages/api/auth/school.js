@@ -21,11 +21,12 @@ export default async function handler(req, res) {
     const user = await protect(req, res)
     if (!user) return
 
-    const { school, level, course, state, faculty, department } = req.body
+    const { school, level, course, track, state, faculty, department } = req.body
     const updates = {}
     if (school !== undefined) updates.school = school
     if (level !== undefined) updates.level = level
     if (course !== undefined) updates.course = course
+    if (track !== undefined) updates.track = track
     if (state !== undefined) updates.state = state
     if (faculty !== undefined) updates.faculty = faculty
     if (department !== undefined) updates.department = department
