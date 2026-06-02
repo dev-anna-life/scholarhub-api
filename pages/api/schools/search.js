@@ -3,6 +3,49 @@ const dbConnect = require('../../../lib/db')
 const SchoolRequest = require('../../../models/SchoolRequest')
 const { getAllNigerianUniversities } = require('../../../lib/nigerianUniversities')
 const { getAllSecondarySchools } = require('../../../lib/africanSecondarySchools')
+const { getUniversitiesForCountry } = require('../../../lib/africanUniversities')
+
+const AFRICAN_COUNTRIES = new Set([
+  'Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi',
+  'Cameroon', 'Cape Verde', 'Central African Republic', 'Chad',
+  'Comoros', 'Congo', 'Côte d\'Ivoire', 'Democratic Republic of the Congo',
+  'Djibouti', 'Egypt', 'Equatorial Guinea', 'Eritrea', 'Eswatini',
+  'Ethiopia', 'Gabon', 'Gambia', 'Ghana', 'Guinea', 'Guinea-Bissau',
+  'Ivory Coast', 'Kenya', 'Lesotho', 'Liberia', 'Libya', 'Madagascar',
+  'Malawi', 'Mali', 'Mauritania', 'Mauritius', 'Morocco', 'Mozambique',
+  'Namibia', 'Niger', 'Nigeria', 'Rwanda', 'São Tomé and Príncipe',
+  'Senegal', 'Seychelles', 'Sierra Leone', 'Somalia', 'South Africa',
+  'South Sudan', 'Sudan', 'Tanzania', 'Togo', 'Tunisia', 'Uganda',
+  'Zambia', 'Zimbabwe',
+])
+
+function normalizeCountry(country) {
+  if (!country) return country
+  const c = country.trim()
+  const map = {
+    "côte d'ivoire": "Côte d'Ivoire",
+    "ivory coast": "Côte d'Ivoire",
+    "democratic republic of congo": 'Democratic Republic of the Congo',
+    "drc": 'Democratic Republic of the Congo',
+    "dr congo": 'Democratic Republic of the Congo',
+    "republic of congo": 'Congo',
+    "congo brazzaville": 'Congo',
+    "congo drc": 'Democratic Republic of the Congo',
+    "são tomé and príncipe": 'São Tomé and Príncipe',
+    "sao tome and principe": 'São Tomé and Príncipe',
+    "cape verde": 'Cape Verde',
+    "eswatini": 'Eswatini',
+    "swaziland": 'Eswatini',
+    "burkina faso": 'Burkina Faso',
+    "central african republic": 'Central African Republic',
+    "equatorial guinea": 'Equatorial Guinea',
+    "guinea bissau": 'Guinea-Bissau',
+    "sierra leone": 'Sierra Leone',
+    "south sudan": 'South Sudan',
+    "ivory coast": 'Côte d\'Ivoire',
+  }
+  return map[c.toLowerCase()] || c
+}
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ message: 'Method not allowed' })
@@ -10,6 +53,7 @@ export default async function handler(req, res) {
     await dbConnect()
     let { country, level, query, state } = req.query
     if (!country) return res.status(400).json({ message: 'Country is required' })
+    country = normalizeCountry(country)
     level = level?.toLowerCase() || 'university'
 
     let schools = []
@@ -18,6 +62,8 @@ export default async function handler(req, res) {
       schools = getAllSecondarySchools(country)
     } else if (country === 'Nigeria') {
       schools = getAllNigerianUniversities()
+    } else if (AFRICAN_COUNTRIES.has(country)) {
+      schools = getUniversitiesForCountry(country)
     } else {
       try {
         const { data } = await axios.get(
