@@ -4,6 +4,7 @@ const SchoolRequest = require('../../../models/SchoolRequest')
 const { getAllNigerianUniversities } = require('../../../lib/nigerianUniversities')
 const { getAllSecondarySchools } = require('../../../lib/africanSecondarySchools')
 const { getUniversitiesForCountry } = require('../../../lib/africanUniversities')
+const { getWAECSchools } = require('../../../lib/waecSchools')
 
 const AFRICAN_COUNTRIES = new Set([
   'Algeria', 'Angola', 'Benin', 'Botswana', 'Burkina Faso', 'Burundi',
@@ -60,6 +61,7 @@ export default async function handler(req, res) {
 
     if (level === 'secondary') {
       schools = getAllSecondarySchools(country)
+      if (country === 'Nigeria') schools = schools.concat(getWAECSchools())
     } else if (country === 'Nigeria') {
       schools = getAllNigerianUniversities()
     } else if (AFRICAN_COUNTRIES.has(country)) {
