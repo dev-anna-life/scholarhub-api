@@ -9,7 +9,7 @@ const generateToken = (id) => {
 
 const signup = async (req, res) => {
   try {
-    const { name, email, phone, password, level, school, state, interests } =
+    const { name, email, phone, password, level, school, state, interests, status, secondaryClass } =
       req.body;
 
     const existingUser = await User.findOne({ email });
@@ -25,6 +25,8 @@ const signup = async (req, res) => {
       phone,
       password: hashedPassword,
       level,
+      status: status || 'Current Student',
+      secondaryClass: secondaryClass || '',
       school,
       state,
       interests,
@@ -41,6 +43,8 @@ const signup = async (req, res) => {
         name: user.name,
         email: user.email,
         level: user.level,
+        status: user.status,
+        secondaryClass: user.secondaryClass,
         school: user.school,
         state: user.state,
         interests: user.interests,
@@ -78,6 +82,8 @@ const login = async (req, res) => {
         name: user.name,
         email: user.email,
         level: user.level,
+        status: user.status,
+        secondaryClass: user.secondaryClass,
         school: user.school,
         state: user.state,
         interests: user.interests,
@@ -132,6 +138,8 @@ const googleLogin = async (req, res) => {
           name: user.name,
           email: user.email,
           level: user.level,
+          status: user.status,
+          secondaryClass: user.secondaryClass,
           school: user.school,
           state: user.state,
           coins: user.coins,
@@ -151,6 +159,8 @@ const googleLogin = async (req, res) => {
         name: user.name,
         email: user.email,
         level: user.level,
+        status: user.status,
+        secondaryClass: user.secondaryClass,
         school: user.school,
         state: user.state,
         interests: user.interests,
@@ -194,9 +204,11 @@ const updateProfile = async (req, res) => {
 
 const updateSchool = async (req, res) => {
   try {
-    const { level, school, state, interests } = req.body;
+    const { level, school, state, interests, status, secondaryClass } = req.body;
     const update = { level, school, state };
     if (interests) update.interests = interests;
+    if (status) update.status = status;
+    if (secondaryClass) update.secondaryClass = secondaryClass;
     const user = await User.findByIdAndUpdate(
       req.user.id,
       update,

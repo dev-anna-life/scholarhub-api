@@ -23,8 +23,9 @@ export default async function handler(req, res) {
         token,
         user: {
           id: user._id, name: user.name, email: user.email, username: user.username,
-          avatar: user.avatar, school: user.school, level: user.level, course: user.course,
-          bio: user.bio, coins: user.coins,
+          avatar: user.avatar, school: user.school, level: user.level,
+          status: user.status, secondaryClass: user.secondaryClass,
+          course: user.course, bio: user.bio, coins: user.coins,
         },
       })
     }
@@ -37,8 +38,9 @@ export default async function handler(req, res) {
       token, isNewUser: true,
       user: {
         id: user._id, name: user.name, email: user.email, username: user.username,
-        avatar: user.avatar, school: user.school, level: user.level, course: user.course,
-        bio: user.bio, coins: user.coins,
+        avatar: user.avatar, school: user.school, level: user.level,
+        status: user.status, secondaryClass: user.secondaryClass,
+        course: user.course, bio: user.bio, coins: user.coins,
       },
     })
   } catch (error) {

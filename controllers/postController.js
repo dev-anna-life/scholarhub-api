@@ -13,6 +13,9 @@ const createPost = async (req, res) => {
     const FREE_LIMIT = 250
     const user = await User.findById(req.user.id)
     if (!user) return res.status(404).json({ message: "User not found" })
+    if (user.status && user.status !== 'Current Student') {
+      return res.status(403).json({ message: `${user.status === 'Graduate' ? 'Graduates' : 'Alumni'} cannot create posts` })
+    }
 
     const badgeTiers = [
       { id: 'badge_extra_premium', limit: 100000, canUploadVideo: true }, { id: 'badge_premium', limit: 1000 }, { id: 'badge_basic', limit: 500 },

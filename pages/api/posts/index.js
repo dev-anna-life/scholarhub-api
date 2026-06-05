@@ -26,6 +26,9 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
       const user = await protect(req, res)
       if (!user) return
+      if (user.status && user.status !== 'Current Student') {
+        return res.status(403).json({ message: `${user.status === 'Graduate' ? 'Graduates' : 'Alumni'} cannot create posts` })
+      }
       const { title, content, category, image, communityIds } = req.body
       if (!title || !content) return res.status(400).json({ message: 'Title and content are required' })
 

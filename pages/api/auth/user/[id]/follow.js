@@ -13,6 +13,12 @@ export default async function handler(req, res) {
     const target = await User.findById(targetId)
     if (!target) return res.status(404).json({ message: 'User not found' })
 
+    const isFollowerStudent = !user.status || user.status === 'Current Student'
+    const isTargetAlumniGrad = target.status && target.status !== 'Current Student'
+    if (isFollowerStudent && isTargetAlumniGrad) {
+      return res.status(403).json({ message: `Students cannot follow ${target.status === 'Graduate' ? 'graduates' : 'alumni'}` })
+    }
+
     const idx = user.following.indexOf(targetId)
     if (idx > -1) {
       user.following.splice(idx, 1)

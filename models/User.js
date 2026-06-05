@@ -8,6 +8,8 @@ const userSchema = new mongoose.Schema({
     password: { type: String },
     googleId: { type: String },
     level: { type: String, enum: ['JSS', 'SSS', 'Secondary', 'University'] },
+    status: { type: String, enum: ['Current Student', 'Graduate', 'Alumni'], default: 'Current Student' },
+    secondaryClass: { type: String, enum: ['Science', 'Arts'] },
     school: { type: String },
     faculty: { type: String },
     department: { type: String },

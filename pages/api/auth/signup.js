@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' })
   try {
     await dbConnect()
-    const { name, email, username, password, school, level, course, track, state, faculty, department, interests, referralCode } = req.body
+    const { name, email, username, password, school, level, course, track, state, faculty, department, interests, referralCode, status, secondaryClass } = req.body
     if (!name || !email || !username || !password) {
       return res.status(400).json({ message: 'Name, email, username, and password are required' })
     }
@@ -35,6 +35,8 @@ export default async function handler(req, res) {
     const user = await User.create({
       name, email, username, password: hashedPassword,
       school: school || '', level: level || 'University',
+      status: status || 'Current Student',
+      secondaryClass: secondaryClass || '',
       course: course || '', track: track || '', state: state || '',
       faculty: faculty || '', department: department || '',
       interests: interests || [],
@@ -71,8 +73,10 @@ export default async function handler(req, res) {
       isNewUser: true,
       user: {
         id: user._id, name: user.name, email: user.email, username: user.username,
-        avatar: user.avatar, school: user.school, level: user.level, course: user.course,
-        track: user.track, state: user.state, faculty: user.faculty, department: user.department,
+        avatar: user.avatar, school: user.school, level: user.level,
+        status: user.status, secondaryClass: user.secondaryClass,
+        course: user.course, track: user.track, state: user.state,
+        faculty: user.faculty, department: user.department,
         interests: user.interests,
         bio: user.bio, coins: user.coins,
         referralCode: user.referralCode,
