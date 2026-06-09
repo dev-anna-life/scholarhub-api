@@ -36,7 +36,7 @@ export default async function handler(req, res) {
       name, email, username, password: hashedPassword,
       school: school || '', level: level || 'University',
       status: status || 'Current Student',
-      secondaryClass: secondaryClass || '',
+      secondaryClass: ['Science', 'Arts'].includes(secondaryClass) ? secondaryClass : undefined,
       course: course || '', track: track || '', state: state || '',
       faculty: faculty || '', department: department || '',
       interests: interests || [],
