@@ -14,6 +14,7 @@ const userSchema = new mongoose.Schema({
     faculty: { type: String },
     department: { type: String },
     state: { type: String },
+    city: { type: String },
     country: { type: String },
     course: { type: String },
     track: { type: String, enum: ['Science', 'Art', 'Commercial'] },

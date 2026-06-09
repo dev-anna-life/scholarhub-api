@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' })
   try {
     await dbConnect()
-    const { name, email, username, password, school, level, course, track, state, country, faculty, department, interests, referralCode, status, secondaryClass } = req.body
+    const { name, email, username, password, school, level, course, track, state, city, country, faculty, department, interests, referralCode, status, secondaryClass } = req.body
     if (!name || !email || !username || !password) {
       return res.status(400).json({ message: 'Name, email, username, and password are required' })
     }
@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       school: school || '', level: level || 'University',
       status: status || 'Current Student',
       secondaryClass: ['Science', 'Arts'].includes(secondaryClass) ? secondaryClass : undefined,
-      course: course || '', track: track || '', state: state || '', country: country || '',
+      course: course || '', track: track || '', state: state || '', city: city || '', country: country || '',
       faculty: faculty || '', department: department || '',
       interests: interests || [],
       coins: 50,
