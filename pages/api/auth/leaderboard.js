@@ -11,7 +11,7 @@ export default async function handler(req, res) {
       { $and: [{ monthlyCoinsMonth: { $exists: true } }, { monthlyCoinsMonth: { $ne: currentMonth } }] },
       { $set: { monthlyCoins: 0, monthlyCoinsMonth: currentMonth } }
     )
-    const users = await User.find({ monthlyCoins: { $gt: 0 } }).select('name username avatar school level monthlyCoins').sort({ monthlyCoins: -1 }).limit(100).lean()
+    const users = await User.find({ monthlyCoins: { $gt: 50 } }).select('name username avatar school level monthlyCoins').sort({ monthlyCoins: -1 }).limit(100).lean()
     res.json(users)
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })
