@@ -37,7 +37,7 @@ export default async function handler(req, res) {
       school: school || '', level: level || 'University',
       status: status || 'Current Student',
       secondaryClass: ['Science', 'Arts'].includes(secondaryClass) ? secondaryClass : undefined,
-      course: course || '', track: track || '', state: state || '', city: city || '', country: country || '',
+      course: course || '', track: ['Science', 'Art', 'Commercial'].includes(track) ? track : undefined, state: state || '', city: city || '', country: country || '',
       faculty: faculty || '', department: department || '',
       interests: interests || [],
       coins: 50,
