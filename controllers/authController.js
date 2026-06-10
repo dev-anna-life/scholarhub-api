@@ -178,9 +178,15 @@ const googleLogin = async (req, res) => {
 
 const getLeaderboard = async (req, res) => {
   try {
-    const users = await User.find()
-      .select("name school level badge")
-      .sort({ coins: -1 })
+    const now = new Date()
+    const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`
+    await User.updateMany(
+      { $and: [{ monthlyCoinsMonth: { $exists: true } }, { monthlyCoinsMonth: { $ne: currentMonth } }] },
+      { $set: { monthlyCoins: 0, monthlyCoinsMonth: currentMonth } }
+    )
+    const users = await User.find({ monthlyCoins: { $gt: 0 } })
+      .select("name school level badge monthlyCoins")
+      .sort({ monthlyCoins: -1 })
       .limit(20);
     res.json(users);
   } catch (error) {

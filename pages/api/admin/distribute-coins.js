@@ -44,7 +44,7 @@ export default async function handler(req, res) {
       await db.collection('users').updateOne(
         { _id: r.userId },
         {
-          $inc: { coins: r.coins, lifetimeCoins: r.coins },
+          $inc: { coins: r.coins, lifetimeCoins: r.coins, monthlyCoins: r.coins },
           $set: {
             weeklyEngagementCoins: r.coins,
             lastWeeklyPayout: new Date(),

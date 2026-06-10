@@ -41,12 +41,19 @@ export default async function handler(req, res) {
       faculty: faculty || '', department: department || '',
       interests: interests || [],
       coins: 50,
+      monthlyCoins: 50,
+      monthlyCoinsMonth: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
       referralCode: username.toLowerCase() + Math.floor(Math.random() * 1000),
       referredBy: referrer ? referrer._id : null,
     })
 
     if (referrer) {
       referrer.coins += 20
+      referrer.monthlyCoins = (referrer.monthlyCoins || 0) + 20
+      const refMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`
+      if (referrer.monthlyCoinsMonth !== refMonth) {
+        referrer.monthlyCoinsMonth = refMonth
+      }
       await referrer.save()
     }
 

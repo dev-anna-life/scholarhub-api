@@ -23,6 +23,8 @@ const userSchema = new mongoose.Schema({
     badgeSubscriptions: [{ id: String, purchasedAt: Date, expiresAt: Date }],
     coins: { type: Number, default: 50 },
     lifetimeCoins: { type: Number, default: 50 },
+    monthlyCoins: { type: Number, default: 50 },
+    monthlyCoinsMonth: { type: String },
     streak: { type: Number, default: 0 },
     lastPostDate: { type: Date },
     badge: { type: String, default: 'Beginner' },

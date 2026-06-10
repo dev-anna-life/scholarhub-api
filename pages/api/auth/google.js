@@ -32,7 +32,8 @@ export default async function handler(req, res) {
 
     const name = payload.name || payload.email.split('@')[0]
     const username = (payload.email.split('@')[0] + Math.floor(Math.random() * 1000)).toLowerCase()
-    user = await User.create({ name, email: payload.email, username, googleId: payload.sub || '', coins: 50 })
+    const currentMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`
+    user = await User.create({ name, email: payload.email, username, googleId: payload.sub || '', coins: 50, monthlyCoins: 50, monthlyCoinsMonth: currentMonth })
     const token = generateToken(user._id)
     res.status(201).json({
       token, isNewUser: true,

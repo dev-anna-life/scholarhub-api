@@ -24,7 +24,7 @@ const approvePost = async (req, res) => {
       { new: true },
     );
     if (!post) return res.status(404).json({ message: "Post not found" });
-    await User.findByIdAndUpdate(post.author, { $inc: { coins: 50 } });
+    await User.findByIdAndUpdate(post.author, { $inc: { coins: 50, monthlyCoins: 50 } });
     res.json({ message: "Post approved! Author earned 50 coins", post });
   } catch (error) {
     res.status(500).json({ message: "Server error", error: error.message });
