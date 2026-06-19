@@ -47,8 +47,11 @@ export default async function handler(req, res) {
         const myComMap = {}
         for (const c of myCommunities) myComMap[c._id.toString()] = c
 
+        const now = Date.now()
+        const followedByUser = user.following || []
+
         const scored = posts.map(p => {
-          let maxScore = 999
+          let maxPriority = 999
           const pComIds = (p.communities || []).map(id => id.toString ? id.toString() : id)
           for (const cid of pComIds) {
             const com = myComMap[cid]
@@ -60,19 +63,43 @@ export default async function handler(req, res) {
             const isSameClass = com.type === 'class' && isMySchool
             const isSubject = com.type === 'subject' && isMySchool
             const isGeneral = com.type === 'general'
-            let score
-            if (isSameDept) score = 1
-            else if (isSameFaculty) score = 2
-            else if (isSameSchool) score = 3
-            else if (isSameClass) score = 4
-            else if (isSubject) score = 5
-            else if (isGeneral) score = 6
-            else score = 7
-            if (score < maxScore) maxScore = score
+            let priority
+            if (isSameDept) priority = 1
+            else if (isSameFaculty) priority = 2
+            else if (isSameSchool) priority = 3
+            else if (isSameClass) priority = 4
+            else if (isSubject) priority = 5
+            else if (isGeneral) priority = 6
+            else priority = 7
+            if (priority < maxPriority) maxPriority = priority
           }
-          return { ...p, _score: maxScore, liked: (p.likes || []).includes(user._id), likesCount: (p.likes || []).length }
+
+          const age = now - new Date(p.createdAt).getTime()
+          const hoursOld = age / (1000 * 60 * 60)
+          let recencyBoost = 0
+          if (hoursOld < 1) recencyBoost = 80
+          else if (hoursOld < 6) recencyBoost = 60
+          else if (hoursOld < 24) recencyBoost = 40
+          else if (hoursOld < 48) recencyBoost = 20
+
+          const likeCount = (p.likes || []).length
+          const commentCount = (p.commentsData || []).length
+          const engagementBoost = likeCount * 2 + commentCount * 5
+
+          const followBoost = followedByUser.includes(p.author?._id) ? 40 : 0
+
+          const boostedBoost = p.boosted ? 200 : 0
+
+          const score = maxPriority * 100 - recencyBoost - engagementBoost - followBoost - boostedBoost
+
+          return {
+            ...p, _score: score,
+            liked: (p.likes || []).includes(user._id),
+            likesCount: likeCount,
+            commentCount: commentCount,
+          }
         })
-        scored.sort((a, b) => a._score - b._score || new Date(b.createdAt) - new Date(a.createdAt))
+        scored.sort((a, b) => a._score - b._score)
         return res.json(scored)
       }
 

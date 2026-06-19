@@ -15,6 +15,7 @@ const postSchema = new mongoose.Schema({
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     commentsData: [commentSchema],
     trending: { type: Boolean, default: false },
+    boosted: { type: Boolean, default: false },
     image: { type: String, default: '' },
     video: { type: String, default: '' },
     communities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Community' }],
