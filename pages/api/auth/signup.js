@@ -19,7 +19,7 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' })
   try {
     await dbConnect()
-    const { name, email, username, password, school, level, course, track, state, city, country, faculty, department, interests, referralCode, status, secondaryClass } = req.body
+    const { name, email, username, password, school, level, course, track, state, city, country, faculty, department, interests, referralCode, status, secondaryClass, secondarySubjects } = req.body
     if (!name || !email || !username || !password) {
       return res.status(400).json({ message: 'Name, email, username, and password are required' })
     }
@@ -37,6 +37,7 @@ export default async function handler(req, res) {
       school: school || '', level: level || 'University',
       status: status || 'Current Student',
       secondaryClass: ['Science', 'Arts'].includes(secondaryClass) ? secondaryClass : undefined,
+      secondarySubjects: Array.isArray(secondarySubjects) ? secondarySubjects : [],
       course: course || '', track: ['Science', 'Art', 'Commercial'].includes(track) ? track : undefined, state: state || '', city: city || '', country: country || '',
       faculty: faculty || '', department: department || '',
       interests: interests || [],
@@ -71,7 +72,15 @@ export default async function handler(req, res) {
 
     if (school && level?.toLowerCase() === 'secondary') {
       await ensureCommunity(school, 'school', school, '', '', user._id)
-      await ensureCommunity('General Secondary Hub', 'general', '', '', '', user._id)
+      if (secondaryClass) {
+        await ensureCommunity(`${school} - ${secondaryClass} Class`, 'class', school, '', '', user._id)
+      }
+      if (Array.isArray(secondarySubjects)) {
+        for (const sub of secondarySubjects) {
+          await ensureCommunity(sub, 'subject', school, '', '', user._id)
+        }
+      }
+      await ensureCommunity('General University Hub', 'general', '', '', '', user._id)
     }
 
     const token = generateToken(user._id)
@@ -82,6 +91,7 @@ export default async function handler(req, res) {
         id: user._id, name: user.name, email: user.email, username: user.username,
         avatar: user.avatar, school: user.school, level: user.level,
         status: user.status, secondaryClass: user.secondaryClass,
+        secondarySubjects: user.secondarySubjects,
         course: user.course, track: user.track, state: user.state,
         faculty: user.faculty, department: user.department,
         interests: user.interests,
