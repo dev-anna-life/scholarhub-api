@@ -13,6 +13,7 @@ const postSchema = new mongoose.Schema({
     category: { type: String, required: true },
     status: { type: String, enum: ["pending", "approved", "rejected"], default: "pending" },
     likes: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
+    savedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: "User" }],
     commentsData: [commentSchema],
     trending: { type: Boolean, default: false },
     boosted: { type: Boolean, default: false },

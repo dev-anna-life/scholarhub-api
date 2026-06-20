@@ -25,20 +25,33 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       await dbConnect()
-      const { community } = req.query
+      const { community, search, page = 1, limit = 20 } = req.query
       const user = await getOptionalUser(req)
+      const pageNum = Math.max(1, parseInt(page))
+      const limitNum = Math.min(50, Math.max(1, parseInt(limit) || 20))
+      const skip = (pageNum - 1) * limitNum
+
+      const searchFilter = search
+        ? { $or: [
+            { title: { $regex: search, $options: 'i' } },
+            { content: { $regex: search, $options: 'i' } },
+          ]}
+        : {}
 
       if (user) {
         const myCommunities = await Community.find({ members: user._id }).lean()
-        if (myCommunities.length === 0) return res.json([])
+        if (myCommunities.length === 0) return res.json({ posts: [], page: 1, totalPages: 0, total: 0 })
 
         const communityIds = myCommunities.map(c => c._id)
-        const posts = await Post.find({
-          status: 'approved',
-          communities: { $in: communityIds },
-        })
+        const baseFilter = { status: 'approved', communities: { $in: communityIds }, ...searchFilter }
+        const total = await Post.countDocuments(baseFilter)
+        const totalPages = Math.ceil(total / limitNum)
+
+        const posts = await Post.find(baseFilter)
           .populate('author', 'name username avatar school faculty department level')
           .sort({ createdAt: -1 })
+          .skip(skip)
+          .limit(limitNum)
           .lean()
 
         const userSchool = user.school || ''
@@ -90,6 +103,11 @@ export default async function handler(req, res) {
 
           const boostedBoost = p.boosted ? 200 : 0
 
+          // Dynamic trending: posts with high engagement in last 24h
+          const trendingScore = likeCount * 3 + commentCount * 10
+          const isRecent = hoursOld < 24
+          const trending = isRecent && trendingScore >= 30
+
           const score = maxPriority * 100 - recencyBoost - engagementBoost - followBoost - boostedBoost
 
           return {
@@ -97,23 +115,27 @@ export default async function handler(req, res) {
             liked: (p.likes || []).includes(user._id),
             likesCount: likeCount,
             commentCount: commentCount,
+            trending,
           }
         })
         scored.sort((a, b) => a._score - b._score)
-        return res.json(scored)
+        return res.json({ posts: scored, page: pageNum, totalPages, total })
       }
 
-      const filter = { status: 'approved' }
+      const filter = { status: 'approved', ...searchFilter }
       if (community) filter.communities = community
+      const total = await Post.countDocuments(filter)
+      const totalPages = Math.ceil(total / limitNum)
       const posts = await Post.find(filter)
         .populate('author', 'name username avatar school faculty department level')
         .sort({ createdAt: -1 })
-        .limit(50)
+        .skip(skip)
+        .limit(limitNum)
         .lean()
       const enriched = posts.map(p => ({
-        ...p, liked: false, likesCount: (p.likes || []).length,
+        ...p, liked: false, likesCount: (p.likes || []).length, trending: false,
       }))
-      return res.json(enriched)
+      return res.json({ posts: enriched, page: pageNum, totalPages, total })
     }
 
     if (req.method === 'POST') {
