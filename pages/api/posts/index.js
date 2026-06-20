@@ -25,7 +25,7 @@ export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
       await dbConnect()
-      const { community, search, page = 1, limit = 20 } = req.query
+      const { community, search, page = 1, limit = 20, tab, category } = req.query
       const user = await getOptionalUser(req)
       const pageNum = Math.max(1, parseInt(page))
       const limitNum = Math.min(50, Math.max(1, parseInt(limit) || 20))
@@ -43,7 +43,22 @@ export default async function handler(req, res) {
         if (myCommunities.length === 0) return res.json({ posts: [], page: 1, totalPages: 0, total: 0 })
 
         const communityIds = myCommunities.map(c => c._id)
-        const baseFilter = { status: 'approved', communities: { $in: communityIds }, ...searchFilter }
+        let baseFilter = { status: 'approved', ...searchFilter }
+        let isForYou = true
+
+        if (tab === 'following') {
+          const followedIds = user.following || []
+          baseFilter.author = { $in: followedIds }
+          baseFilter.communities = { $in: communityIds }
+          isForYou = false
+        } else if (tab === 'category' && category) {
+          baseFilter.category = category
+          baseFilter.communities = { $in: communityIds }
+          isForYou = false
+        } else {
+          baseFilter.communities = { $in: communityIds }
+        }
+
         const total = await Post.countDocuments(baseFilter)
         const totalPages = Math.ceil(total / limitNum)
 
@@ -54,75 +69,84 @@ export default async function handler(req, res) {
           .limit(limitNum)
           .lean()
 
-        const userSchool = user.school || ''
-        const userFaculty = user.faculty || ''
-        const userDept = user.department || ''
-        const myComMap = {}
-        for (const c of myCommunities) myComMap[c._id.toString()] = c
+        if (isForYou) {
+          const userSchool = user.school || ''
+          const userFaculty = user.faculty || ''
+          const userDept = user.department || ''
+          const myComMap = {}
+          for (const c of myCommunities) myComMap[c._id.toString()] = c
 
-        const now = Date.now()
-        const followedByUser = user.following || []
+          const now = Date.now()
+          const followedByUser = user.following || []
 
-        const scored = posts.map(p => {
-          let maxPriority = 999
-          const pComIds = (p.communities || []).map(id => id.toString ? id.toString() : id)
-          for (const cid of pComIds) {
-            const com = myComMap[cid]
-            if (!com) continue
-            const isMySchool = com.school === userSchool
-            const isSameDept = com.department === userDept && com.faculty === userFaculty
-            const isSameFaculty = com.faculty === userFaculty && !com.department
-            const isSameSchool = com.type === 'school' && isMySchool
-            const isSameClass = com.type === 'class' && isMySchool
-            const isSubject = com.type === 'subject' && isMySchool
-            const isGeneral = com.type === 'general'
-            let priority
-            if (isSameDept) priority = 1
-            else if (isSameFaculty) priority = 2
-            else if (isSameSchool) priority = 3
-            else if (isSameClass) priority = 4
-            else if (isSubject) priority = 5
-            else if (isGeneral) priority = 6
-            else priority = 7
-            if (priority < maxPriority) maxPriority = priority
-          }
+          const scored = posts.map(p => {
+            let maxPriority = 999
+            const pComIds = (p.communities || []).map(id => id.toString ? id.toString() : id)
+            for (const cid of pComIds) {
+              const com = myComMap[cid]
+              if (!com) continue
+              const isMySchool = com.school === userSchool
+              const isSameDept = com.department === userDept && com.faculty === userFaculty
+              const isSameFaculty = com.faculty === userFaculty && !com.department
+              const isSameSchool = com.type === 'school' && isMySchool
+              const isSameClass = com.type === 'class' && isMySchool
+              const isSubject = com.type === 'subject' && isMySchool
+              const isGeneral = com.type === 'general'
+              let priority
+              if (isSameDept) priority = 1
+              else if (isSameFaculty) priority = 2
+              else if (isSameSchool) priority = 3
+              else if (isSameClass) priority = 4
+              else if (isSubject) priority = 5
+              else if (isGeneral) priority = 6
+              else priority = 7
+              if (priority < maxPriority) maxPriority = priority
+            }
 
-          const age = now - new Date(p.createdAt).getTime()
-          const hoursOld = age / (1000 * 60 * 60)
-          let recencyBoost = 0
-          if (hoursOld < 1) recencyBoost = 80
-          else if (hoursOld < 6) recencyBoost = 60
-          else if (hoursOld < 24) recencyBoost = 40
-          else if (hoursOld < 48) recencyBoost = 20
+            const age = now - new Date(p.createdAt).getTime()
+            const hoursOld = age / (1000 * 60 * 60)
+            let recencyBoost = 0
+            if (hoursOld < 1) recencyBoost = 80
+            else if (hoursOld < 6) recencyBoost = 60
+            else if (hoursOld < 24) recencyBoost = 40
+            else if (hoursOld < 48) recencyBoost = 20
 
-          const likeCount = (p.likes || []).length
-          const commentCount = (p.commentsData || []).length
-          const engagementBoost = likeCount * 2 + commentCount * 5
+            const likeCount = (p.likes || []).length
+            const commentCount = (p.commentsData || []).length
+            const engagementBoost = likeCount * 2 + commentCount * 5
 
-          const followBoost = followedByUser.includes(p.author?._id) ? 40 : 0
+            const followBoost = followedByUser.includes(p.author?._id) ? 40 : 0
+            const boostedBoost = p.boosted ? 200 : 0
 
-          const boostedBoost = p.boosted ? 200 : 0
+            const trendingScore = likeCount * 3 + commentCount * 10
+            const isRecent = hoursOld < 24
+            const trending = isRecent && trendingScore >= 30
 
-          // Dynamic trending: posts with high engagement in last 24h
-          const trendingScore = likeCount * 3 + commentCount * 10
-          const isRecent = hoursOld < 24
-          const trending = isRecent && trendingScore >= 30
+            const score = maxPriority * 100 - recencyBoost - engagementBoost - followBoost - boostedBoost
 
-          const score = maxPriority * 100 - recencyBoost - engagementBoost - followBoost - boostedBoost
+            return {
+              ...p, _score: score,
+              liked: (p.likes || []).includes(user._id),
+              likesCount: likeCount,
+              commentCount: commentCount,
+              trending,
+            }
+          })
+          scored.sort((a, b) => a._score - b._score)
+          return res.json({ posts: scored, page: pageNum, totalPages, total })
+        }
 
-          return {
-            ...p, _score: score,
-            liked: (p.likes || []).includes(user._id),
-            likesCount: likeCount,
-            commentCount: commentCount,
-            trending,
-          }
-        })
-        scored.sort((a, b) => a._score - b._score)
-        return res.json({ posts: scored, page: pageNum, totalPages, total })
+        const enriched = posts.map(p => ({
+          ...p, liked: (p.likes || []).includes(user._id),
+          likesCount: (p.likes || []).length,
+          commentCount: (p.commentsData || []).length,
+          trending: false,
+        }))
+        return res.json({ posts: enriched, page: pageNum, totalPages, total })
       }
 
       const filter = { status: 'approved', ...searchFilter }
+      if (category) filter.category = category
       if (community) filter.communities = community
       const total = await Post.countDocuments(filter)
       const totalPages = Math.ceil(total / limitNum)
