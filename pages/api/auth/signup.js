@@ -60,11 +60,11 @@ export default async function handler(req, res) {
 
     if (school && level?.toLowerCase() === 'university') {
       await ensureCommunity(
-        `${school} - ${faculty || 'General'} - ${department || 'General'}`,
+        `${faculty || 'General'} - ${department || 'General'}`,
         'department', school, faculty || '', department || '', user._id
       )
       if (faculty) {
-        await ensureCommunity(`${school} - ${faculty}`, 'faculty', school, faculty, '', user._id)
+        await ensureCommunity(`${faculty}`, 'faculty', school, faculty, '', user._id)
       }
       await ensureCommunity(school, 'school', school, '', '', user._id)
       await ensureCommunity('General University Hub', 'general', '', '', '', user._id)

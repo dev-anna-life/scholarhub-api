@@ -39,14 +39,14 @@ export default async function handler(req, res) {
 
     if (school && level?.toLowerCase() === 'university') {
       const deptCom = await ensureCommunity(
-        `${school} - ${faculty || 'General'} - ${department || 'General'}`,
+        `${faculty || 'General'} - ${department || 'General'}`,
         'department', school, faculty || '', department || '', user._id
       )
       joinedCommunities.push(deptCom)
 
       if (faculty) {
         const facCom = await ensureCommunity(
-          `${school} - ${faculty}`,
+          `${faculty}`,
           'faculty', school, faculty, '', user._id
         )
         joinedCommunities.push(facCom)
