@@ -5,6 +5,10 @@ const Community = require('../../../models/Community')
 const Notification = require('../../../models/Notification')
 const { protect } = require('../../../lib/auth')
 
+export const config = {
+  api: { bodyParser: { sizeLimit: '10mb' } },
+}
+
 async function getOptionalUser(req) {
   let token
   if (req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
