@@ -72,15 +72,6 @@ export default async function handler(req, res) {
 
     if (school && level?.toLowerCase() === 'secondary') {
       await ensureCommunity(school, 'school', school, '', '', user._id)
-      if (secondaryClass) {
-        await ensureCommunity(`${school} - ${secondaryClass} Class`, 'class', school, '', '', user._id)
-      }
-      if (Array.isArray(secondarySubjects)) {
-        for (const sub of secondarySubjects) {
-          await ensureCommunity(sub, 'subject', school, '', '', user._id)
-        }
-      }
-      await ensureCommunity('General University Hub', 'general', '', '', '', user._id)
     }
 
     const token = generateToken(user._id)
