@@ -10,6 +10,7 @@ const userSchema = new mongoose.Schema({
     level: { type: String, enum: ['JSS', 'SSS', 'Secondary', 'University'] },
     status: { type: String, enum: ['Current Student', 'Graduate', 'Alumni'], default: 'Current Student' },
     secondaryClass: { type: String, enum: ['Science', 'Arts'] },
+    secondarySubjects: [{ type: String }],
     school: { type: String },
     faculty: { type: String },
     department: { type: String },

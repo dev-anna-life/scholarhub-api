@@ -161,24 +161,15 @@ export default async function handler(req, res) {
       }
       const { title, content, category, image, communityIds } = req.body
       if (!title || !content) return res.status(400).json({ message: 'Title and content are required' })
-
-      let finalCommunityIds = communityIds || []
-
-      if (!finalCommunityIds.length && user.school && user.department && user.faculty) {
-        const deptCom = await Community.findOne({
-          type: 'department', school: user.school,
-          faculty: user.faculty, department: user.department
-        })
-        if (deptCom) finalCommunityIds = [deptCom._id]
-      }
+      if (!communityIds || !communityIds.length) return res.status(400).json({ message: 'At least one community is required' })
 
       const post = await Post.create({
         author: user._id, title, content,
         category: category || '', image: image || '',
-        communities: finalCommunityIds,
+        communities: communityIds,
       })
 
-      const communities = await Community.find({ _id: { $in: finalCommunityIds } }).lean()
+      const communities = await Community.find({ _id: { $in: communityIds } }).lean()
       for (const com of communities) {
         const members = await User.find({ _id: { $ne: user._id, $in: com.members } }).select('_id').lean()
         if (members.length > 0) {
@@ -192,7 +183,7 @@ export default async function handler(req, res) {
       }
 
       const populated = await Post.findById(post._id).populate('author', 'name username avatar school faculty department level').lean()
-      return res.status(201).json({ ...populated, liked: false, saved: false, likesCount: 0 })
+      return res.status(201).json({ ...populated, liked: false, likesCount: 0 })
     }
 
     return res.status(405).json({ message: 'Method not allowed' })

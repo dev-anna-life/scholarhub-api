@@ -39,14 +39,14 @@ export default async function handler(req, res) {
 
     if (school && level?.toLowerCase() === 'university') {
       const deptCom = await ensureCommunity(
-        `${school} - ${faculty || 'General'} - ${department || 'General'}`,
+        `${faculty || 'General'} - ${department || 'General'}`,
         'department', school, faculty || '', department || '', user._id
       )
       joinedCommunities.push(deptCom)
 
       if (faculty) {
         const facCom = await ensureCommunity(
-          `${school} - ${faculty}`,
+          `${faculty}`,
           'faculty', school, faculty, '', user._id
         )
         joinedCommunities.push(facCom)
@@ -66,8 +66,6 @@ export default async function handler(req, res) {
         const schCom = await ensureCommunity(school, 'school', school, '', '', user._id)
         joinedCommunities.push(schCom)
       }
-      const generalCom = await ensureCommunity('General Secondary Hub', 'general', '', '', '', user._id)
-      joinedCommunities.push(generalCom)
     }
 
     res.json({ user: updated.toObject(), joinedCommunities: joinedCommunities.map(c => ({ id: c._id, name: c.name, type: c.type })) })

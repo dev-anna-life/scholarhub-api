@@ -2,7 +2,7 @@ const mongoose = require('mongoose')
 
 const communitySchema = new mongoose.Schema({
   name: { type: String, required: true },
-  type: { type: String, enum: ['department', 'faculty', 'school', 'general'], required: true },
+  type: { type: String, enum: ['department', 'faculty', 'school', 'general', 'class', 'subject'], required: true },
   school: { type: String },
   faculty: { type: String },
   department: { type: String },

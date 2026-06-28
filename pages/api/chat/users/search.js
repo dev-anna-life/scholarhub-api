@@ -11,11 +11,12 @@ export default async function handler(req, res) {
     const users = await User.find({
       $or: [
         { name: { $regex: q, $options: 'i' } },
+        { username: { $regex: q, $options: 'i' } },
         { school: { $regex: q, $options: 'i' } },
       ],
     })
-      .select('name school level badge')
-      .limit(10)
+      .select('name username school level badge')
+      .limit(20)
       .lean()
 
     res.json(users)
