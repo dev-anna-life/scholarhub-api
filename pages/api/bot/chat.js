@@ -95,6 +95,8 @@ export default async function handler(req, res) {
       user.botUsage = { date: today, count: 0 }
     }
 
+    // Disable daily limit check
+    /*
     if (user.botUsage.count >= limit) {
       return res.status(429).json({
         message: `Daily limit reached. You've used ${limit}/${limit} messages today. Upgrade your badge for more.`,
@@ -103,6 +105,7 @@ export default async function handler(req, res) {
         badge,
       })
     }
+    */
 
     user.botUsage.count += 1
     await user.save()
