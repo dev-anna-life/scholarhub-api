@@ -60,7 +60,9 @@ If a student seems stressed, offer encouragement along with your help.`
 
   if (!response.ok) {
     const err = await response.json()
-    throw new Error(err.error?.message || 'Gemini API error')
+    const errMsg = err.error?.message || JSON.stringify(err)
+    console.error('Gemini API error:', errMsg)
+    throw new Error('GEMINI_ERROR: ' + errMsg)
   }
 
   const data = await response.json()
@@ -113,7 +115,8 @@ export default async function handler(req, res) {
       quota: { limit, used: user.botUsage.count, badge },
     })
   } catch (error) {
-    console.error('Bot error:', error)
-    res.status(500).json({ message: 'Bot error: ' + error.message })
+    console.error('Bot error:', error.message)
+    // Return the real error message to help debug
+    res.status(500).json({ message: error.message })
   }
 }
