@@ -66,6 +66,8 @@ export default async function handler(req, res) {
         const schCom = await ensureCommunity(school, 'school', school, '', '', user._id)
         joinedCommunities.push(schCom)
       }
+      const generalCom = await ensureCommunity('General Secondary Hub', 'general', '', '', '', user._id)
+      joinedCommunities.push(generalCom)
     }
 
     res.json({ user: updated.toObject(), joinedCommunities: joinedCommunities.map(c => ({ id: c._id, name: c.name, type: c.type })) })

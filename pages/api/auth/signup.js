@@ -70,8 +70,11 @@ export default async function handler(req, res) {
       await ensureCommunity('General University Hub', 'general', '', '', '', user._id)
     }
 
-    if (school && level?.toLowerCase() === 'secondary') {
-      await ensureCommunity(school, 'school', school, '', '', user._id)
+    if (level?.toLowerCase() === 'secondary') {
+      if (school) {
+        await ensureCommunity(school, 'school', school, '', '', user._id)
+      }
+      await ensureCommunity('General Secondary Hub', 'general', '', '', '', user._id)
     }
 
     const token = generateToken(user._id)
