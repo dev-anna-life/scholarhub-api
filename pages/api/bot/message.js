@@ -82,7 +82,8 @@ When answering, use clear language. Keep answers concise but thorough.`
       )
 
       if (!response.ok) {
-        reply = "Sorry, I'm having trouble thinking right now. Please try again later."
+        const err = await response.json()
+        reply = "Sorry, I'm having trouble thinking right now. Details: " + (err.error?.message || JSON.stringify(err))
       } else {
         const data = await response.json()
         reply = data.candidates?.[0]?.content?.parts?.[0]?.text || "I'm not sure how to respond to that."
