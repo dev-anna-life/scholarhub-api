@@ -3,7 +3,7 @@ const User = require('../../../models/User')
 const { protect } = require('../../../lib/auth')
 
 const DAILY_LIMITS = {
-  free: 5,
+  free: 20,
   badge_basic: 20,
   badge_premium: 50,
   badge_extra_premium: 9999,
