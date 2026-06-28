@@ -18,6 +18,7 @@ const postSchema = new mongoose.Schema({
     image: { type: String, default: '' },
     video: { type: String, default: '' },
     communities: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Community' }],
+    savedBy: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
 }, { timestamps: true })
 
 module.exports = mongoose.models.Post || mongoose.model("Post", postSchema)

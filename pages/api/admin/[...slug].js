@@ -4,6 +4,7 @@ const Message = require('../../../models/Message')
 const Conversation = require('../../../models/Conversation')
 const Notification = require('../../../models/Notification')
 const SOS = require('../../../models/SOS')
+const Community = require('../../../models/Community')
 const { protect } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -15,8 +16,31 @@ export default async function handler(req, res) {
     const user = await protect(req, res)
     if (!user) return
 
+    const adminEmails = (process.env.ADMIN_EMAILS || '').split(',').map(e => e.trim().toLowerCase())
+    if (!adminEmails.includes(user.email?.toLowerCase())) {
+      return res.status(403).json({ message: 'Unauthorized: Admin access only' })
+    }
+
     const [method, ...rest] = req.query.slug || []
     const subpath = rest.join('/')
+
+    if (method === 'stats') {
+      if (req.method === 'GET') {
+        const totalUsers = await User.countDocuments()
+        const totalPosts = await Post.countDocuments()
+        const totalCommunities = await Community.countDocuments()
+        const activeSos = await SOS.countDocuments({ status: 'active' })
+        const recentUsers = await User.countDocuments({ createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } })
+        
+        return res.json({
+          totalUsers,
+          totalPosts,
+          totalCommunities,
+          activeSos,
+          recentUsers
+        })
+      }
+    }
 
     if (method === 'users') {
       if (req.method === 'GET') {
