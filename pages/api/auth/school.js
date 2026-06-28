@@ -54,6 +54,16 @@ export default async function handler(req, res) {
 
       const schCom = await ensureCommunity(school, 'school', school, '', '', user._id)
       joinedCommunities.push(schCom)
+
+      // Global cross-school communities
+      if (department) {
+        const globalDeptCom = await ensureCommunity(`${department}`, 'general', '', faculty || '', department, user._id)
+        joinedCommunities.push(globalDeptCom)
+      }
+      if (faculty) {
+        const globalFacCom = await ensureCommunity(`${faculty} (Global)`, 'general', '', faculty, '', user._id)
+        joinedCommunities.push(globalFacCom)
+      }
     }
 
     if (level?.toLowerCase() === 'university') {

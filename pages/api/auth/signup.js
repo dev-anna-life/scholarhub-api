@@ -67,6 +67,15 @@ export default async function handler(req, res) {
         await ensureCommunity(`${faculty}`, 'faculty', school, faculty, '', user._id)
       }
       await ensureCommunity(school, 'school', school, '', '', user._id)
+      
+      // Global communities (cross-school)
+      if (department) {
+        await ensureCommunity(`${department}`, 'general', '', faculty || '', department, user._id)
+      }
+      if (faculty) {
+        await ensureCommunity(`${faculty} (Global)`, 'general', '', faculty, '', user._id)
+      }
+      
       await ensureCommunity('General University Hub', 'general', '', '', '', user._id)
     }
 
