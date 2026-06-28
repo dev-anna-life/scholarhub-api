@@ -39,6 +39,9 @@ export default async function handler(req, res) {
         : {}
 
       if (user) {
+        const sameLevelUsers = await User.find({ level: user.level }).select('_id').lean()
+        const levelUserIds = sameLevelUsers.map(u => u._id)
+
         const myCommunities = await Community.find({ members: user._id }).lean()
         const communityIds = myCommunities.map(c => c._id)
         const myComMap = {}
@@ -48,12 +51,16 @@ export default async function handler(req, res) {
         const userFaculty = user.faculty || ''
         const userDept = user.department || ''
 
-        let baseFilter = { status: 'approved', ...searchFilter }
+        let baseFilter = { 
+          status: 'approved', 
+          author: { $in: levelUserIds },
+          ...searchFilter 
+        }
         let sortOpt = { createdAt: -1 }
         let isForYou = false
 
         if (tab === 'following') {
-          baseFilter.author = { $in: followedIds }
+          baseFilter.author = { $in: followedIds.filter(id => levelUserIds.map(uid => uid.toString()).includes(id.toString())) }
         } else if (tab === 'category' && category) {
           baseFilter.category = category
         } else if (tab === 'community' && communityId) {
