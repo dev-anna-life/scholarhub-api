@@ -1,7 +1,7 @@
 const badgeItems = [
   {
     id: 'badge_basic', name: 'Basic', price: 3000, durationMonths: 1, icon: '⭐', color: '#94A3B8',
-    description: '1 month badge — get started with the basics',
+    description: '1 month badge: get started with the basics',
     maxChars: 500,
     canUploadVideo: false,
     dailyBotMessages: 20,
@@ -13,7 +13,7 @@ const badgeItems = [
   },
   {
     id: 'badge_premium', name: 'Premium', price: 10000, durationMonths: 3, icon: '💎', color: '#F59E0B',
-    description: '3 months badge — unlock more perks',
+    description: '3 months badge: unlock more perks',
     maxChars: 1000,
     canUploadVideo: false,
     dailyBotMessages: 50,
@@ -26,7 +26,7 @@ const badgeItems = [
   },
   {
     id: 'badge_extra_premium', name: 'Extra Premium', price: 20000, durationMonths: 12, icon: '👑', color: '#8B5CF6',
-    description: '12 months badge — the ultimate experience',
+    description: '12 months badge: the ultimate experience',
     maxChars: 100000,
     canUploadVideo: true,
     dailyBotMessages: 9999,

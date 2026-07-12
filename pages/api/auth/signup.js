@@ -2,6 +2,29 @@ const bcrypt = require('bcryptjs')
 const dbConnect = require('../../../lib/db')
 const prisma = require('../../../lib/prisma')
 const { generateToken } = require('../../../lib/auth')
+const rateLimit = require('../../../middleware/rateLimit')
+const { z } = require('zod')
+
+const signupSchema = z.object({
+  name: z.string().min(2, { message: 'Name must be at least 2 characters' }),
+  email: z.string().email({ message: 'Invalid email address' }),
+  username: z.string().min(3, { message: 'Username must be at least 3 characters' }),
+  password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
+  school: z.string().optional(),
+  level: z.string().optional(),
+  state: z.string().optional(),
+  city: z.string().optional(),
+  country: z.string().optional(),
+  course: z.string().optional(),
+  track: z.string().optional(),
+  faculty: z.string().optional(),
+  department: z.string().optional(),
+  status: z.string().optional(),
+  secondaryClass: z.string().optional(),
+  secondarySubjects: z.array(z.string()).optional(),
+  interests: z.array(z.string()).optional(),
+  referralCode: z.string().optional(),
+})
 
 async function ensureCommunity(name, type, school, faculty, department, userId) {
   let community = await prisma.community.findFirst({
@@ -30,12 +53,20 @@ async function ensureCommunity(name, type, school, faculty, department, userId) 
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' })
+
+  const isAllowed = rateLimit(req, res)
+  if (!isAllowed) return
+
   try {
     await dbConnect()
-    const { name, email, username, password, school, level, course, track, state, city, country, faculty, department, interests, referralCode, status, secondaryClass, secondarySubjects } = req.body
-    if (!name || !email || !username || !password) {
-      return res.status(400).json({ message: 'Name, email, username, and password are required' })
+
+    const validationResult = signupSchema.safeParse(req.body)
+    if (!validationResult.success) {
+      const errorMsg = validationResult.error.errors.map(err => err.message).join(', ')
+      return res.status(400).json({ message: errorMsg })
     }
+
+    const { name, email, username, password, school, level, course, track, state, city, country, faculty, department, interests, referralCode, status, secondaryClass, secondarySubjects } = validationResult.data
 
     const existing = await prisma.user.findFirst({
       where: { OR: [{ email }, { username }] },

@@ -2,13 +2,30 @@ const bcrypt = require('bcryptjs')
 const dbConnect = require('../../../lib/db')
 const prisma = require('../../../lib/prisma')
 const { generateToken } = require('../../../lib/auth')
+const rateLimit = require('../../../middleware/rateLimit')
+const { z } = require('zod')
+
+const loginSchema = z.object({
+  email: z.string().email({ message: 'Invalid email address' }),
+  password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
+})
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' })
+
+  const isAllowed = rateLimit(req, res)
+  if (!isAllowed) return
+
   try {
     await dbConnect()
-    const { email, password } = req.body
-    if (!email || !password) return res.status(400).json({ message: 'Email and password are required' })
+    
+    const validationResult = loginSchema.safeParse(req.body)
+    if (!validationResult.success) {
+      const errorMsg = validationResult.error.errors.map(err => err.message).join(', ')
+      return res.status(400).json({ message: errorMsg })
+    }
+
+    const { email, password } = validationResult.data
 
     const user = await prisma.user.findUnique({ where: { email } })
     if (!user) return res.status(401).json({ message: 'Invalid email or password' })
