@@ -1,5 +1,4 @@
-const User = require('../../../../../models/User')
-const Notification = require('../../../../../models/Notification')
+const prisma = require('../../../../../lib/prisma')
 const { protect } = require('../../../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -8,9 +7,9 @@ export default async function handler(req, res) {
     const user = await protect(req, res)
     if (!user) return
     const targetId = req.query.id
-    if (targetId === user._id.toString()) return res.status(400).json({ message: 'Cannot follow yourself' })
+    if (targetId === user.id) return res.status(400).json({ message: 'Cannot follow yourself' })
 
-    const target = await User.findById(targetId)
+    const target = await prisma.user.findUnique({ where: { id: targetId } })
     if (!target) return res.status(404).json({ message: 'User not found' })
 
     const isFollowerStudent = !user.status || user.status === 'Current Student'
@@ -19,20 +18,20 @@ export default async function handler(req, res) {
       return res.status(403).json({ message: `Students cannot follow ${target.status === 'Graduate' ? 'graduates' : 'alumni'}` })
     }
 
-    const idx = user.following.indexOf(targetId)
-    if (idx > -1) {
-      user.following.splice(idx, 1)
-      target.followers = target.followers.filter(f => f.toString() !== user._id.toString())
-    } else {
-      user.following.push(targetId)
-      target.followers.push(user._id)
-      await Notification.create({ user: targetId, fromUser: user._id, type: 'follow', text: 'started following you' })
-    }
-    await user.save()
-    await target.save()
+    const existingFollow = await prisma.follow.findUnique({ where: { followerId_followingId: { followerId: user.id, followingId: targetId } } })
 
-    const updated = await User.findById(user._id).select('-password')
-    res.json({ user: updated.toObject(), following: idx === -1 })
+    let isFollowing
+    if (existingFollow) {
+      await prisma.follow.delete({ where: { followerId_followingId: { followerId: user.id, followingId: targetId } } })
+      isFollowing = false
+    } else {
+      await prisma.follow.create({ data: { followerId: user.id, followingId: targetId } })
+      await prisma.notification.create({ data: { userId: targetId, fromUserId: user.id, type: 'follow', text: 'started following you' } })
+      isFollowing = true
+    }
+
+    const { password, ...updatedUser } = await prisma.user.findUnique({ where: { id: user.id } })
+    res.json({ user: updatedUser, following: isFollowing })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })
   }

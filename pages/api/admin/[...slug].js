@@ -1,10 +1,4 @@
-const User = require('../../../models/User')
-const Post = require('../../../models/Post')
-const Message = require('../../../models/Message')
-const Conversation = require('../../../models/Conversation')
-const Notification = require('../../../models/Notification')
-const SOS = require('../../../models/SOS')
-const Community = require('../../../models/Community')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -26,11 +20,13 @@ export default async function handler(req, res) {
 
     if (method === 'stats') {
       if (req.method === 'GET') {
-        const totalUsers = await User.countDocuments()
-        const totalPosts = await Post.countDocuments()
-        const totalCommunities = await Community.countDocuments()
-        const activeSos = await SOS.countDocuments({ status: 'active' })
-        const recentUsers = await User.countDocuments({ createdAt: { $gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } })
+        const totalUsers = await prisma.user.count()
+        const totalPosts = await prisma.post.count()
+        const totalCommunities = await prisma.community.count()
+        const activeSos = await prisma.sOS.count({ where: { status: 'active' } })
+        const recentUsers = await prisma.user.count({
+          where: { createdAt: { gte: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000) } }
+        })
         
         return res.json({
           totalUsers,
@@ -45,30 +41,33 @@ export default async function handler(req, res) {
     if (method === 'users') {
       if (req.method === 'GET') {
         if (subpath) {
-          const target = await User.findById(subpath).select('-password').lean()
+          const target = await prisma.user.findUnique({ where: { id: subpath } })
           if (!target) return res.status(404).json({ message: 'User not found' })
-          return res.json(target)
+          const { password, ...userWithoutPassword } = target
+          return res.json(userWithoutPassword)
         }
-        const users = await User.find({}).select('-password').sort({ createdAt: -1 }).lean()
-        return res.json(users)
+        const users = await prisma.user.findMany({ orderBy: { createdAt: 'desc' } })
+        const safeUsers = users.map(({ password, ...rest }) => rest)
+        return res.json(safeUsers)
       }
       if (req.method === 'PUT' && subpath) {
-        const target = await User.findByIdAndUpdate(subpath, req.body, { new: true }).select('-password')
+        const target = await prisma.user.update({ where: { id: subpath }, data: req.body })
         if (!target) return res.status(404).json({ message: 'User not found' })
-        return res.json(target)
+        const { password, ...userWithoutPassword } = target
+        return res.json(userWithoutPassword)
       }
       if (req.method === 'DELETE' && subpath) {
         const [userId] = subpath.split('/')
-        await Post.deleteMany({ author: userId })
-        await Message.deleteMany({ sender: userId })
-        await Conversation.deleteMany({ participants: userId })
-        await Notification.deleteMany({ $or: [{ user: userId }, { fromUser: userId }] })
-        await SOS.deleteMany({ student: userId })
-        await User.updateMany(
-          { $or: [{ followers: userId }, { following: userId }] },
-          { $pull: { followers: userId, following: userId } },
-        )
-        await User.findByIdAndDelete(userId)
+        await prisma.post.deleteMany({ where: { authorId: userId } })
+        await prisma.message.deleteMany({ where: { senderId: userId } })
+        await prisma.conversationParticipant.deleteMany({ where: { userId } })
+        await prisma.conversation.deleteMany({
+          where: { participants: { none: {} } }
+        })
+        await prisma.notification.deleteMany({ where: { OR: [{ userId }, { fromUserId: userId }] } })
+        await prisma.sOS.deleteMany({ where: { studentId: userId } })
+        await prisma.follow.deleteMany({ where: { OR: [{ followerId: userId }, { followingId: userId }] } })
+        await prisma.user.delete({ where: { id: userId } })
         return res.json({ message: 'User deleted' })
       }
     }
@@ -76,93 +75,106 @@ export default async function handler(req, res) {
     if (method === 'posts') {
       if (req.method === 'GET') {
         if (subpath === 'pending') {
-          const posts = await Post.find({ status: 'pending' }).populate('author', 'name username avatar').sort({ createdAt: -1 }).lean()
+          const posts = await prisma.post.findMany({
+            where: { status: 'pending' },
+            include: { author: { select: { name: true, username: true, avatar: true } } },
+            orderBy: { createdAt: 'desc' },
+          })
           return res.json(posts)
         }
-        const posts = await Post.find({}).populate('author', 'name username avatar').sort({ createdAt: -1 }).lean()
+        const posts = await prisma.post.findMany({
+          include: { author: { select: { name: true, username: true, avatar: true } } },
+          orderBy: { createdAt: 'desc' },
+        })
         return res.json(posts)
       }
       if (req.method === 'PUT' && subpath) {
         const [postId, action] = subpath.split('/')
         if (action === 'approve') {
-          const post = await Post.findByIdAndUpdate(postId, { status: 'approved' }, { new: true }).populate('author', 'name username avatar')
+          const post = await prisma.post.update({
+            where: { id: postId },
+            data: { status: 'approved' },
+            include: { author: { select: { name: true, username: true, avatar: true } } },
+          })
           if (!post) return res.status(404).json({ message: 'Post not found' })
           return res.json(post)
         }
         if (action === 'reject') {
-          const post = await Post.findByIdAndUpdate(postId, { status: 'rejected' }, { new: true }).populate('author', 'name username avatar')
+          const post = await prisma.post.update({
+            where: { id: postId },
+            data: { status: 'rejected' },
+            include: { author: { select: { name: true, username: true, avatar: true } } },
+          })
           if (!post) return res.status(404).json({ message: 'Post not found' })
           return res.json(post)
         }
-        const post = await Post.findByIdAndUpdate(postId, req.body, { new: true }).populate('author', 'name username avatar')
+        const post = await prisma.post.update({
+          where: { id: postId },
+          data: req.body,
+          include: { author: { select: { name: true, username: true, avatar: true } } },
+        })
         if (!post) return res.status(404).json({ message: 'Post not found' })
         return res.json(post)
       }
       if (req.method === 'DELETE' && subpath) {
         const [postId] = subpath.split('/')
-        await Post.findByIdAndDelete(postId)
+        await prisma.post.delete({ where: { id: postId } })
         return res.json({ message: 'Post deleted' })
       }
     }
 
     if (method === 'cleanup') {
-      // --- Deduplicate conversations for same participant pair ---
-      const allConvs = await Conversation.find({}).lean()
+      const allConvs = await prisma.conversation.findMany({ include: { participants: true } })
       const pairMap = {}
       for (const conv of allConvs) {
         const p = conv.participants || []
         if (p.length < 2) continue
-        const sorted = p.map(id => id.toString()).sort().join('|')
-        if (!pairMap[sorted]) {
-          pairMap[sorted] = []
-        }
+        const sorted = p.map(part => part.userId).sort().join('|')
+        if (!pairMap[sorted]) pairMap[sorted] = []
         pairMap[sorted].push(conv)
       }
       const dupIds = []
       const keepMap = {}
       for (const [key, convs] of Object.entries(pairMap)) {
         if (convs.length > 1) {
-          convs.sort((a, b) => new Date(b.updatedAt || b._id.getTimestamp()) - new Date(a.updatedAt || a._id.getTimestamp()))
+          convs.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
           const keep = convs[0]
-          const dups = convs.slice(1).map(c => c._id)
-          keepMap[keep._id.toString()] = dups.map(id => id.toString())
+          const dups = convs.slice(1).map(c => c.id)
+          keepMap[keep.id] = dups
           dupIds.push(...dups)
         }
       }
       for (const [keepId, dupIdArr] of Object.entries(keepMap)) {
-        await Message.updateMany({ conversation: { $in: dupIdArr } }, { conversation: keepId })
-        const latest = await Message.findOne({ conversation: keepId }).sort({ createdAt: -1 }).lean()
-        if (latest) await Conversation.findByIdAndUpdate(keepId, { lastMessage: latest._id })
+        await prisma.message.updateMany({ where: { conversationId: { in: dupIdArr } }, data: { conversationId: keepId } })
+        const latest = await prisma.message.findFirst({ where: { conversationId: keepId }, orderBy: { createdAt: 'desc' } })
+        if (latest) await prisma.conversation.update({ where: { id: keepId }, data: { lastMessageId: latest.id } })
       }
-      await Conversation.deleteMany({ _id: { $in: dupIds } })
+      await prisma.conversation.deleteMany({ where: { id: { in: dupIds } } })
 
-      // --- Remove orphan conversations (deleted users) ---
       const orphanConvIds = []
       for (const conv of allConvs) {
         if (!conv.participants || conv.participants.length === 0) {
-          orphanConvIds.push(conv._id)
+          orphanConvIds.push(conv.id)
           continue
         }
-        const validUsers = await User.find({ _id: { $in: conv.participants } }).lean()
-        if (validUsers.length < 2) orphanConvIds.push(conv._id)
+        const validUsers = await prisma.user.findMany({ where: { id: { in: conv.participants.map(p => p.userId) } } })
+        if (validUsers.length < 2) orphanConvIds.push(conv.id)
       }
-      const delOrphanConv = await Conversation.deleteMany({ _id: { $in: orphanConvIds } })
-      const delOrphanMsg = await Message.deleteMany({ conversation: { $in: orphanConvIds } })
+      const delOrphanConv = await prisma.conversation.deleteMany({ where: { id: { in: orphanConvIds } } })
+      const delOrphanMsg = await prisma.message.deleteMany({ where: { conversationId: { in: orphanConvIds } } })
 
-      // --- Remove messages with deleted senders ---
-      const allUserIds = (await User.find({}).select('_id').lean()).map(u => u._id)
-      const delBadMsg = await Message.deleteMany({
-        $and: [
-          { $or: [{ sender: { $nin: allUserIds } }, { receiver: { $nin: allUserIds } }] },
-          { sender: { $ne: null }, receiver: { $ne: null } },
-        ]
+      const allUserIds = (await prisma.user.findMany({ select: { id: true } })).map(u => u.id)
+      const delBadMsg = await prisma.message.deleteMany({
+        where: {
+          senderId: { notIn: allUserIds }
+        }
       })
 
       return res.json({
         message: 'Cleanup done',
         deduplicatedConversations: dupIds.length,
-        deletedConversations: delOrphanConv.deletedCount,
-        deletedMessages: delOrphanMsg.deletedCount + delBadMsg.deletedCount,
+        deletedConversations: delOrphanConv.count,
+        deletedMessages: delOrphanMsg.count + delBadMsg.count,
       })
     }
 

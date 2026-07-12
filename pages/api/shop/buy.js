@@ -1,6 +1,4 @@
-const dbConnect = require('../../../lib/db')
-const User = require('../../../models/User')
-const Purchase = require('../../../models/Purchase')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 const badgeItems = [
@@ -12,7 +10,6 @@ const badgeItems = [
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' })
   try {
-    await dbConnect()
     const user = await protect(req, res)
     if (!user) return
 
@@ -24,7 +21,7 @@ export default async function handler(req, res) {
 
     let targetUser = user
     if (recipientUsername) {
-      targetUser = await User.findOne({ username: recipientUsername.toLowerCase() })
+      targetUser = await prisma.user.findUnique({ where: { username: recipientUsername.toLowerCase() } })
       if (!targetUser) return res.status(404).json({ message: 'Recipient not found' })
     }
 
@@ -33,31 +30,42 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: `Not enough coins. You need ${item.price} coins.` })
     }
 
-    buyer.coins -= item.price
-    await buyer.save()
+    await prisma.user.update({
+      where: { id: buyer.id },
+      data: { coins: { decrement: item.price } }
+    })
 
     const expiresAt = new Date()
     expiresAt.setMonth(expiresAt.getMonth() + item.durationMonths)
 
-    if (!targetUser.badgeSubscriptions) targetUser.badgeSubscriptions = []
-    const existing = targetUser.badgeSubscriptions.find(s => s.id === itemId)
-    if (existing) {
-      existing.expiresAt = new Date(Math.max(new Date(existing.expiresAt).getTime(), Date.now()) + item.durationMonths * 30 * 24 * 60 * 60 * 1000)
+    const badgeSubscriptions = targetUser.badgeSubscriptions || []
+    const existingIdx = badgeSubscriptions.findIndex(s => s.badgeId === itemId)
+    if (existingIdx >= 0) {
+      const oldExp = new Date(badgeSubscriptions[existingIdx].expiresAt).getTime()
+      const newExp = Math.max(oldExp, Date.now()) + item.durationMonths * 30 * 24 * 60 * 60 * 1000
+      badgeSubscriptions[existingIdx].expiresAt = new Date(newExp)
     } else {
-      targetUser.badgeSubscriptions.push({ id: itemId, purchasedAt: new Date(), expiresAt })
+      badgeSubscriptions.push({ badgeId: itemId, purchasedAt: new Date(), expiresAt })
     }
-    await targetUser.save()
-
-    await Purchase.create({
-      user: targetUser._id, itemId, itemName: item.name,
-      price: item.price, type: recipientUsername ? 'gift' : 'buy',
-      giftedBy: recipientUsername ? user._id : undefined,
+    await prisma.user.update({
+      where: { id: targetUser.id },
+      data: { badgeSubscriptions }
     })
+
+    await prisma.purchase.create({
+      data: {
+        userId: targetUser.id, itemId, itemName: item.name,
+        price: item.price, type: recipientUsername ? 'gift' : 'buy',
+        giftedBy: recipientUsername ? user.id : null,
+      }
+    })
+
+    const updatedUser = await prisma.user.findUnique({ where: { id: user.id } })
 
     res.json({
       message: recipientUsername ? `${item.name} badge gifted!` : `${item.name} badge purchased!`,
-      coins: user.coins,
-      badgeSubscriptions: user.badgeSubscriptions,
+      coins: updatedUser.coins,
+      badgeSubscriptions: updatedUser.badgeSubscriptions,
     })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })

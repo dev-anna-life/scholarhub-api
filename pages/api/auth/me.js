@@ -1,5 +1,5 @@
 const dbConnect = require('../../../lib/db')
-const User = require('../../../models/User')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -8,7 +8,13 @@ export default async function handler(req, res) {
     await dbConnect()
     const user = await protect(req, res)
     if (!user) return
-    res.json(user.toObject())
+
+    const [followersCount, followingCount] = await Promise.all([
+      prisma.follow.count({ where: { followingId: user.id } }),
+      prisma.follow.count({ where: { followerId: user.id } }),
+    ])
+
+    res.json({ ...user, followersCount, followingCount })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })
   }

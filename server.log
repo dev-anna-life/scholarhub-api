@@ -1,0 +1,24 @@
+
+> scholarhub-api@1.0.0 dev
+> next dev
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of C:\Users\USER\package-lock.json as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * C:\Users\USER\scholarhub-api\package-lock.json
+
+ ⚠ Port 3000 is in use by process 15304, using available port 3001 instead.
+   ▲ Next.js 15.5.18
+   - Local:        http://localhost:3001
+   - Network:      http://10.92.66.224:3001
+   - Environments: .env.local, .env
+
+ ✓ Starting...
+ ✓ Ready in 5.2s
+ ○ Compiling /middleware ...
+ ✓ Compiled /middleware in 4.5s (112 modules)
+ ○ Compiling /api/auth/login ...
+ ✓ Compiled /api/auth/login in 1241ms (138 modules)
+ POST /api/auth/login 200 in 5590ms

@@ -1,4 +1,4 @@
-const dbConnect = require('../../../lib/db')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -10,47 +10,50 @@ export default async function handler(req, res) {
     if (!adminEmails.includes(admin.email?.toLowerCase())) {
       return res.status(403).json({ message: 'Admin only' })
     }
-    await dbConnect()
 
-    const mongoose = require('mongoose')
-    const db = mongoose.connection.db
     const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
 
-    const users = await db.collection('users').find({}).toArray()
+    const users = await prisma.user.findMany()
     const results = []
 
     for (const user of users) {
-      const posts = await db.collection('posts').find({
-        author: user._id,
-        createdAt: { $gte: sevenDaysAgo },
-        status: 'approved',
-      }).toArray()
+      const posts = await prisma.post.findMany({
+        where: {
+          authorId: user.id,
+          createdAt: { gte: sevenDaysAgo },
+          status: 'approved',
+        },
+        include: {
+          likes: true,
+          comments: true,
+        }
+      })
 
       let totalEngagement = 0
       for (const post of posts) {
-        totalEngagement += (post.likes?.length || 0) + (post.commentsData?.length || 0)
+        totalEngagement += post.likes.length + post.comments.length
       }
 
       if (totalEngagement === 0) continue
 
       const coinsEarned = totalEngagement * 2
-      results.push({ userId: user._id, name: user.name, engagement: totalEngagement, coins: coinsEarned })
+      results.push({ userId: user.id, name: user.name, engagement: totalEngagement, coins: coinsEarned })
     }
 
     results.sort((a, b) => b.engagement - a.engagement)
     if (results.length > 0) results[0].coins += 200
 
     for (const r of results) {
-      await db.collection('users').updateOne(
-        { _id: r.userId },
-        {
-          $inc: { coins: r.coins, lifetimeCoins: r.coins, monthlyCoins: r.coins },
-          $set: {
-            weeklyEngagementCoins: r.coins,
-            lastWeeklyPayout: new Date(),
-          },
+      await prisma.user.update({
+        where: { id: r.userId },
+        data: {
+          coins: { increment: r.coins },
+          lifetimeCoins: { increment: r.coins },
+          monthlyCoins: { increment: r.coins },
+          weeklyEngagementCoins: r.coins,
+          lastWeeklyPayout: new Date(),
         }
-      )
+      })
     }
 
     res.json({ distributed: results.length, results })

@@ -1,5 +1,4 @@
-const dbConnect = require('../../../lib/db')
-const User = require('../../../models/User')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 const airtimeItems = {
@@ -39,7 +38,6 @@ async function callVTU(phone, amount, network) {
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' })
   try {
-    await dbConnect()
     const user = await protect(req, res)
     if (!user) return
 
@@ -59,10 +57,12 @@ export default async function handler(req, res) {
       }
     }
 
-    user.coins -= item.price
-    await user.save()
+    const updatedUser = await prisma.user.update({
+      where: { id: user.id },
+      data: { coins: { decrement: item.price } }
+    })
 
-    res.json({ message: `₦${item.value} airtime redeemed successfully!`, coins: user.coins })
+    res.json({ message: `₦${item.value} airtime redeemed successfully!`, coins: updatedUser.coins })
   } catch (error) {
     res.status(500).json({ message: 'Redemption failed', error: error.message })
   }

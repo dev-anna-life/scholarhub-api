@@ -1,5 +1,4 @@
-const dbConnect = require('../../../lib/db')
-const mongoose = require('mongoose')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -7,48 +6,50 @@ export default async function handler(req, res) {
   try {
     const currentUser = await protect(req, res)
     if (!currentUser) return
-    const currentUserId = currentUser._id.toString()
-    await dbConnect()
+    const currentUserId = currentUser.id
 
-    const db = mongoose.connection.db
-    const userIdObj = new mongoose.Types.ObjectId(currentUserId)
+    const participations = await prisma.conversationParticipant.findMany({
+      where: { userId: currentUserId },
+      select: { conversationId: true },
+    })
+    const convIds = participations.map(p => p.conversationId)
 
-    // Get all conversations for this user using raw driver
-    const convs = await db.collection('conversations')
-      .find({ participants: userIdObj })
-      .sort({ updatedAt: -1 })
-      .toArray()
+    if (convIds.length === 0) return res.json([])
 
-    // Build result with user info
-    const result = []
-    for (const conv of convs) {
-      const otherId = conv.participants?.find(p => p.toString() !== currentUserId)
-      if (!otherId) continue
-      const otherUser = await db.collection('users')
-        .findOne({ _id: otherId }, { projection: { name: 1, school: 1, level: 1, badge: 1, _id: 1 } })
-      if (!otherUser) continue
+    const conversations = await prisma.conversation.findMany({
+      where: { id: { in: convIds } },
+      include: {
+        participants: {
+          include: {
+            user: {
+              select: { id: true, name: true, school: true, level: true, badge: true, username: true, avatar: true },
+            },
+          },
+        },
+        messages: { orderBy: { createdAt: 'desc' }, take: 1 },
+      },
+      orderBy: { updatedAt: 'desc' },
+    })
 
-      let lastMessage = null
-      if (conv.lastMessage) {
-        const msgs = await db.collection('messages')
-          .find({ _id: conv.lastMessage })
-          .limit(1)
-          .toArray()
-        if (msgs.length > 0) lastMessage = msgs[0]
-      }
-
-      const unreadCount = await db.collection('messages').countDocuments({
-        conversation: conv._id,
-        sender: { $ne: userIdObj },
-        read: false,
-      })
-
-      result.push({
-        user: otherUser,
-        lastMessage,
-        unread: unreadCount,
-      })
+    const unreadCounts = await prisma.message.groupBy({
+      by: ['conversationId'],
+      where: { conversationId: { in: convIds }, senderId: { not: currentUserId }, read: false },
+      _count: { id: true },
+    })
+    const unreadMap = {}
+    for (const item of unreadCounts) {
+      unreadMap[item.conversationId] = item._count.id
     }
+
+    const result = conversations.map(conv => {
+      const otherParticipant = conv.participants.find(p => p.userId !== currentUserId)
+      if (!otherParticipant) return null
+      return {
+        user: otherParticipant.user,
+        lastMessage: conv.messages[0] || null,
+        unread: unreadMap[conv.id] || 0,
+      }
+    }).filter(Boolean)
 
     res.json(result)
   } catch (error) {

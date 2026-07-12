@@ -1,0 +1,290 @@
+generator client {
+  provider = "prisma-client-js"
+  output  = "../prisma/generated/client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                   String    @id @default(cuid())
+  name                 String
+  email                String    @unique
+  username             String?   @unique
+  phone                String?
+  password             String?
+  googleId             String?
+  avatar               String?
+  bio                  String?
+  level                String?   @default("JSS")
+  status               String?   @default("Current Student")
+  secondaryClass       String?
+  secondarySubjects    String[]
+  school               String?
+  faculty              String?
+  department           String?
+  state                String?
+  city                 String?
+  country              String?
+  course               String?
+  track                String?
+  interests            String[]
+  badges               String[]
+  coins                Int       @default(50)
+  lifetimeCoins        Int       @default(50)
+  monthlyCoins         Int       @default(50)
+  monthlyCoinsMonth    String?
+  streak               Int       @default(0)
+  lastPostDate         DateTime?
+  badge                String?   @default("Beginner")
+  activatedFeatures    String[]
+  weeklyEngagementCoins Int      @default(0)
+  lastWeeklyPayout     DateTime?
+  isVerified           Boolean   @default(false)
+  isAdmin              Boolean   @default(false)
+  resetToken           String?
+  resetTokenExpiry     DateTime?
+  twoFactorEnabled     Boolean   @default(false)
+  referralCode         String?   @unique
+  referredById         String?
+  lastActive           DateTime?
+  botUsageDate         String?
+  botUsageCount        Int?
+  createdAt            DateTime  @default(now())
+  updatedAt            DateTime  @updatedAt
+
+  referredBy           User?                @relation("Referral", fields: [referredById], references: [id])
+  referrals            User[]               @relation("Referral")
+  posts                Post[]
+  notifications        Notification[]       @relation("UserNotifications")
+  notificationsSent    Notification[]       @relation("FromUserNotifications")
+  purchases            Purchase[]           @relation("BuyerPurchases")
+  purchasesReceived    Purchase[]           @relation("RecipientPurchases")
+  sosAlerts            SOS[]                @relation("StudentSOS")
+  sosResolved          SOS[]                @relation("ResolvedSOS")
+  schoolRequests       SchoolRequest[]
+  monthlyAwards        MonthlyAward[]
+  messages             Message[]
+  communitiesCreated   Community[]
+  comments             Comment[]
+  followers            Follow[]             @relation("Following")
+  following            Follow[]             @relation("Follower")
+  postLikes            PostLike[]
+  postSaves            PostSave[]
+  communityMemberships CommunityMember[]
+  conversationParticipants ConversationParticipant[]
+  badgeSubscriptions   BadgeSubscription[]
+}
+
+model Follow {
+  followerId  String
+  followingId String
+  follower    User     @relation("Follower", fields: [followerId], references: [id])
+  following   User     @relation("Following", fields: [followingId], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@id([followerId, followingId])
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String
+  category  String
+  status    String   @default("pending")
+  image     String?
+  video     String?
+  trending  Boolean  @default(false)
+  boosted   Boolean  @default(false)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  comments      Comment[]
+  likes         PostLike[]
+  savedBy       PostSave[]
+  communities   PostCommunity[]
+  monthlyAwards MonthlyAward[]
+}
+
+model PostLike {
+  postId    String
+  userId    String
+  post      Post      @relation(fields: [postId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+
+  @@id([postId, userId])
+}
+
+model PostSave {
+  postId    String
+  userId    String
+  post      Post      @relation(fields: [postId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  createdAt DateTime  @default(now())
+
+  @@id([postId, userId])
+}
+
+model PostCommunity {
+  postId      String
+  communityId String
+  post        Post      @relation(fields: [postId], references: [id])
+  community   Community @relation(fields: [communityId], references: [id])
+
+  @@id([postId, communityId])
+}
+
+model Comment {
+  id        String   @id @default(cuid())
+  text      String
+  authorId  String
+  postId    String
+  author    User     @relation(fields: [authorId], references: [id])
+  post      Post     @relation(fields: [postId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Community {
+  id          String   @id @default(cuid())
+  name        String
+  type        String
+  school      String?
+  faculty     String?
+  department  String?
+  createdById String?
+  createdBy   User?    @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  members CommunityMember[]
+  posts   PostCommunity[]
+
+  @@unique([name, type, school, faculty, department])
+}
+
+model CommunityMember {
+  communityId String
+  userId      String
+  community   Community @relation(fields: [communityId], references: [id])
+  user        User      @relation(fields: [userId], references: [id])
+  joinedAt    DateTime  @default(now())
+
+  @@id([communityId, userId])
+}
+
+model SchoolRequest {
+  id            String   @id @default(cuid())
+  name          String
+  location      String?
+  level         String?
+  requestedById String?
+  requestedBy   User?    @relation(fields: [requestedById], references: [id])
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Notification {
+  id         String   @id @default(cuid())
+  type       String   @default("system")
+  text       String?
+  read       Boolean  @default(false)
+  userId     String
+  fromUserId String?
+  user       User     @relation("UserNotifications", fields: [userId], references: [id])
+  fromUser   User?    @relation("FromUserNotifications", fields: [fromUserId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model MonthlyAward {
+  id              String   @id @default(cuid())
+  category        String
+  postId          String
+  userId          String
+  month           Int
+  year            Int
+  engagementScore Int      @default(0)
+  label           String?
+  post            Post     @relation(fields: [postId], references: [id])
+  user            User     @relation(fields: [userId], references: [id])
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([month, year, category])
+}
+
+model Purchase {
+  id          String   @id @default(cuid())
+  itemId      String
+  itemName    String
+  price       Int
+  type        String
+  giftedBy    String?
+  userId      String
+  recipientId String?
+  user        User     @relation("BuyerPurchases", fields: [userId], references: [id])
+  recipient   User?    @relation("RecipientPurchases", fields: [recipientId], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model Conversation {
+  id            String   @id @default(cuid())
+  lastMessageId String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  conversationId String
+  userId         String
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  user           User         @relation(fields: [userId], references: [id])
+
+  @@id([conversationId, userId])
+}
+
+model Message {
+  id             String       @id @default(cuid())
+  text           String
+  read           Boolean      @default(false)
+  senderId       String
+  conversationId String
+  sender         User         @relation(fields: [senderId], references: [id])
+  conversation   Conversation @relation(fields: [conversationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+model SOS {
+  id           String    @id @default(cuid())
+  message      String    @default("Student needs immediate help!")
+  latitude     Float?
+  longitude    Float?
+  address      String?
+  status       String    @default("active")
+  resolvedAt   DateTime?
+  studentId    String
+  resolvedById String?
+  student      User      @relation("StudentSOS", fields: [studentId], references: [id])
+  resolvedBy   User?     @relation("ResolvedSOS", fields: [resolvedById], references: [id])
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+}
+
+model BadgeSubscription {
+  id          String   @id @default(cuid())
+  badgeId     String
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  purchasedAt DateTime @default(now())
+  expiresAt   DateTime
+}

@@ -1,5 +1,4 @@
-const Message = require('../../../models/Message')
-const Conversation = require('../../../models/Conversation')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -8,11 +7,13 @@ export default async function handler(req, res) {
     if (!user) return
 
     if (req.method === 'GET') {
-      const messages = await Message.find({ conversation: req.query.id })
-        .populate('sender', 'name username avatar')
-        .sort({ createdAt: -1 })
-        .limit(50)
-        .lean()
+      const conversationId = req.query.id
+      const messages = await prisma.message.findMany({
+        where: { conversationId },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+        include: { sender: { select: { id: true, name: true, username: true, avatar: true } } },
+      })
       return res.json(messages.reverse())
     }
 
@@ -20,18 +21,27 @@ export default async function handler(req, res) {
       const { conversationId, text } = req.body
       if (!conversationId || !text) return res.status(400).json({ message: 'conversationId and text required' })
 
-      const conv = await Conversation.findById(conversationId)
+      const conv = await prisma.conversation.findUnique({ where: { id: conversationId } })
       if (!conv) return res.status(404).json({ message: 'Conversation not found' })
-      if (!conv.participants.some(p => p.toString() === user._id.toString())) {
-        return res.status(403).json({ message: 'Not a participant' })
-      }
 
-      const message = await Message.create({ conversation: conversationId, sender: user._id, text })
-      conv.lastMessage = message._id
-      conv.updatedAt = new Date()
-      await conv.save()
+      const isParticipant = await prisma.conversationParticipant.findUnique({
+        where: { conversationId_userId: { conversationId, userId: user.id } },
+      })
+      if (!isParticipant) return res.status(403).json({ message: 'Not a participant' })
 
-      const populated = await Message.findById(message._id).populate('sender', 'name username avatar').lean()
+      const message = await prisma.message.create({
+        data: { conversationId, senderId: user.id, text },
+      })
+
+      await prisma.conversation.update({
+        where: { id: conversationId },
+        data: { lastMessageId: message.id, updatedAt: new Date() },
+      })
+
+      const populated = await prisma.message.findUnique({
+        where: { id: message.id },
+        include: { sender: { select: { id: true, name: true, username: true, avatar: true } } },
+      })
       return res.status(201).json(populated)
     }
 

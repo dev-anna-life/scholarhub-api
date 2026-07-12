@@ -1,5 +1,5 @@
 const dbConnect = require('../../../lib/db')
-const User = require('../../../models/User')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -15,12 +15,12 @@ export default async function handler(req, res) {
     if (avatar !== undefined) updates.avatar = avatar
     if (coins !== undefined) updates.coins = coins
     if (username !== undefined) {
-      const existing = await User.findOne({ username, _id: { $ne: user._id } })
+      const existing = await prisma.user.findFirst({ where: { username, NOT: { id: user.id } } })
       if (existing) return res.status(400).json({ message: 'Username already taken' })
       updates.username = username
     }
-    const updated = await User.findByIdAndUpdate(user._id, { $set: updates }, { new: true }).select('-password')
-    res.json({ user: updated.toObject() })
+    const { password, ...updated } = await prisma.user.update({ where: { id: user.id }, data: updates })
+    res.json({ user: updated })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })
   }

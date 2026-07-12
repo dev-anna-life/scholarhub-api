@@ -1,9 +1,8 @@
-const dbConnect = require('../../../lib/db')
-const Post = require('../../../models/Post')
-const User = require('../../../models/User')
-const Community = require('../../../models/Community')
-const Notification = require('../../../models/Notification')
+const prisma = require('../../../lib/prisma')
+const jwt = require('jsonwebtoken')
 const { protect } = require('../../../lib/auth')
+
+const authorSelect = { id: true, name: true, username: true, avatar: true, school: true, faculty: true, department: true, level: true }
 
 async function getOptionalUser(req) {
   let token
@@ -12,10 +11,15 @@ async function getOptionalUser(req) {
   }
   if (!token) return null
   try {
-    const jwt = require('jsonwebtoken')
     const decoded = jwt.verify(token, process.env.JWT_SECRET)
-    await dbConnect()
-    return await User.findById(decoded.id).select('-password')
+    return await prisma.user.findUnique({
+      where: { id: decoded.id },
+      select: {
+        id: true, name: true, username: true, avatar: true, level: true,
+        school: true, faculty: true, department: true, status: true,
+        following: { select: { followingId: true } }
+      }
+    })
   } catch {
     return null
   }
@@ -24,7 +28,6 @@ async function getOptionalUser(req) {
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
-      await dbConnect()
       const { community, search, page = 1, limit = 20, tab, category, communityId } = req.query
       const user = await getOptionalUser(req)
       const pageNum = Math.max(1, parseInt(page))
@@ -32,53 +35,75 @@ export default async function handler(req, res) {
       const skip = (pageNum - 1) * limitNum
 
       const searchFilter = search
-        ? { $or: [
-            { title: { $regex: search, $options: 'i' } },
-            { content: { $regex: search, $options: 'i' } },
-          ]}
+        ? {
+            OR: [
+              { title: { contains: search, mode: 'insensitive' } },
+              { content: { contains: search, mode: 'insensitive' } },
+            ]
+          }
         : {}
 
       if (user) {
-        const sameLevelUsers = await User.find({ level: user.level }).select('_id').lean()
-        const levelUserIds = sameLevelUsers.map(u => u._id)
+        const sameLevelUsers = await prisma.user.findMany({
+          where: { level: user.level },
+          select: { id: true }
+        })
+        const levelUserIds = sameLevelUsers.map(u => u.id)
 
-        const myCommunities = await Community.find({ members: user._id }).lean()
-        const communityIds = myCommunities.map(c => c._id)
+        const memberCommunities = await prisma.communityMember.findMany({
+          where: { userId: user.id },
+          select: {
+            communityId: true,
+            community: { select: { id: true, name: true, type: true, school: true, faculty: true, department: true } }
+          }
+        })
         const myComMap = {}
-        for (const c of myCommunities) myComMap[c._id.toString()] = c
-        const followedIds = user.following || []
+        for (const m of memberCommunities) myComMap[m.communityId] = m.community
+
+        const followedIds = (user.following || []).map(f => f.followingId)
         const userSchool = user.school || ''
         const userFaculty = user.faculty || ''
         const userDept = user.department || ''
 
-        let baseFilter = { 
-          status: 'approved', 
-          author: { $in: levelUserIds },
-          ...searchFilter 
+        let baseWhere = {
+          status: 'approved',
+          authorId: { in: levelUserIds },
+          ...searchFilter
         }
-        let sortOpt = { createdAt: -1 }
         let isForYou = false
 
         if (tab === 'following') {
-          baseFilter.author = { $in: followedIds.filter(id => levelUserIds.map(uid => uid.toString()).includes(id.toString())) }
+          const followingAtSameLevel = followedIds.filter(id => levelUserIds.includes(id))
+          baseWhere.authorId = { in: followingAtSameLevel }
         } else if (tab === 'category' && category) {
-          baseFilter.category = category
+          baseWhere.category = category
         } else if (tab === 'community' && communityId) {
-          baseFilter.communities = communityId
+          baseWhere.communities = { some: { communityId } }
         } else {
           isForYou = true
         }
 
-        const total = await Post.countDocuments(baseFilter)
+        const total = await prisma.post.count({ where: baseWhere })
         const totalPages = Math.ceil(total / limitNum)
 
-        const posts = await Post.find(baseFilter)
-          .populate('author', 'name username avatar school faculty department level')
-          .populate('communities', 'name')
-          .sort(sortOpt)
-          .skip(skip)
-          .limit(limitNum)
-          .lean()
+        const posts = await prisma.post.findMany({
+          where: baseWhere,
+          skip,
+          take: limitNum,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            author: { select: authorSelect },
+            communities: { include: { community: { select: { name: true } } } },
+            _count: { select: { likes: true, comments: true } }
+          }
+        })
+
+        const postIds = posts.map(p => p.id)
+        const userLikes = postIds.length > 0 ? await prisma.postLike.findMany({
+          where: { postId: { in: postIds }, userId: user.id },
+          select: { postId: true }
+        }) : []
+        const likedPostIds = new Set(userLikes.map(l => l.postId))
 
         if (isForYou) {
           const now = Date.now()
@@ -92,37 +117,37 @@ export default async function handler(req, res) {
             else if (hoursOld < 48) recencyBoost = 20
             else if (hoursOld < 168) recencyBoost = 10
 
-            const likeCount = (p.likes || []).length
-            const commentCount = (p.commentsData || []).length
+            const likeCount = p._count.likes
+            const commentCount = p._count.comments
             const engagementBoost = likeCount * 3 + commentCount * 10
 
-            const followBoost = followedIds.includes(p.author?._id) ? 80 : 0
+            const followBoost = followedIds.includes(p.authorId) ? 80 : 0
 
             let communityBoost = 0
-            const pComIds = (p.communities || []).map(id => id.toString ? id.toString() : id)
+            const pComIds = p.communities.map(pc => pc.communityId)
             for (const cid of pComIds) {
               const com = myComMap[cid]
               if (!com) continue
               const isDept = com.department === userDept && com.faculty === userFaculty && com.type === 'department'
               const isFaculty = com.faculty === userFaculty && com.type === 'faculty'
               const isSchool = com.school === userSchool && com.type === 'school'
-              if (isDept) { communityBoost = Math.max(communityBoost, 80) }
-              else if (isFaculty) { communityBoost = Math.max(communityBoost, 60) }
-              else if (isSchool) { communityBoost = Math.max(communityBoost, 50) }
-              else { communityBoost = Math.max(communityBoost, 30) }
+              if (isDept) communityBoost = Math.max(communityBoost, 80)
+              else if (isFaculty) communityBoost = Math.max(communityBoost, 60)
+              else if (isSchool) communityBoost = Math.max(communityBoost, 50)
+              else communityBoost = Math.max(communityBoost, 30)
             }
 
             const boostedBoost = p.boosted ? 200 : 0
-
             const trendingScore = likeCount * 3 + commentCount * 10
             const isRecent = hoursOld < 24
             const trending = isRecent && trendingScore >= 30
 
             const score = recencyBoost + followBoost + communityBoost + engagementBoost + boostedBoost
 
+            const { _count, ...rest } = p
             return {
-              ...p, _score: score,
-              liked: (p.likes || []).includes(user._id),
+              ...rest, _score: score,
+              liked: likedPostIds.has(p.id),
               likesCount: likeCount,
               commentCount,
               trending,
@@ -132,31 +157,42 @@ export default async function handler(req, res) {
           return res.json({ posts: scored, page: pageNum, totalPages, total })
         }
 
-        const enriched = posts.map(p => ({
-          ...p, liked: (p.likes || []).includes(user._id),
-          likesCount: (p.likes || []).length,
-          commentCount: (p.commentsData || []).length,
-          trending: false,
-        }))
+        const enriched = posts.map(p => {
+          const { _count, ...rest } = p
+          return {
+            ...rest, liked: likedPostIds.has(p.id),
+            likesCount: _count.likes,
+            commentCount: _count.comments,
+            trending: false,
+          }
+        })
         return res.json({ posts: enriched, page: pageNum, totalPages, total })
       }
 
-      const filter = { status: 'approved', ...searchFilter }
-      if (category) filter.category = category
-      if (community) filter.communities = community
-      if (communityId) filter.communities = communityId
-      const total = await Post.countDocuments(filter)
+      const where = { status: 'approved', ...searchFilter }
+      if (category) where.category = category
+      if (community) where.communities = { some: { communityId: community } }
+      if (communityId) where.communities = { some: { communityId } }
+
+      const total = await prisma.post.count({ where })
       const totalPages = Math.ceil(total / limitNum)
-      const posts = await Post.find(filter)
-        .populate('author', 'name username avatar school faculty department level')
-        .populate('communities', 'name')
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limitNum)
-        .lean()
-      const enriched = posts.map(p => ({
-        ...p, liked: false, likesCount: (p.likes || []).length, trending: false,
-      }))
+      const posts = await prisma.post.findMany({
+        where,
+        skip,
+        take: limitNum,
+        orderBy: { createdAt: 'desc' },
+        include: {
+          author: { select: authorSelect },
+          communities: { include: { community: { select: { name: true } } } },
+          _count: { select: { likes: true, comments: true } }
+        }
+      })
+      const enriched = posts.map(p => {
+        const { _count, ...rest } = p
+        return {
+          ...rest, liked: false, likesCount: _count.likes, trending: false,
+        }
+      })
       return res.json({ posts: enriched, page: pageNum, totalPages, total })
     }
 
@@ -170,27 +206,44 @@ export default async function handler(req, res) {
       if (!title || !content) return res.status(400).json({ message: 'Title and content are required' })
       if (!communityIds || !communityIds.length) return res.status(400).json({ message: 'At least one community is required' })
 
-      const post = await Post.create({
-        author: user._id, title, content,
-        category: category || '', image: image || '',
-        communities: communityIds,
+      const post = await prisma.post.create({
+        data: {
+          title,
+          content,
+          category: category || '',
+          image: image || '',
+          authorId: user.id,
+          communities: {
+            create: communityIds.map(cid => ({ communityId: cid }))
+          }
+        },
+        include: {
+          author: { select: authorSelect },
+        }
       })
 
-      const communities = await Community.find({ _id: { $in: communityIds } }).lean()
-      for (const com of communities) {
-        const members = await User.find({ _id: { $ne: user._id, $in: com.members } }).select('_id').lean()
+      for (const cid of communityIds) {
+        const members = await prisma.communityMember.findMany({
+          where: { communityId: cid, userId: { not: user.id } },
+          select: { userId: true }
+        })
         if (members.length > 0) {
-          const notifs = members.map(u => ({
-            user: u._id, fromUser: user._id,
-            type: 'post',
-            text: `${user.name.split(' ')[0]} posted in ${com.name}`,
-          }))
-          await Notification.insertMany(notifs)
+          const community = await prisma.community.findUnique({
+            where: { id: cid },
+            select: { name: true }
+          })
+          await prisma.notification.createMany({
+            data: members.map(m => ({
+              userId: m.userId,
+              fromUserId: user.id,
+              type: 'post',
+              text: `${user.name.split(' ')[0]} posted in ${community.name}`,
+            }))
+          })
         }
       }
 
-      const populated = await Post.findById(post._id).populate('author', 'name username avatar school faculty department level').lean()
-      return res.status(201).json({ ...populated, liked: false, likesCount: 0 })
+      return res.status(201).json({ ...post, liked: false, likesCount: 0 })
     }
 
     return res.status(405).json({ message: 'Method not allowed' })

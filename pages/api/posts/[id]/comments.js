@@ -1,32 +1,45 @@
-const mongoose = require('mongoose')
-const Post = require('../../../../models/Post')
-const Notification = require('../../../../models/Notification')
+const prisma = require('../../../../lib/prisma')
 const { protect } = require('../../../../lib/auth')
+
+const commentAuthorSelect = { id: true, name: true, username: true, avatar: true, school: true, level: true }
 
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
-      const post = await Post.findById(req.query.id).populate('commentsData.author', 'name username avatar school level').lean()
+      const post = await prisma.post.findUnique({ where: { id: req.query.id } })
       if (!post) return res.status(404).json({ message: 'Post not found' })
-      return res.json(post.commentsData || [])
+
+      const comments = await prisma.comment.findMany({
+        where: { postId: req.query.id },
+        include: { author: { select: commentAuthorSelect } },
+        orderBy: { createdAt: 'asc' }
+      })
+      return res.json(comments)
     }
+
     if (req.method === 'POST') {
       const user = await protect(req, res)
       if (!user) return
       const { text } = req.body
       if (!text || !text.trim()) return res.status(400).json({ message: 'Comment text is required' })
-      const post = await Post.findById(req.query.id)
+
+      const post = await prisma.post.findUnique({ where: { id: req.query.id } })
       if (!post) return res.status(404).json({ message: 'Post not found' })
-      const comment = { _id: new mongoose.Types.ObjectId(), author: user._id, text, createdAt: new Date() }
-      post.commentsData.push(comment)
-      await post.save()
-      if (post.author.toString() !== user._id.toString()) {
-        await Notification.create({ user: post.author, fromUser: user._id, type: 'comment', text: 'commented on your post' })
+
+      const comment = await prisma.comment.create({
+        data: { text: text.trim(), authorId: user.id, postId: req.query.id },
+        include: { author: { select: commentAuthorSelect } }
+      })
+
+      if (post.authorId !== user.id) {
+        await prisma.notification.create({
+          data: { userId: post.authorId, fromUserId: user.id, type: 'comment', text: 'commented on your post' }
+        })
       }
-      const populated = await Post.findById(post._id).populate('commentsData.author', 'name username avatar school level').lean()
-      const newComment = populated.commentsData[populated.commentsData.length - 1]
-      return res.status(201).json(newComment)
+
+      return res.status(201).json(comment)
     }
+
     return res.status(405).json({ message: 'Method not allowed' })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })

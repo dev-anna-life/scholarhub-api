@@ -1,16 +1,29 @@
 const bcrypt = require('bcryptjs')
 const dbConnect = require('../../../lib/db')
-const User = require('../../../models/User')
-const Community = require('../../../models/Community')
+const prisma = require('../../../lib/prisma')
 const { generateToken } = require('../../../lib/auth')
 
 async function ensureCommunity(name, type, school, faculty, department, userId) {
-  let community = await Community.findOne({ name, type, school, faculty, department })
+  let community = await prisma.community.findFirst({
+    where: { name, type, school, faculty, department },
+  })
   if (!community) {
-    community = await Community.create({ name, type, school, faculty, department, members: [userId], createdBy: userId })
-  } else if (!community.members.includes(userId)) {
-    community.members.push(userId)
-    await community.save()
+    community = await prisma.community.create({
+      data: {
+        name, type, school: school || null, faculty: faculty || null,
+        department: department || null, createdById: userId,
+        members: { create: { userId } },
+      },
+    })
+  } else {
+    const existingMember = await prisma.communityMember.findUnique({
+      where: { communityId_userId: { communityId: community.id, userId } },
+    })
+    if (!existingMember) {
+      await prisma.communityMember.create({
+        data: { communityId: community.id, userId },
+      })
+    }
   }
   return community
 }
@@ -23,75 +36,79 @@ export default async function handler(req, res) {
     if (!name || !email || !username || !password) {
       return res.status(400).json({ message: 'Name, email, username, and password are required' })
     }
-    const existing = await User.findOne({ $or: [{ email }, { username }] })
+
+    const existing = await prisma.user.findFirst({
+      where: { OR: [{ email }, { username }] },
+    })
     if (existing) return res.status(400).json({ message: 'Email or username already taken' })
 
     let referrer = null
     if (referralCode) {
-      referrer = await User.findOne({ referralCode: referralCode.trim() })
+      referrer = await prisma.user.findUnique({ where: { referralCode: referralCode.trim() } })
     }
 
     const hashedPassword = await bcrypt.hash(password, 12)
-    const user = await User.create({
-      name, email, username, password: hashedPassword,
-      school: school || '', level: level || 'University',
-      status: status || 'Current Student',
-      secondaryClass: ['Science', 'Arts'].includes(secondaryClass) ? secondaryClass : undefined,
-      secondarySubjects: Array.isArray(secondarySubjects) ? secondarySubjects : [],
-      course: course || '', track: ['Science', 'Art', 'Commercial'].includes(track) ? track : undefined, state: state || '', city: city || '', country: country || '',
-      faculty: faculty || '', department: department || '',
-      interests: interests || [],
-      coins: 50,
-      monthlyCoins: 50,
-      monthlyCoinsMonth: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
-      referralCode: username.toLowerCase() + Math.floor(Math.random() * 1000),
-      referredBy: referrer ? referrer._id : null,
+    const user = await prisma.user.create({
+      data: {
+        name, email, username, password: hashedPassword,
+        school: school || '', level: level || 'University',
+        status: status || 'Current Student',
+        secondaryClass: ['Science', 'Arts'].includes(secondaryClass) ? secondaryClass : null,
+        secondarySubjects: Array.isArray(secondarySubjects) ? secondarySubjects : [],
+        course: course || '', track: ['Science', 'Art', 'Commercial'].includes(track) ? track : null,
+        state: state || '', city: city || '', country: country || '',
+        faculty: faculty || '', department: department || '',
+        interests: interests || [],
+        coins: 50, monthlyCoins: 50,
+        monthlyCoinsMonth: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
+        referralCode: username.toLowerCase() + Math.floor(Math.random() * 1000),
+        referredById: referrer ? referrer.id : null,
+      },
     })
 
     if (referrer) {
-      referrer.coins += 20
-      referrer.monthlyCoins = (referrer.monthlyCoins || 0) + 20
       const refMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`
-      if (referrer.monthlyCoinsMonth !== refMonth) {
-        referrer.monthlyCoinsMonth = refMonth
-      }
-      await referrer.save()
+      await prisma.user.update({
+        where: { id: referrer.id },
+        data: {
+          coins: { increment: 20 },
+          monthlyCoins: { increment: 20 },
+          monthlyCoinsMonth: referrer.monthlyCoinsMonth !== refMonth ? refMonth : undefined,
+        },
+      })
     }
 
     if (school && level?.toLowerCase() === 'university') {
       await ensureCommunity(
         `${faculty || 'General'} - ${department || 'General'}`,
-        'department', school, faculty || '', department || '', user._id
+        'department', school, faculty || '', department || '', user.id
       )
       if (faculty) {
-        await ensureCommunity(`${faculty}`, 'faculty', school, faculty, '', user._id)
+        await ensureCommunity(`${faculty}`, 'faculty', school, faculty, '', user.id)
       }
-      await ensureCommunity(school, 'school', school, '', '', user._id)
-      
-      // Global communities (cross-school)
+      await ensureCommunity(school, 'school', school, '', '', user.id)
       if (department) {
-        await ensureCommunity(`${department}`, 'general', '', faculty || '', department, user._id)
+        await ensureCommunity(`${department}`, 'general', '', faculty || '', department, user.id)
       }
       if (faculty) {
-        await ensureCommunity(`${faculty} (Global)`, 'general', '', faculty, '', user._id)
+        await ensureCommunity(`${faculty} (Global)`, 'general', '', faculty, '', user.id)
       }
-      
-      await ensureCommunity('General University Hub', 'general', '', '', '', user._id)
+      await ensureCommunity('General University Hub', 'general', '', '', '', user.id)
     }
 
     if (level?.toLowerCase() === 'secondary') {
       if (school) {
-        await ensureCommunity(school, 'school', school, '', '', user._id)
+        await ensureCommunity(school, 'school', school, '', '', user.id)
       }
-      await ensureCommunity('General Secondary Hub', 'general', '', '', '', user._id)
+      await ensureCommunity('General Secondary Hub', 'general', '', '', '', user.id)
     }
 
-    const token = generateToken(user._id)
+    const token = generateToken(user.id)
     res.status(201).json({
       token,
       isNewUser: true,
       user: {
-        id: user._id, name: user.name, email: user.email, username: user.username,
+        id: user.id, name: user.name, email: user.email, username: user.username,
         avatar: user.avatar, school: user.school, level: user.level,
         status: user.status, secondaryClass: user.secondaryClass,
         secondarySubjects: user.secondarySubjects,

@@ -1,15 +1,18 @@
 const dbConnect = require('../../../lib/db')
-const User = require('../../../models/User')
-const Community = require('../../../models/Community')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 async function ensureCommunity(name, type, school, faculty, department, userId) {
-  let community = await Community.findOne({ name, type, school, faculty, department })
+  let community = await prisma.community.findFirst({ where: { name, type, school, faculty, department } })
   if (!community) {
-    community = await Community.create({ name, type, school, faculty, department, members: [userId], createdBy: userId })
-  } else if (!community.members.includes(userId)) {
-    community.members.push(userId)
-    await community.save()
+    community = await prisma.community.create({
+      data: { name, type, school, faculty, department, createdById: userId, members: { create: { userId } } },
+    })
+  } else {
+    const existingMember = await prisma.communityMember.findUnique({ where: { communityId_userId: { communityId: community.id, userId } } })
+    if (!existingMember) {
+      await prisma.communityMember.create({ data: { communityId: community.id, userId } })
+    }
   }
   return community
 }
@@ -33,54 +36,53 @@ export default async function handler(req, res) {
     if (faculty !== undefined) updates.faculty = faculty
     if (department !== undefined) updates.department = department
 
-    const updated = await User.findByIdAndUpdate(user._id, { $set: updates }, { new: true }).select('-password')
+    const { password, ...updated } = await prisma.user.update({ where: { id: user.id }, data: updates })
 
     const joinedCommunities = []
 
     if (school && level?.toLowerCase() === 'university') {
       const deptCom = await ensureCommunity(
         `${faculty || 'General'} - ${department || 'General'}`,
-        'department', school, faculty || '', department || '', user._id
+        'department', school, faculty || '', department || '', user.id
       )
       joinedCommunities.push(deptCom)
 
       if (faculty) {
         const facCom = await ensureCommunity(
           `${faculty}`,
-          'faculty', school, faculty, '', user._id
+          'faculty', school, faculty, '', user.id
         )
         joinedCommunities.push(facCom)
       }
 
-      const schCom = await ensureCommunity(school, 'school', school, '', '', user._id)
+      const schCom = await ensureCommunity(school, 'school', school, '', '', user.id)
       joinedCommunities.push(schCom)
 
-      // Global cross-school communities
       if (department) {
-        const globalDeptCom = await ensureCommunity(`${department}`, 'general', '', faculty || '', department, user._id)
+        const globalDeptCom = await ensureCommunity(`${department}`, 'general', '', faculty || '', department, user.id)
         joinedCommunities.push(globalDeptCom)
       }
       if (faculty) {
-        const globalFacCom = await ensureCommunity(`${faculty} (Global)`, 'general', '', faculty, '', user._id)
+        const globalFacCom = await ensureCommunity(`${faculty} (Global)`, 'general', '', faculty, '', user.id)
         joinedCommunities.push(globalFacCom)
       }
     }
 
     if (level?.toLowerCase() === 'university') {
-      const generalCom = await ensureCommunity('General University Hub', 'general', '', '', '', user._id)
+      const generalCom = await ensureCommunity('General University Hub', 'general', '', '', '', user.id)
       joinedCommunities.push(generalCom)
     }
 
     if (level?.toLowerCase() === 'secondary') {
       if (school) {
-        const schCom = await ensureCommunity(school, 'school', school, '', '', user._id)
+        const schCom = await ensureCommunity(school, 'school', school, '', '', user.id)
         joinedCommunities.push(schCom)
       }
-      const generalCom = await ensureCommunity('General Secondary Hub', 'general', '', '', '', user._id)
+      const generalCom = await ensureCommunity('General Secondary Hub', 'general', '', '', '', user.id)
       joinedCommunities.push(generalCom)
     }
 
-    res.json({ user: updated.toObject(), joinedCommunities: joinedCommunities.map(c => ({ id: c._id, name: c.name, type: c.type })) })
+    res.json({ user: updated, joinedCommunities: joinedCommunities.map(c => ({ id: c.id, name: c.name, type: c.type })) })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })
   }

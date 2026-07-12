@@ -1,5 +1,5 @@
 const dbConnect = require('../../../lib/db')
-const User = require('../../../models/User')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -11,11 +11,12 @@ export default async function handler(req, res) {
 
     if (!user.referralCode) {
       const base = (user.username || user.name || 'user').toLowerCase().replace(/\s+/g, '')
-      user.referralCode = base + Math.floor(Math.random() * 10000)
-      await user.save()
+      const referralCode = base + Math.floor(Math.random() * 10000)
+      await prisma.user.update({ where: { id: user.id }, data: { referralCode } })
+      user.referralCode = referralCode
     }
 
-    const refCount = await User.countDocuments({ referredBy: user._id })
+    const refCount = await prisma.user.count({ where: { referredById: user.id } })
     const refEarnings = refCount * 20
 
     res.json({

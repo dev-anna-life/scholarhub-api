@@ -1,18 +1,17 @@
-const dbConnect = require('../../../lib/db')
-const Post = require('../../../models/Post')
-const Community = require('../../../models/Community')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ message: 'Method not allowed' })
   try {
-    await dbConnect()
     const user = await protect(req, res)
     if (!user) return
 
     if (!user.school) return res.json([])
 
-    const myCommunities = await Community.find({ members: user._id }).lean()
+    const myCommunities = await prisma.community.findMany({
+      where: { members: { some: { userId: user.id } } }
+    })
     if (!myCommunities.length) return res.json([])
 
     const userDeptCom = myCommunities.find(c => c.type === 'department' && c.school === user.school && c.department === user.department)
@@ -25,17 +24,38 @@ export default async function handler(req, res) {
 
     const fetchPosts = async (communities, limit) => {
       if (!communities.length || limit <= 0) return []
-      const posts = await Post.find({
-        status: 'approved',
-        _id: { $nin: seenIds },
-        communities: { $in: communities.map(c => c._id) }
+      const postCommunities = await prisma.postCommunity.findMany({
+        where: {
+          communityId: { in: communities.map(c => c.id) },
+          post: {
+            status: 'approved',
+            id: { notIn: seenIds }
+          }
+        },
+        include: {
+          post: {
+            include: {
+              author: {
+                select: { name: true, username: true, avatar: true, school: true, faculty: true, department: true, level: true }
+              }
+            }
+          }
+        },
+        orderBy: { post: { createdAt: 'desc' } },
+        take: limit,
       })
-        .populate('author', 'name username avatar school faculty department level')
-        .sort({ createdAt: -1 })
-        .limit(limit)
-        .lean()
-      seenIds = [...seenIds, ...posts.map(p => p._id.toString())]
-      return posts.map(p => ({ ...p, liked: p.likes?.includes(user._id) || false, likesCount: (p.likes || []).length }))
+      const posts = postCommunities.map(pc => {
+        const p = pc.post
+        return {
+          ...p,
+          community: pc.communityId,
+          communityId: pc.communityId,
+          liked: p.likes?.some(l => l.userId === user.id) || false,
+          likesCount: (p.likes || []).length
+        }
+      })
+      seenIds = [...seenIds, ...posts.map(p => p.id)]
+      return posts
     }
 
     const deptPosts = await fetchPosts(userDeptCom ? [userDeptCom] : [], 20)

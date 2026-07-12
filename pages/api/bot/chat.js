@@ -1,5 +1,4 @@
-const dbConnect = require('../../../lib/db')
-const User = require('../../../models/User')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 const DAILY_LIMITS = {
@@ -26,13 +25,11 @@ UTME, GCE, and university courses. Be friendly, encouraging, and explain things 
 When answering, use clear language. Keep answers concise but thorough. 
 If a student seems stressed, offer encouragement along with your help.`
 
-  // Convert messages from {role, content} to Gemini format
   const contents = messages.map(m => ({
     role: m.role === 'model' ? 'model' : 'user',
     parts: [{ text: m.content }],
   }))
 
-  // Inject system instruction as first user message if not already there
   const systemContent = {
     role: 'user',
     parts: [{ text: SYSTEM_PROMPT }],
@@ -78,7 +75,6 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' })
 
   try {
-    await dbConnect()
     const user = await protect(req, res)
     if (!user) return
 
@@ -91,35 +87,29 @@ export default async function handler(req, res) {
     const badge = getEffectiveBadge(user)
     const limit = DAILY_LIMITS[badge] || DAILY_LIMITS.free
 
-    if (user.botUsage?.date !== today) {
-      user.botUsage = { date: today, count: 0 }
+    let botUsageDate = user.botUsageDate
+    let botUsageCount = user.botUsageCount || 0
+
+    if (botUsageDate !== today) {
+      botUsageDate = today
+      botUsageCount = 0
     }
 
-    // Disable daily limit check
-    /*
-    if (user.botUsage.count >= limit) {
-      return res.status(429).json({
-        message: `Daily limit reached. You've used ${limit}/${limit} messages today. Upgrade your badge for more.`,
-        limit,
-        used: user.botUsage.count,
-        badge,
-      })
-    }
-    */
-
-    user.botUsage.count += 1
-    await user.save()
+    botUsageCount += 1
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { botUsageDate, botUsageCount }
+    })
 
     const reply = await callGemini(messages)
 
     res.json({
       reply,
       timestamp: new Date().toISOString(),
-      quota: { limit, used: user.botUsage.count, badge },
+      quota: { limit, used: botUsageCount, badge },
     })
   } catch (error) {
     console.error('Bot error:', error.message)
-    // Return the real error message to help debug
     res.status(500).json({ message: error.message })
   }
 }

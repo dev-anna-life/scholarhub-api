@@ -1,20 +1,21 @@
-const dbConnect = require('../../../lib/db')
-const Community = require('../../../models/Community')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
   try {
-    await dbConnect()
-
     if (req.method === 'GET') {
       const { search, type, school, faculty, notMember } = req.query
-      const filter = {}
-      if (search) filter.name = { $regex: search, $options: 'i' }
-      if (type) filter.type = type
-      if (school) filter.school = school
-      if (faculty) filter.faculty = faculty
-      if (notMember) filter.members = { $ne: notMember }
-      const communities = await Community.find(filter).sort({ type: 1, name: 1 }).limit(30).lean()
+      const where = {}
+      if (search) where.name = { contains: search, mode: 'insensitive' }
+      if (type) where.type = type
+      if (school) where.school = school
+      if (faculty) where.faculty = faculty
+      if (notMember) where.members = { none: { userId: notMember } }
+      const communities = await prisma.community.findMany({
+        where,
+        orderBy: [{ type: 'asc' }, { name: 'asc' }],
+        take: 30,
+      })
       return res.json(communities)
     }
 
@@ -23,12 +24,16 @@ export default async function handler(req, res) {
       if (!user) return
       const { name, type, school, faculty, department } = req.body
       if (!name || !type) return res.status(400).json({ message: 'Name and type are required' })
-      const existing = await Community.findOne({ name, type, school, faculty, department })
+      const existing = await prisma.community.findFirst({
+        where: { name, type, school, faculty, department }
+      })
       if (existing) return res.status(400).json({ message: 'Community already exists' })
-      const community = await Community.create({
-        name, type, school, faculty, department,
-        members: [user._id],
-        createdBy: user._id,
+      const community = await prisma.community.create({
+        data: {
+          name, type, school, faculty, department,
+          createdById: user.id,
+          members: { create: { userId: user.id } }
+        },
       })
       return res.status(201).json(community)
     }

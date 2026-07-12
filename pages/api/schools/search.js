@@ -1,6 +1,5 @@
 const axios = require('axios')
-const dbConnect = require('../../../lib/db')
-const SchoolRequest = require('../../../models/SchoolRequest')
+const prisma = require('../../../lib/prisma')
 const { getAllNigerianUniversities } = require('../../../lib/nigerianUniversities')
 const { getAllSecondarySchools } = require('../../../lib/africanSecondarySchools')
 const { getUniversitiesForCountry } = require('../../../lib/africanUniversities')
@@ -51,7 +50,6 @@ function normalizeCountry(country) {
 export default async function handler(req, res) {
   if (req.method !== 'GET') return res.status(405).json({ message: 'Method not allowed' })
   try {
-    await dbConnect()
     let { country, level, query, state } = req.query
     if (!country) return res.status(400).json({ message: 'Country is required' })
     country = normalizeCountry(country)
@@ -88,11 +86,13 @@ export default async function handler(req, res) {
       }
     }
 
-    const approved = await SchoolRequest.find({
-      level: { $in: [level.charAt(0).toUpperCase() + level.slice(1), level] },
-      status: 'approved',
-      location: { $regex: country, $options: 'i' },
-    }).lean()
+    const approved = await prisma.schoolRequest.findMany({
+      where: {
+        level: { in: [level.charAt(0).toUpperCase() + level.slice(1), level] },
+        status: 'approved',
+        location: { contains: country, mode: 'insensitive' },
+      }
+    })
     approved.forEach(s => {
       if (!schools.find(x => x.name.toLowerCase() === s.name.toLowerCase())) {
         schools.push({ name: s.name, country, level: level === 'secondary' ? 'Secondary' : 'University', state: s.state || '' })

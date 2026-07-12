@@ -1,5 +1,5 @@
 const dbConnect = require('../../../lib/db')
-const User = require('../../../models/User')
+const prisma = require('../../../lib/prisma')
 const { generateToken } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -16,13 +16,13 @@ export default async function handler(req, res) {
     } catch {}
     if (!payload || !payload.email) return res.status(400).json({ message: 'Invalid Google credential' })
 
-    let user = await User.findOne({ email: payload.email })
+    let user = await prisma.user.findUnique({ where: { email: payload.email } })
     if (user) {
-      const token = generateToken(user._id)
+      const token = generateToken(user.id)
       return res.json({
         token,
         user: {
-          id: user._id, name: user.name, email: user.email, username: user.username,
+          id: user.id, name: user.name, email: user.email, username: user.username,
           avatar: user.avatar, school: user.school, level: user.level,
           status: user.status, secondaryClass: user.secondaryClass,
           course: user.course, bio: user.bio, coins: user.coins,
@@ -33,12 +33,14 @@ export default async function handler(req, res) {
     const name = payload.name || payload.email.split('@')[0]
     const username = (payload.email.split('@')[0] + Math.floor(Math.random() * 1000)).toLowerCase()
     const currentMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`
-    user = await User.create({ name, email: payload.email, username, googleId: payload.sub || '', coins: 50, monthlyCoins: 50, monthlyCoinsMonth: currentMonth })
-    const token = generateToken(user._id)
+    user = await prisma.user.create({
+      data: { name, email: payload.email, username, googleId: payload.sub || '', coins: 50, monthlyCoins: 50, monthlyCoinsMonth: currentMonth },
+    })
+    const token = generateToken(user.id)
     res.status(201).json({
       token, isNewUser: true,
       user: {
-        id: user._id, name: user.name, email: user.email, username: user.username,
+        id: user.id, name: user.name, email: user.email, username: user.username,
         avatar: user.avatar, school: user.school, level: user.level,
         status: user.status, secondaryClass: user.secondaryClass,
         course: user.course, bio: user.bio, coins: user.coins,

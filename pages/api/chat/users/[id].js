@@ -1,5 +1,4 @@
-const dbConnect = require('../../../../lib/db')
-const User = require('../../../../models/User')
+const prisma = require('../../../../lib/prisma')
 
 function getTokenUserId(req) {
   const jwt = require('jsonwebtoken')
@@ -10,24 +9,30 @@ function getTokenUserId(req) {
 
 export default async function handler(req, res) {
   try {
-    await dbConnect()
-    const user = await User.findById(req.query.id).select('-password').lean()
+    const user = await prisma.user.findUnique({
+      where: { id: req.query.id },
+      select: {
+        id: true, name: true, username: true, avatar: true, school: true, level: true, badge: true,
+        followers: { select: { id: true } },
+        following: { select: { id: true } },
+      },
+    })
     if (!user) return res.status(404).json({ message: 'User not found' })
 
     const currentUserId = getTokenUserId(req)
     const isFollowing = currentUserId
-      ? (user.followers || []).some(f => (f._id || f)?.toString() === currentUserId)
+      ? user.followers.some(f => f.id === currentUserId)
       : false
     const isFollowedBy = currentUserId
-      ? (user.following || []).some(f => (f._id || f)?.toString() === currentUserId)
+      ? user.following.some(f => f.id === currentUserId)
       : false
 
     res.json({
       ...user,
       isFollowing,
       isFollowedBy,
-      followersCount: (user.followers || []).length,
-      followingCount: (user.following || []).length,
+      followersCount: user.followers.length,
+      followingCount: user.following.length,
     })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })

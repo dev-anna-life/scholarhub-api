@@ -1,4 +1,4 @@
-const Notification = require('../../../models/Notification')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 export default async function handler(req, res) {
@@ -7,16 +7,20 @@ export default async function handler(req, res) {
     if (!user) return
 
     if (req.method === 'GET') {
-      const notifications = await Notification.find({ user: user._id })
-        .populate('fromUser', 'name username avatar')
-        .sort({ createdAt: -1 })
-        .limit(50)
-        .lean()
+      const notifications = await prisma.notification.findMany({
+        where: { userId: user.id },
+        include: { fromUser: { select: { name: true, username: true, avatar: true } } },
+        orderBy: { createdAt: 'desc' },
+        take: 50,
+      })
       return res.json(notifications)
     }
 
     if (req.method === 'POST') {
-      await Notification.updateMany({ user: user._id, read: false }, { $set: { read: true } })
+      await prisma.notification.updateMany({
+        where: { userId: user.id, read: false },
+        data: { read: true },
+      })
       return res.json({ message: 'Notifications marked as read' })
     }
 

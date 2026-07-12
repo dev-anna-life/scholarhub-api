@@ -1,7 +1,4 @@
-const dbConnect = require('../../../lib/db')
-const User = require('../../../models/User')
-const Purchase = require('../../../models/Purchase')
-const Notification = require('../../../models/Notification')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 const badgeItems = [
@@ -18,7 +15,6 @@ const badgeItems = [
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' })
   try {
-    await dbConnect()
     const sender = await protect(req, res)
     if (!sender) return
 
@@ -32,10 +28,10 @@ export default async function handler(req, res) {
     const item = badgeItems.find(i => i.id === itemId)
     if (!item) return res.status(404).json({ message: 'Badge not found' })
 
-    const recipient = await User.findById(recipientId)
+    const recipient = await prisma.user.findUnique({ where: { id: recipientId } })
     if (!recipient) return res.status(404).json({ message: 'Recipient not found' })
 
-    if (sender._id.toString() === recipientId) {
+    if (sender.id === recipientId) {
       return res.status(400).json({ message: 'Cannot gift to yourself. Use buy instead.' })
     }
 
@@ -43,14 +39,18 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: `Not enough coins. You need ${item.price} coins.` })
     }
 
-    sender.coins -= item.price
-    await sender.save()
-    await recipient.save()
+    await prisma.user.update({ where: { id: sender.id }, data: { coins: { decrement: item.price } } })
 
-    await Purchase.create({ user: sender._id, recipient: recipientId, itemId, itemName: item.name, price: item.price, type: 'gift' })
-    await Notification.create({ user: recipientId, fromUser: sender._id, type: 'gift', text: `${sender.name} gifted you a ${item.name} badge!` })
+    await prisma.purchase.create({
+      data: { userId: sender.id, recipientId, itemId, itemName: item.name, price: item.price, type: 'gift' }
+    })
 
-    res.json({ message: `Gifted ${item.name} badge to ${recipient.name}`, coins: sender.coins })
+    await prisma.notification.create({
+      data: { userId: recipientId, fromUserId: sender.id, type: 'gift', text: `${sender.name} gifted you a ${item.name} badge!` }
+    })
+
+    const updatedSender = await prisma.user.findUnique({ where: { id: sender.id } })
+    res.json({ message: `Gifted ${item.name} badge to ${recipient.name}`, coins: updatedSender.coins })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })
   }

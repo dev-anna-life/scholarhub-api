@@ -1,6 +1,5 @@
-const dbConnect = require('../../../lib/db')
+const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
-const MonthlyAward = require('../../../models/MonthlyAward')
 
 export default async function handler(req, res) {
   try {
@@ -10,7 +9,6 @@ export default async function handler(req, res) {
     if (!adminEmails.includes(admin.email?.toLowerCase())) {
       return res.status(403).json({ message: 'Admin only' })
     }
-    await dbConnect()
 
     if (req.method === 'POST') {
       const now = new Date()
@@ -19,8 +17,6 @@ export default async function handler(req, res) {
       const startOfMonth = new Date(year, now.getMonth(), 1)
       const endOfMonth = new Date(year, now.getMonth() + 1, 1)
 
-      const mongoose = require('mongoose')
-      const db = mongoose.connection.db
       const categories = ['educational', 'meme', 'news']
       const labels = {
         educational: 'Highest Educational Content of the Month',
@@ -31,37 +27,49 @@ export default async function handler(req, res) {
       const created = []
 
       for (const category of categories) {
-        const posts = await db.collection('posts').aggregate([
-          { $match: { category, status: 'approved', createdAt: { $gte: startOfMonth, $lt: endOfMonth } } },
-          {
-            $addFields: {
-              engagementScore: {
-                $add: [{ $size: { $ifNull: ['$likes', []] } }, { $size: { $ifNull: ['$commentsData', []] } }],
-              },
-            },
-          },
-          { $sort: { engagementScore: -1 } },
-          { $limit: 1 },
-        ]).toArray()
-
-        if (posts.length === 0) continue
-
-        const top = posts[0]
-        await MonthlyAward.findOneAndUpdate(
-          { month, year, category },
-          {
+        const posts = await prisma.post.findMany({
+          where: {
             category,
-            post: top._id,
-            user: top.author,
+            status: 'approved',
+            createdAt: { gte: startOfMonth, lt: endOfMonth },
+          },
+          include: {
+            likes: true,
+            comments: true,
+          },
+          orderBy: {
+            createdAt: 'desc',
+          },
+        })
+
+        const postsWithScore = posts.map(p => ({
+          ...p,
+          engagementScore: p.likes.length + p.comments.length,
+        })).sort((a, b) => b.engagementScore - a.engagementScore)
+
+        if (postsWithScore.length === 0) continue
+
+        const top = postsWithScore[0]
+        const award = await prisma.monthlyAward.upsert({
+          where: { month_year_category: { month, year, category } },
+          create: {
+            category,
+            postId: top.id,
+            userId: top.authorId,
             month,
             year,
             engagementScore: top.engagementScore || 0,
             label: labels[category],
           },
-          { upsert: true, new: true }
-        )
+          update: {
+            postId: top.id,
+            userId: top.authorId,
+            engagementScore: top.engagementScore || 0,
+            label: labels[category],
+          },
+        })
 
-        created.push({ category, engagementScore: top.engagementScore || 0, postId: top._id, authorId: top.author })
+        created.push({ category, engagementScore: top.engagementScore || 0, postId: top.id, authorId: top.authorId })
       }
 
       return res.json({ month, year, created })
@@ -72,10 +80,13 @@ export default async function handler(req, res) {
       const month = parseInt(req.query.month) || now.getMonth() + 1
       const year = parseInt(req.query.year) || now.getFullYear()
 
-      const awards = await MonthlyAward.find({ month, year })
-        .populate('user', 'name school level badge')
-        .populate('post', 'title content image')
-        .lean()
+      const awards = await prisma.monthlyAward.findMany({
+        where: { month, year },
+        include: {
+          user: { select: { name: true, school: true, level: true, badge: true } },
+          post: { select: { title: true, content: true, image: true } },
+        },
+      })
 
       return res.json(awards)
     }
