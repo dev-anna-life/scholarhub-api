@@ -13,18 +13,18 @@ export default async function handler(req, res) {
       where: { id: req.query.id },
       select: {
         id: true, name: true, username: true, avatar: true, school: true, level: true, badge: true,
-        followers: { select: { id: true } },
-        following: { select: { id: true } },
+        followers: { select: { followerId: true } },
+        following: { select: { followingId: true } },
       },
     })
     if (!user) return res.status(404).json({ message: 'User not found' })
 
     const currentUserId = getTokenUserId(req)
     const isFollowing = currentUserId
-      ? user.followers.some(f => f.id === currentUserId)
+      ? user.followers.some(f => f.followerId === currentUserId)
       : false
     const isFollowedBy = currentUserId
-      ? user.following.some(f => f.id === currentUserId)
+      ? user.following.some(f => f.followingId === currentUserId)
       : false
 
     res.json({
