@@ -13,8 +13,22 @@ export default async function handler(req, res) {
       where: { id: req.query.id },
       select: {
         id: true, name: true, username: true, avatar: true, school: true, level: true, badge: true,
-        followers: { select: { followerId: true } },
-        following: { select: { followingId: true } },
+        followers: {
+          select: {
+            followerId: true,
+            follower: {
+              select: { id: true, name: true, username: true, avatar: true, school: true, level: true, badge: true }
+            }
+          }
+        },
+        following: {
+          select: {
+            followingId: true,
+            following: {
+              select: { id: true, name: true, username: true, avatar: true, school: true, level: true, badge: true }
+            }
+          }
+        },
       },
     })
     if (!user) return res.status(404).json({ message: 'User not found' })
@@ -27,12 +41,23 @@ export default async function handler(req, res) {
       ? user.following.some(f => f.followingId === currentUserId)
       : false
 
+    const followersList = user.followers.map(f => f.follower).filter(Boolean)
+    const followingList = user.following.map(f => f.following).filter(Boolean)
+
     res.json({
-      ...user,
+      id: user.id,
+      name: user.name,
+      username: user.username,
+      avatar: user.avatar,
+      school: user.school,
+      level: user.level,
+      badge: user.badge,
+      followers: followersList,
+      following: followingList,
       isFollowing,
       isFollowedBy,
-      followersCount: user.followers.length,
-      followingCount: user.following.length,
+      followersCount: followersList.length,
+      followingCount: followingList.length,
     })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })
