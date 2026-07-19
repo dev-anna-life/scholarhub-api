@@ -2,10 +2,10 @@ const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 const coinPackages = [
-  { id: 'coins_5000', amount: 5000, priceNGN: 1000, name: '5,000 Scholar Coins' },
-  { id: 'coins_10000', amount: 10000, priceNGN: 1800, name: '10,000 Scholar Coins' },
-  { id: 'coins_25000', amount: 25000, priceNGN: 4000, name: '25,000 Scholar Coins' },
-  { id: 'coins_50000', amount: 50000, priceNGN: 7500, name: '50,000 Scholar Coins' },
+  { id: 'coins_5000', amount: 5000, priceNGN: 10000, name: '5,000 Scholar Coins' },
+  { id: 'coins_10000', amount: 10000, priceNGN: 20000, name: '10,000 Scholar Coins' },
+  { id: 'coins_25000', amount: 25000, priceNGN: 50000, name: '25,000 Scholar Coins' },
+  { id: 'coins_50000', amount: 50000, priceNGN: 100000, name: '50,000 Scholar Coins' },
 ]
 
 export default async function handler(req, res) {
