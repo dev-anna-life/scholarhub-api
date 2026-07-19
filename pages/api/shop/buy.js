@@ -19,55 +19,78 @@ export default async function handler(req, res) {
     const item = badgeItems.find(i => i.id === itemId)
     if (!item) return res.status(404).json({ message: 'Badge not found' })
 
+    // Resolve target user (recipient if gifting, else self)
     let targetUser = user
     if (recipientUsername) {
       targetUser = await prisma.user.findUnique({ where: { username: recipientUsername.toLowerCase() } })
       if (!targetUser) return res.status(404).json({ message: 'Recipient not found' })
     }
 
-    const buyer = recipientUsername ? user : targetUser
-    if (buyer.coins < item.price) {
-      return res.status(400).json({ message: `Not enough coins. You need ${item.price} coins.` })
+    // The buyer pays — always the logged-in user
+    const buyerFull = await prisma.user.findUnique({ where: { id: user.id } })
+    if (buyerFull.coins < item.price) {
+      return res.status(400).json({ message: `Not enough coins. You need ${item.price} coins but only have ${buyerFull.coins}.` })
     }
 
+    // Deduct coins from buyer
     await prisma.user.update({
-      where: { id: buyer.id },
+      where: { id: buyerFull.id },
       data: { coins: { decrement: item.price } }
     })
 
+    // Calculate expiry date
     const expiresAt = new Date()
     expiresAt.setMonth(expiresAt.getMonth() + item.durationMonths)
 
-    const badgeSubscriptions = targetUser.badgeSubscriptions || []
-    const existingIdx = badgeSubscriptions.findIndex(s => s.badgeId === itemId)
-    if (existingIdx >= 0) {
-      const oldExp = new Date(badgeSubscriptions[existingIdx].expiresAt).getTime()
-      const newExp = Math.max(oldExp, Date.now()) + item.durationMonths * 30 * 24 * 60 * 60 * 1000
-      badgeSubscriptions[existingIdx].expiresAt = new Date(newExp)
-    } else {
-      badgeSubscriptions.push({ badgeId: itemId, purchasedAt: new Date(), expiresAt })
-    }
-    await prisma.user.update({
-      where: { id: targetUser.id },
-      data: { badgeSubscriptions }
+    // Check if target already has an active subscription for this badge
+    const now = new Date()
+    const existing = await prisma.badgeSubscription.findFirst({
+      where: { userId: targetUser.id, badgeId: itemId, expiresAt: { gt: now } }
     })
 
+    if (existing) {
+      // Extend from current expiry
+      const extendedExpiry = new Date(existing.expiresAt)
+      extendedExpiry.setMonth(extendedExpiry.getMonth() + item.durationMonths)
+      await prisma.badgeSubscription.update({
+        where: { id: existing.id },
+        data: { expiresAt: extendedExpiry }
+      })
+    } else {
+      // Create new subscription
+      await prisma.badgeSubscription.create({
+        data: { userId: targetUser.id, badgeId: itemId, purchasedAt: new Date(), expiresAt }
+      })
+    }
+
+    // Record purchase log
     await prisma.purchase.create({
       data: {
-        userId: targetUser.id, itemId, itemName: item.name,
-        price: item.price, type: recipientUsername ? 'gift' : 'buy',
-        giftedBy: recipientUsername ? user.id : null,
+        userId: buyerFull.id,
+        recipientId: recipientUsername ? targetUser.id : null,
+        itemId,
+        itemName: item.name,
+        price: item.price,
+        type: recipientUsername ? 'gift' : 'buy',
+        giftedBy: recipientUsername ? buyerFull.id : null,
       }
     })
 
-    const updatedUser = await prisma.user.findUnique({ where: { id: user.id } })
+    // Return updated buyer info
+    const updatedBuyer = await prisma.user.findUnique({
+      where: { id: buyerFull.id },
+      include: { badgeSubscriptions: true }
+    })
 
     res.json({
-      message: recipientUsername ? `${item.name} badge gifted!` : `${item.name} badge purchased!`,
-      coins: updatedUser.coins,
-      badgeSubscriptions: updatedUser.badgeSubscriptions,
+      message: recipientUsername
+        ? `${item.name} badge gifted to @${recipientUsername}!`
+        : `${item.name} badge purchased successfully!`,
+      coins: updatedBuyer.coins,
+      badgeSubscriptions: updatedBuyer.badgeSubscriptions,
     })
   } catch (error) {
+    console.error('Buy badge error:', error)
     res.status(500).json({ message: 'Server error', error: error.message })
   }
 }
