@@ -16,8 +16,22 @@ export default async function handler(req, res) {
     } catch {}
     if (!payload || !payload.email) return res.status(400).json({ message: 'Invalid Google credential' })
 
-    let user = await prisma.user.findUnique({ where: { email: payload.email } })
+    const normalizedEmail = payload.email.trim().toLowerCase()
+
+    // Case-insensitive lookup to find any existing account registered with this email
+    let user = await prisma.user.findFirst({
+      where: { email: { equals: normalizedEmail, mode: 'insensitive' } }
+    })
+
     if (user) {
+      // Link googleId if not previously set
+      if (!user.googleId && payload.sub) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { googleId: payload.sub }
+        })
+      }
+
       const token = generateToken(user.id)
       return res.json({
         token,
@@ -30,12 +44,24 @@ export default async function handler(req, res) {
       })
     }
 
-    const name = payload.name || payload.email.split('@')[0]
-    const username = (payload.email.split('@')[0] + Math.floor(Math.random() * 1000)).toLowerCase()
+    // Creating a brand new user for this email
+    const name = payload.name ? payload.name.trim() : normalizedEmail.split('@')[0]
+    const baseUsername = normalizedEmail.split('@')[0].replace(/[^a-z0-9_]/g, '')
+    const username = (baseUsername + Math.floor(Math.random() * 1000)).toLowerCase()
     const currentMonth = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`
+    
     user = await prisma.user.create({
-      data: { name, email: payload.email, username, googleId: payload.sub || '', coins: 50, monthlyCoins: 50, monthlyCoinsMonth: currentMonth },
+      data: {
+        name,
+        email: normalizedEmail,
+        username,
+        googleId: payload.sub || '',
+        coins: 50,
+        monthlyCoins: 50,
+        monthlyCoinsMonth: currentMonth
+      },
     })
+
     const token = generateToken(user.id)
     res.status(201).json({
       token, isNewUser: true,
@@ -47,6 +73,7 @@ export default async function handler(req, res) {
       },
     })
   } catch (error) {
-    res.status(500).json({ message: 'Google auth failed', error: error.message })
+    console.error('Google auth error:', error)
+    res.status(500).json({ message: 'Google authentication failed', error: error.message })
   }
 }

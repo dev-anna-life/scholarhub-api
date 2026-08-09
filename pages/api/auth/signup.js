@@ -70,10 +70,19 @@ export default async function handler(req, res) {
     const email = rawEmail.trim().toLowerCase()
     const username = rawUsername.trim().toLowerCase()
 
-    const existing = await prisma.user.findFirst({
-      where: { OR: [{ email: { equals: email, mode: 'insensitive' } }, { username: { equals: username, mode: 'insensitive' } }] },
+    const existingEmail = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: 'insensitive' } },
     })
-    if (existing) return res.status(400).json({ message: 'Email or username already taken' })
+    if (existingEmail) {
+      return res.status(400).json({ message: 'An account with this email address already exists. Please log in instead.' })
+    }
+
+    const existingUsername = await prisma.user.findFirst({
+      where: { username: { equals: username, mode: 'insensitive' } },
+    })
+    if (existingUsername) {
+      return res.status(400).json({ message: 'This username is already taken. Please choose a different username.' })
+    }
 
     let referrer = null
     if (referralCode) {
