@@ -202,9 +202,40 @@ export default async function handler(req, res) {
       if (user.status && user.status !== 'Current Student') {
         return res.status(403).json({ message: `${user.status === 'Graduate' ? 'Graduates' : 'Alumni'} cannot create posts` })
       }
-      const { title, content, category, image, communityIds } = req.body
+      let { title, content, category, image, communityIds } = req.body
       if (!title || !content) return res.status(400).json({ message: 'Title and content are required' })
-      if (!communityIds || !communityIds.length) return res.status(400).json({ message: 'At least one community is required' })
+
+      // Clean and validate communityIds array
+      if (!Array.isArray(communityIds)) {
+        communityIds = communityIds ? [communityIds] : []
+      }
+      communityIds = communityIds.filter(id => id && typeof id === 'string' && id !== 'undefined' && id !== 'null')
+
+      // Fallback: if no valid community ID supplied, auto-assign to General or User's school community
+      if (communityIds.length === 0) {
+        const userCommunities = await prisma.communityMember.findMany({
+          where: { userId: user.id },
+          select: { communityId: true },
+          take: 5,
+        })
+        if (userCommunities.length > 0) {
+          communityIds = userCommunities.map(c => c.communityId)
+        } else {
+          let defaultCommunity = await prisma.community.findFirst({
+            where: { name: { contains: 'General', mode: 'insensitive' } }
+          })
+          if (!defaultCommunity) defaultCommunity = await prisma.community.findFirst()
+          if (defaultCommunity) {
+            communityIds = [defaultCommunity.id]
+            // Auto-join user to default community
+            await prisma.communityMember.create({
+              data: { communityId: defaultCommunity.id, userId: user.id }
+            }).catch(() => {})
+          } else {
+            return res.status(400).json({ message: 'Please select at least one community to post' })
+          }
+        }
+      }
 
       const post = await prisma.post.create({
         data: {
@@ -213,6 +244,7 @@ export default async function handler(req, res) {
           category: category || '',
           image: image || '',
           authorId: user.id,
+          status: 'approved',
           communities: {
             create: communityIds.map(cid => ({ communityId: cid }))
           }
@@ -222,25 +254,31 @@ export default async function handler(req, res) {
         }
       })
 
-      for (const cid of communityIds) {
-        const members = await prisma.communityMember.findMany({
-          where: { communityId: cid, userId: { not: user.id } },
-          select: { userId: true }
-        })
-        if (members.length > 0) {
-          const community = await prisma.community.findUnique({
-            where: { id: cid },
-            select: { name: true }
+      // Safely notify community members without throwing errors
+      try {
+        for (const cid of communityIds) {
+          const members = await prisma.communityMember.findMany({
+            where: { communityId: cid, userId: { not: user.id } },
+            select: { userId: true }
           })
-          await prisma.notification.createMany({
-            data: members.map(m => ({
-              userId: m.userId,
-              fromUserId: user.id,
-              type: 'post',
-              text: `${user.name.split(' ')[0]} posted in ${community.name}`,
-            }))
-          })
+          if (members.length > 0) {
+            const community = await prisma.community.findUnique({
+              where: { id: cid },
+              select: { name: true }
+            })
+            const commName = community ? community.name : 'a community'
+            await prisma.notification.createMany({
+              data: members.map(m => ({
+                userId: m.userId,
+                fromUserId: user.id,
+                type: 'post',
+                text: `${user.name.split(' ')[0]} posted in ${commName}`,
+              }))
+            })
+          }
         }
+      } catch (notifErr) {
+        console.error('Post notification warning:', notifErr)
       }
 
       return res.status(201).json({ ...post, liked: false, likesCount: 0 })
@@ -248,6 +286,7 @@ export default async function handler(req, res) {
 
     return res.status(405).json({ message: 'Method not allowed' })
   } catch (error) {
+    console.error('Post handler error:', error)
     res.status(500).json({ message: 'Server error', error: error.message })
   }
 }
