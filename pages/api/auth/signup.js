@@ -66,10 +66,12 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: errorMsg })
     }
 
-    const { name, email, username, password, school, level, course, track, state, city, country, faculty, department, interests, referralCode, status, secondaryClass, secondarySubjects } = validationResult.data
+    const { name, email: rawEmail, username: rawUsername, password, school, level, course, track, state, city, country, faculty, department, interests, referralCode, status, secondaryClass, secondarySubjects } = validationResult.data
+    const email = rawEmail.trim().toLowerCase()
+    const username = rawUsername.trim().toLowerCase()
 
     const existing = await prisma.user.findFirst({
-      where: { OR: [{ email }, { username }] },
+      where: { OR: [{ email: { equals: email, mode: 'insensitive' } }, { username: { equals: username, mode: 'insensitive' } }] },
     })
     if (existing) return res.status(400).json({ message: 'Email or username already taken' })
 
@@ -81,7 +83,7 @@ export default async function handler(req, res) {
     const hashedPassword = await bcrypt.hash(password, 12)
     const user = await prisma.user.create({
       data: {
-        name, email, username, password: hashedPassword,
+        name: name.trim(), email, username, password: hashedPassword,
         school: school || '', level: level || 'University',
         status: status || 'Current Student',
         secondaryClass: ['Science', 'Arts'].includes(secondaryClass) ? secondaryClass : null,
