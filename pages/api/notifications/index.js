@@ -11,7 +11,6 @@ export default async function handler(req, res) {
         where: { userId: user.id },
         include: {
           fromUser: { select: { id: true, name: true, username: true, avatar: true } },
-          post: { select: { id: true, title: true } },
         },
         orderBy: { createdAt: 'desc' },
         take: 50,
