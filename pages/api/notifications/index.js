@@ -9,7 +9,10 @@ export default async function handler(req, res) {
     if (req.method === 'GET') {
       const notifications = await prisma.notification.findMany({
         where: { userId: user.id },
-        include: { fromUser: { select: { name: true, username: true, avatar: true } } },
+        include: {
+          fromUser: { select: { id: true, name: true, username: true, avatar: true } },
+          post: { select: { id: true, title: true } },
+        },
         orderBy: { createdAt: 'desc' },
         take: 50,
       })
