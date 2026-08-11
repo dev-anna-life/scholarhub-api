@@ -20,20 +20,42 @@ export default async function handler(req, res) {
     if (req.method === 'POST') {
       const user = await protect(req, res)
       if (!user) return
-      const { text } = req.body
+      const { text, parentId } = req.body
       if (!text || !text.trim()) return res.status(400).json({ message: 'Comment text is required' })
 
       const post = await prisma.post.findUnique({ where: { id: req.query.id } })
       if (!post) return res.status(404).json({ message: 'Post not found' })
 
       const comment = await prisma.comment.create({
-        data: { text: text.trim(), authorId: user.id, postId: req.query.id },
+        data: {
+          text: text.trim(),
+          authorId: user.id,
+          postId: req.query.id,
+          parentId: parentId || null,
+        },
         include: { author: { select: commentAuthorSelect } }
       })
 
-      if (post.authorId !== user.id) {
+      if (parentId) {
+        const parentComment = await prisma.comment.findUnique({ where: { id: parentId } })
+        if (parentComment && parentComment.authorId !== user.id) {
+          await prisma.notification.create({
+            data: {
+              userId: parentComment.authorId,
+              fromUserId: user.id,
+              type: 'comment',
+              text: 'replied to your comment',
+            }
+          })
+        }
+      } else if (post.authorId !== user.id) {
         await prisma.notification.create({
-          data: { userId: post.authorId, fromUserId: user.id, type: 'comment', text: 'commented on your post' }
+          data: {
+            userId: post.authorId,
+            fromUserId: user.id,
+            type: 'comment',
+            text: 'commented on your post',
+          }
         })
       }
 
