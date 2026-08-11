@@ -211,15 +211,31 @@ export default async function handler(req, res) {
       }
       communityIds = communityIds.filter(id => id && typeof id === 'string' && id !== 'undefined' && id !== 'null')
 
-      // Fallback: if no valid community ID supplied, auto-assign to General or User's school community
+      // Fallback: if no valid community ID supplied, auto-assign to author's department/faculty community
       if (communityIds.length === 0) {
-        const userCommunities = await prisma.communityMember.findMany({
-          where: { userId: user.id },
-          select: { communityId: true },
-          take: 5,
-        })
-        if (userCommunities.length > 0) {
-          communityIds = userCommunities.map(c => c.communityId)
+        let primaryCommunity = null
+        if (user.department) {
+          const deptCom = await prisma.community.findFirst({
+            where: { department: user.department }
+          })
+          if (deptCom) primaryCommunity = deptCom.id
+        }
+        if (!primaryCommunity && user.faculty) {
+          const facCom = await prisma.community.findFirst({
+            where: { faculty: user.faculty }
+          })
+          if (facCom) primaryCommunity = facCom.id
+        }
+        if (!primaryCommunity) {
+          const userCom = await prisma.communityMember.findFirst({
+            where: { userId: user.id },
+            select: { communityId: true }
+          })
+          if (userCom) primaryCommunity = userCom.communityId
+        }
+
+        if (primaryCommunity) {
+          communityIds = [primaryCommunity]
         } else {
           let defaultCommunity = await prisma.community.findFirst({
             where: { name: { contains: 'General', mode: 'insensitive' } }
@@ -227,7 +243,6 @@ export default async function handler(req, res) {
           if (!defaultCommunity) defaultCommunity = await prisma.community.findFirst()
           if (defaultCommunity) {
             communityIds = [defaultCommunity.id]
-            // Auto-join user to default community
             await prisma.communityMember.create({
               data: { communityId: defaultCommunity.id, userId: user.id }
             }).catch(() => {})
