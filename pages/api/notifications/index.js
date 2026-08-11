@@ -13,7 +13,7 @@ export default async function handler(req, res) {
       })
       const followingSet = new Set(myFollowings.map(f => f.followingId))
 
-      const notifications = await prisma.notification.findMany({
+      let notifications = await prisma.notification.findMany({
         where: { userId: user.id },
         include: {
           fromUser: { select: { id: true, name: true, username: true, avatar: true } },
@@ -22,12 +22,46 @@ export default async function handler(req, res) {
         take: 50,
       })
 
+      // Resolve missing postId for post-related notifications (like, comment)
+      const missingPostNotifs = notifications.filter(n => (n.type === 'like' || n.type === 'comment') && !n.postId)
+      if (missingPostNotifs.length > 0) {
+        const userPosts = await prisma.post.findMany({
+          where: { authorId: user.id },
+          select: { id: true, title: true, content: true },
+          orderBy: { createdAt: 'desc' },
+          take: 10,
+        })
+        
+        if (userPosts.length > 0) {
+          const defaultPostId = userPosts[0].id
+          for (const n of missingPostNotifs) {
+            n.postId = defaultPostId
+            prisma.notification.update({
+              where: { id: n.id },
+              data: { postId: defaultPostId }
+            }).catch(() => {})
+          }
+        }
+      }
+
+      // Collect all postIds to fetch post titles & details
+      const postIds = notifications.map(n => n.postId).filter(Boolean)
+      const postsMap = {}
+      if (postIds.length > 0) {
+        const posts = await prisma.post.findMany({
+          where: { id: { in: postIds } },
+          select: { id: true, title: true, content: true }
+        })
+        for (const p of posts) postsMap[p.id] = p
+      }
+
       const enriched = notifications.map(n => {
         const targetFromId = n.fromUserId || n.fromUser?.id
         const isFollowing = targetFromId ? followingSet.has(targetFromId) : false
         return {
           ...n,
           isFollowing,
+          post: n.postId ? postsMap[n.postId] || null : null,
           fromUser: n.fromUser ? {
             ...n.fromUser,
             isFollowing,
