@@ -7,6 +7,12 @@ export default async function handler(req, res) {
     if (!user) return
 
     if (req.method === 'GET') {
+      const myFollowings = await prisma.follow.findMany({
+        where: { followerId: user.id },
+        select: { followingId: true },
+      })
+      const followingSet = new Set(myFollowings.map(f => f.followingId))
+
       const notifications = await prisma.notification.findMany({
         where: { userId: user.id },
         include: {
@@ -15,7 +21,21 @@ export default async function handler(req, res) {
         orderBy: { createdAt: 'desc' },
         take: 50,
       })
-      return res.json(notifications)
+
+      const enriched = notifications.map(n => {
+        const targetFromId = n.fromUserId || n.fromUser?.id
+        const isFollowing = targetFromId ? followingSet.has(targetFromId) : false
+        return {
+          ...n,
+          isFollowing,
+          fromUser: n.fromUser ? {
+            ...n.fromUser,
+            isFollowing,
+          } : null,
+        }
+      })
+
+      return res.json(enriched)
     }
 
     if (req.method === 'POST') {
