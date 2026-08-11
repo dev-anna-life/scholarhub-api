@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         participants: {
           include: {
             user: {
-              select: { id: true, name: true, school: true, level: true, badge: true, username: true, avatar: true },
+              select: { id: true, name: true, school: true, level: true, badge: true, username: true, avatar: true, lastActive: true },
             },
           },
         },
@@ -41,11 +41,19 @@ export default async function handler(req, res) {
       unreadMap[item.conversationId] = item._count.id
     }
 
+    const now = Date.now()
     const result = conversations.map(conv => {
       const otherParticipant = conv.participants.find(p => p.userId !== currentUserId)
       if (!otherParticipant) return null
+      const u = otherParticipant.user
+      const lastActiveTime = u?.lastActive ? new Date(u.lastActive).getTime() : 0
+      const isOnline = (now - lastActiveTime) < 2 * 60 * 1000 // online if active within 2 mins
       return {
-        user: otherParticipant.user,
+        user: {
+          ...u,
+          isOnline,
+          lastActive: u?.lastActive,
+        },
         lastMessage: conv.messages[0] || null,
         unread: unreadMap[conv.id] || 0,
       }

@@ -65,9 +65,13 @@ export default async function handler(req, res) {
     const followingList = userRaw.following.map(f => f.following).filter(Boolean)
 
     const { password, followers, following, ...userClean } = userRaw
+    const now = Date.now()
+    const lastActiveTime = userRaw.lastActive ? new Date(userRaw.lastActive).getTime() : 0
+    const isOnline = (now - lastActiveTime) < 2 * 60 * 1000 // online if active within 2 mins
 
     res.json({
       ...userClean,
+      isOnline,
       followersCount: followersList.length,
       followingCount: followingList.length,
       followers: followersList,
