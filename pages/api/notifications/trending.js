@@ -1,6 +1,6 @@
-const prisma = require('../../lib/prisma')
-const { protect } = require('../../lib/auth')
-const { sendNotificationWithEmail } = require('../../lib/notifications')
+const prisma = require('../../../lib/prisma')
+const { protect } = require('../../../lib/auth')
+const { sendNotificationWithEmail } = require('../../../lib/notifications')
 
 export default async function handler(req, res) {
   try {
