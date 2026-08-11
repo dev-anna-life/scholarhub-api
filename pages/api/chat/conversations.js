@@ -41,6 +41,12 @@ export default async function handler(req, res) {
       unreadMap[item.conversationId] = item._count.id
     }
 
+    const myFollowings = await prisma.follow.findMany({
+      where: { followerId: currentUserId },
+      select: { followingId: true },
+    })
+    const followingSet = new Set(myFollowings.map(f => f.followingId))
+
     const now = Date.now()
     const result = conversations.map(conv => {
       const otherParticipant = conv.participants.find(p => p.userId !== currentUserId)
@@ -52,6 +58,7 @@ export default async function handler(req, res) {
         user: {
           ...u,
           isOnline,
+          isFollowing: followingSet.has(u.id),
           lastActive: u?.lastActive,
         },
         lastMessage: conv.messages[0] || null,
