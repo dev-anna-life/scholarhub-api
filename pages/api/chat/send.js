@@ -1,5 +1,6 @@
 const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
+const { sendNotificationWithEmail } = require('../../../lib/notifications')
 
 export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ message: 'Method not allowed' })
@@ -54,14 +55,11 @@ export default async function handler(req, res) {
       data: { lastMessageId: message.id },
     })
 
-    await prisma.notification.create({
-      data: {
-        userId: receiverId,
-        fromUserId: user.id,
-        type: 'message',
-        text: text.substring(0, 200),
-        read: false,
-      },
+    await sendNotificationWithEmail({
+      userId: receiverId,
+      fromUserId: user.id,
+      type: 'message',
+      text: text.substring(0, 200),
     })
 
     const populated = await prisma.message.findUnique({

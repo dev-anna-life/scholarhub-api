@@ -1,5 +1,6 @@
 const prisma = require('../../../../lib/prisma')
 const { protect } = require('../../../../lib/auth')
+const { sendNotificationWithEmail } = require('../../../../lib/notifications')
 
 const commentAuthorSelect = { id: true, name: true, username: true, avatar: true, school: true, level: true }
 
@@ -39,25 +40,21 @@ export default async function handler(req, res) {
       if (parentId) {
         const parentComment = await prisma.comment.findUnique({ where: { id: parentId } })
         if (parentComment && parentComment.authorId !== user.id) {
-          await prisma.notification.create({
-            data: {
-              userId: parentComment.authorId,
-              fromUserId: user.id,
-              postId: req.query.id,
-              type: 'comment',
-              text: 'replied to your comment',
-            }
-          })
-        }
-      } else if (post.authorId !== user.id) {
-        await prisma.notification.create({
-          data: {
-            userId: post.authorId,
+          await sendNotificationWithEmail({
+            userId: parentComment.authorId,
             fromUserId: user.id,
             postId: req.query.id,
             type: 'comment',
-            text: 'commented on your post',
-          }
+            text: 'replied to your comment',
+          })
+        }
+      } else if (post.authorId !== user.id) {
+        await sendNotificationWithEmail({
+          userId: post.authorId,
+          fromUserId: user.id,
+          postId: req.query.id,
+          type: 'comment',
+          text: 'commented on your post',
         })
       }
 
