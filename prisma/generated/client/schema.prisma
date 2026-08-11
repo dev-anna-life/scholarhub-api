@@ -49,6 +49,7 @@ model User {
   referralCode          String?   @unique
   referredById          String?
   lastActive            DateTime?
+  showActivityStatus    Boolean   @default(true)
   botUsageDate          String?
   botUsageCount         Int?
   createdAt             DateTime  @default(now())

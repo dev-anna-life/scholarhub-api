@@ -2860,6 +2860,7 @@ export namespace Prisma {
     referralCode: string | null
     referredById: string | null
     lastActive: Date | null
+    showActivityStatus: boolean | null
     botUsageDate: string | null
     botUsageCount: number | null
     createdAt: Date | null
@@ -2904,6 +2905,7 @@ export namespace Prisma {
     referralCode: string | null
     referredById: string | null
     lastActive: Date | null
+    showActivityStatus: boolean | null
     botUsageDate: string | null
     botUsageCount: number | null
     createdAt: Date | null
@@ -2952,6 +2954,7 @@ export namespace Prisma {
     referralCode: number
     referredById: number
     lastActive: number
+    showActivityStatus: number
     botUsageDate: number
     botUsageCount: number
     createdAt: number
@@ -3016,6 +3019,7 @@ export namespace Prisma {
     referralCode?: true
     referredById?: true
     lastActive?: true
+    showActivityStatus?: true
     botUsageDate?: true
     botUsageCount?: true
     createdAt?: true
@@ -3060,6 +3064,7 @@ export namespace Prisma {
     referralCode?: true
     referredById?: true
     lastActive?: true
+    showActivityStatus?: true
     botUsageDate?: true
     botUsageCount?: true
     createdAt?: true
@@ -3108,6 +3113,7 @@ export namespace Prisma {
     referralCode?: true
     referredById?: true
     lastActive?: true
+    showActivityStatus?: true
     botUsageDate?: true
     botUsageCount?: true
     createdAt?: true
@@ -3243,6 +3249,7 @@ export namespace Prisma {
     referralCode: string | null
     referredById: string | null
     lastActive: Date | null
+    showActivityStatus: boolean
     botUsageDate: string | null
     botUsageCount: number | null
     createdAt: Date
@@ -3310,6 +3317,7 @@ export namespace Prisma {
     referralCode?: boolean
     referredById?: boolean
     lastActive?: boolean
+    showActivityStatus?: boolean
     botUsageDate?: boolean
     botUsageCount?: boolean
     createdAt?: boolean
@@ -3380,6 +3388,7 @@ export namespace Prisma {
     referralCode?: boolean
     referredById?: boolean
     lastActive?: boolean
+    showActivityStatus?: boolean
     botUsageDate?: boolean
     botUsageCount?: boolean
     createdAt?: boolean
@@ -3429,6 +3438,7 @@ export namespace Prisma {
     referralCode?: boolean
     referredById?: boolean
     lastActive?: boolean
+    showActivityStatus?: boolean
     botUsageDate?: boolean
     botUsageCount?: boolean
     createdAt?: boolean
@@ -3478,13 +3488,14 @@ export namespace Prisma {
     referralCode?: boolean
     referredById?: boolean
     lastActive?: boolean
+    showActivityStatus?: boolean
     botUsageDate?: boolean
     botUsageCount?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "username" | "phone" | "password" | "googleId" | "avatar" | "bio" | "level" | "status" | "secondaryClass" | "secondarySubjects" | "school" | "faculty" | "department" | "state" | "city" | "country" | "course" | "track" | "interests" | "badges" | "coins" | "lifetimeCoins" | "monthlyCoins" | "monthlyCoinsMonth" | "streak" | "lastPostDate" | "badge" | "activatedFeatures" | "weeklyEngagementCoins" | "lastWeeklyPayout" | "isVerified" | "isAdmin" | "resetToken" | "resetTokenExpiry" | "twoFactorEnabled" | "referralCode" | "referredById" | "lastActive" | "botUsageDate" | "botUsageCount" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "username" | "phone" | "password" | "googleId" | "avatar" | "bio" | "level" | "status" | "secondaryClass" | "secondarySubjects" | "school" | "faculty" | "department" | "state" | "city" | "country" | "course" | "track" | "interests" | "badges" | "coins" | "lifetimeCoins" | "monthlyCoins" | "monthlyCoinsMonth" | "streak" | "lastPostDate" | "badge" | "activatedFeatures" | "weeklyEngagementCoins" | "lastWeeklyPayout" | "isVerified" | "isAdmin" | "resetToken" | "resetTokenExpiry" | "twoFactorEnabled" | "referralCode" | "referredById" | "lastActive" | "showActivityStatus" | "botUsageDate" | "botUsageCount" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     referredBy?: boolean | User$referredByArgs<ExtArgs>
     referrals?: boolean | User$referralsArgs<ExtArgs>
@@ -3583,6 +3594,7 @@ export namespace Prisma {
       referralCode: string | null
       referredById: string | null
       lastActive: Date | null
+      showActivityStatus: boolean
       botUsageDate: string | null
       botUsageCount: number | null
       createdAt: Date
@@ -4072,6 +4084,7 @@ export namespace Prisma {
     readonly referralCode: FieldRef<"User", 'String'>
     readonly referredById: FieldRef<"User", 'String'>
     readonly lastActive: FieldRef<"User", 'DateTime'>
+    readonly showActivityStatus: FieldRef<"User", 'Boolean'>
     readonly botUsageDate: FieldRef<"User", 'String'>
     readonly botUsageCount: FieldRef<"User", 'Int'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
@@ -24009,6 +24022,7 @@ export namespace Prisma {
     referralCode: 'referralCode',
     referredById: 'referredById',
     lastActive: 'lastActive',
+    showActivityStatus: 'showActivityStatus',
     botUsageDate: 'botUsageDate',
     botUsageCount: 'botUsageCount',
     createdAt: 'createdAt',
@@ -24367,6 +24381,7 @@ export namespace Prisma {
     referralCode?: StringNullableFilter<"User"> | string | null
     referredById?: StringNullableFilter<"User"> | string | null
     lastActive?: DateTimeNullableFilter<"User"> | Date | string | null
+    showActivityStatus?: BoolFilter<"User"> | boolean
     botUsageDate?: StringNullableFilter<"User"> | string | null
     botUsageCount?: IntNullableFilter<"User"> | number | null
     createdAt?: DateTimeFilter<"User"> | Date | string
@@ -24436,6 +24451,7 @@ export namespace Prisma {
     referralCode?: SortOrderInput | SortOrder
     referredById?: SortOrderInput | SortOrder
     lastActive?: SortOrderInput | SortOrder
+    showActivityStatus?: SortOrder
     botUsageDate?: SortOrderInput | SortOrder
     botUsageCount?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -24508,6 +24524,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFilter<"User"> | boolean
     referredById?: StringNullableFilter<"User"> | string | null
     lastActive?: DateTimeNullableFilter<"User"> | Date | string | null
+    showActivityStatus?: BoolFilter<"User"> | boolean
     botUsageDate?: StringNullableFilter<"User"> | string | null
     botUsageCount?: IntNullableFilter<"User"> | number | null
     createdAt?: DateTimeFilter<"User"> | Date | string
@@ -24577,6 +24594,7 @@ export namespace Prisma {
     referralCode?: SortOrderInput | SortOrder
     referredById?: SortOrderInput | SortOrder
     lastActive?: SortOrderInput | SortOrder
+    showActivityStatus?: SortOrder
     botUsageDate?: SortOrderInput | SortOrder
     botUsageCount?: SortOrderInput | SortOrder
     createdAt?: SortOrder
@@ -24633,6 +24651,7 @@ export namespace Prisma {
     referralCode?: StringNullableWithAggregatesFilter<"User"> | string | null
     referredById?: StringNullableWithAggregatesFilter<"User"> | string | null
     lastActive?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
+    showActivityStatus?: BoolWithAggregatesFilter<"User"> | boolean
     botUsageDate?: StringNullableWithAggregatesFilter<"User"> | string | null
     botUsageCount?: IntNullableWithAggregatesFilter<"User"> | number | null
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
@@ -25805,6 +25824,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -25874,6 +25894,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -25941,6 +25962,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26010,6 +26032,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26078,6 +26101,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -26125,6 +26149,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26173,6 +26198,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27597,6 +27623,7 @@ export namespace Prisma {
     referralCode?: SortOrder
     referredById?: SortOrder
     lastActive?: SortOrder
+    showActivityStatus?: SortOrder
     botUsageDate?: SortOrder
     botUsageCount?: SortOrder
     createdAt?: SortOrder
@@ -27650,6 +27677,7 @@ export namespace Prisma {
     referralCode?: SortOrder
     referredById?: SortOrder
     lastActive?: SortOrder
+    showActivityStatus?: SortOrder
     botUsageDate?: SortOrder
     botUsageCount?: SortOrder
     createdAt?: SortOrder
@@ -27694,6 +27722,7 @@ export namespace Prisma {
     referralCode?: SortOrder
     referredById?: SortOrder
     lastActive?: SortOrder
+    showActivityStatus?: SortOrder
     botUsageDate?: SortOrder
     botUsageCount?: SortOrder
     createdAt?: SortOrder
@@ -30455,6 +30484,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -30523,6 +30553,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -30594,6 +30625,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -30661,6 +30693,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -31299,6 +31332,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31367,6 +31401,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31453,6 +31488,7 @@ export namespace Prisma {
     referralCode?: StringNullableFilter<"User"> | string | null
     referredById?: StringNullableFilter<"User"> | string | null
     lastActive?: DateTimeNullableFilter<"User"> | Date | string | null
+    showActivityStatus?: BoolFilter<"User"> | boolean
     botUsageDate?: StringNullableFilter<"User"> | string | null
     botUsageCount?: IntNullableFilter<"User"> | number | null
     createdAt?: DateTimeFilter<"User"> | Date | string
@@ -31995,6 +32031,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -32063,6 +32100,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -32134,6 +32172,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -32202,6 +32241,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -32284,6 +32324,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32352,6 +32393,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32429,6 +32471,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32497,6 +32540,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32563,6 +32607,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -32631,6 +32676,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -32833,6 +32879,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -32901,6 +32948,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33098,6 +33146,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -33166,6 +33215,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -33297,6 +33347,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33365,6 +33416,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33474,6 +33526,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -33542,6 +33595,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -33673,6 +33727,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33741,6 +33796,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33967,6 +34023,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -34035,6 +34092,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -34211,6 +34269,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34279,6 +34338,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34439,6 +34499,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -34507,6 +34568,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -34627,6 +34689,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34695,6 +34758,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34824,6 +34888,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -34892,6 +34957,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -35011,6 +35077,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35079,6 +35146,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35145,6 +35213,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -35213,6 +35282,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -35295,6 +35365,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35363,6 +35434,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35429,6 +35501,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -35497,6 +35570,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -35568,6 +35642,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -35636,6 +35711,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -35718,6 +35794,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35786,6 +35863,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35863,6 +35941,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -35931,6 +36010,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36040,6 +36120,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -36108,6 +36189,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -36239,6 +36321,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36307,6 +36390,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36373,6 +36457,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -36441,6 +36526,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -36512,6 +36598,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -36580,6 +36667,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -36662,6 +36750,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36730,6 +36819,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36807,6 +36897,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36875,6 +36966,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37040,6 +37132,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -37108,6 +37201,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -37217,6 +37311,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37285,6 +37380,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37351,6 +37447,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -37419,6 +37516,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -37522,6 +37620,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37590,6 +37689,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -37683,6 +37783,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -37751,6 +37852,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -37822,6 +37924,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -37890,6 +37993,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -37972,6 +38076,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38040,6 +38145,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38117,6 +38223,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38185,6 +38292,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38251,6 +38359,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -38319,6 +38428,7 @@ export namespace Prisma {
     referralCode?: string | null
     referredById?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -38401,6 +38511,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38469,6 +38580,7 @@ export namespace Prisma {
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     referredById?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38535,6 +38647,7 @@ export namespace Prisma {
     twoFactorEnabled?: boolean
     referralCode?: string | null
     lastActive?: Date | string | null
+    showActivityStatus?: boolean
     botUsageDate?: string | null
     botUsageCount?: number | null
     createdAt?: Date | string
@@ -38754,6 +38867,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38821,6 +38935,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38888,6 +39003,7 @@ export namespace Prisma {
     twoFactorEnabled?: BoolFieldUpdateOperationsInput | boolean
     referralCode?: NullableStringFieldUpdateOperationsInput | string | null
     lastActive?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    showActivityStatus?: BoolFieldUpdateOperationsInput | boolean
     botUsageDate?: NullableStringFieldUpdateOperationsInput | string | null
     botUsageCount?: NullableIntFieldUpdateOperationsInput | number | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string

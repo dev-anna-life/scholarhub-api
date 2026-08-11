@@ -22,7 +22,7 @@ export default async function handler(req, res) {
         participants: {
           include: {
             user: {
-              select: { id: true, name: true, school: true, level: true, badge: true, username: true, avatar: true, lastActive: true },
+              select: { id: true, name: true, school: true, level: true, badge: true, username: true, avatar: true, lastActive: true, showActivityStatus: true },
             },
           },
         },
@@ -47,19 +47,22 @@ export default async function handler(req, res) {
     })
     const followingSet = new Set(myFollowings.map(f => f.followingId))
 
+    const myActivityStatus = currentUser.showActivityStatus !== false
+
     const now = Date.now()
     const result = conversations.map(conv => {
       const otherParticipant = conv.participants.find(p => p.userId !== currentUserId)
       if (!otherParticipant) return null
       const u = otherParticipant.user
+      const canSeePresence = myActivityStatus && u?.showActivityStatus !== false
       const lastActiveTime = u?.lastActive ? new Date(u.lastActive).getTime() : 0
-      const isOnline = (now - lastActiveTime) < 2 * 60 * 1000 // online if active within 2 mins
+      const isOnline = canSeePresence ? (now - lastActiveTime) < 2 * 60 * 1000 : false
       return {
         user: {
           ...u,
           isOnline,
           isFollowing: followingSet.has(u.id),
-          lastActive: u?.lastActive,
+          lastActive: canSeePresence ? u?.lastActive : null,
         },
         lastMessage: conv.messages[0] || null,
         unread: unreadMap[conv.id] || 0,

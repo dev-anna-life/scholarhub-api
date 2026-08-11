@@ -14,6 +14,7 @@ export default async function handler(req, res) {
     if (bio !== undefined) updates.bio = bio
     if (avatar !== undefined) updates.avatar = avatar
     if (coins !== undefined) updates.coins = coins
+    if (req.body.showActivityStatus !== undefined) updates.showActivityStatus = Boolean(req.body.showActivityStatus)
     if (username !== undefined) {
       const existing = await prisma.user.findFirst({ where: { username, NOT: { id: user.id } } })
       if (existing) return res.status(400).json({ message: 'Username already taken' })

@@ -66,12 +66,17 @@ export default async function handler(req, res) {
 
     const { password, followers, following, ...userClean } = userRaw
     const now = Date.now()
+    const myActivityStatus = currentUser ? currentUser.showActivityStatus !== false : true
+    const targetActivityStatus = userRaw.showActivityStatus !== false
+    const canSeePresence = myActivityStatus && targetActivityStatus
+
     const lastActiveTime = userRaw.lastActive ? new Date(userRaw.lastActive).getTime() : 0
-    const isOnline = (now - lastActiveTime) < 2 * 60 * 1000 // online if active within 2 mins
+    const isOnline = canSeePresence ? (now - lastActiveTime) < 2 * 60 * 1000 : false
 
     res.json({
       ...userClean,
       isOnline,
+      lastActive: canSeePresence ? userRaw.lastActive : null,
       followersCount: followersList.length,
       followingCount: followingList.length,
       followers: followersList,

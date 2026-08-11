@@ -162,6 +162,7 @@ exports.Prisma.UserScalarFieldEnum = {
   referralCode: 'referralCode',
   referredById: 'referredById',
   lastActive: 'lastActive',
+  showActivityStatus: 'showActivityStatus',
   botUsageDate: 'botUsageDate',
   botUsageCount: 'botUsageCount',
   createdAt: 'createdAt',
