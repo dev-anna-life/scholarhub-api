@@ -43,6 +43,7 @@ export default async function handler(req, res) {
             data: {
               userId: parentComment.authorId,
               fromUserId: user.id,
+              postId: req.query.id,
               type: 'comment',
               text: 'replied to your comment',
             }
@@ -53,6 +54,7 @@ export default async function handler(req, res) {
           data: {
             userId: post.authorId,
             fromUserId: user.id,
+            postId: req.query.id,
             type: 'comment',
             text: 'commented on your post',
           }

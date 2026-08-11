@@ -23,7 +23,7 @@ export default async function handler(req, res) {
       })
       if (post.authorId !== user.id) {
         await prisma.notification.create({
-          data: { userId: post.authorId, fromUserId: user.id, type: 'like', text: 'liked your post' }
+          data: { userId: post.authorId, fromUserId: user.id, postId: req.query.id, type: 'like', text: 'liked your post' }
         })
       }
     }

@@ -248,6 +248,7 @@ exports.Prisma.NotificationScalarFieldEnum = {
   id: 'id',
   type: 'type',
   text: 'text',
+  postId: 'postId',
   read: 'read',
   userId: 'userId',
   fromUserId: 'fromUserId',

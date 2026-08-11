@@ -237,6 +237,7 @@ export default async function handler(req, res) {
         }
       }
 
+      const postStatus = (user.isAdmin || user.email?.toLowerCase() === 'admin@scholarhub.app') ? 'approved' : 'pending'
       const post = await prisma.post.create({
         data: {
           title,
@@ -244,7 +245,7 @@ export default async function handler(req, res) {
           category: category || '',
           image: image || '',
           authorId: user.id,
-          status: 'approved',
+          status: postStatus,
           communities: {
             create: communityIds.map(cid => ({ communityId: cid }))
           }
