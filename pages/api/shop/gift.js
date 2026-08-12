@@ -42,6 +42,18 @@ export default async function handler(req, res) {
       data: { userId: sender.id, recipientId, itemId, itemName: item.name, price: item.price, type: 'gift' }
     })
 
+    if (commentId) {
+      await prisma.comment.update({
+        where: { id: commentId },
+        data: { gifts: { push: itemId } }
+      })
+    } else if (postId) {
+      await prisma.post.update({
+        where: { id: postId },
+        data: { gifts: { push: itemId } }
+      })
+    }
+
     await sendNotificationWithEmail({
       userId: recipientId,
       fromUserId: sender.id,

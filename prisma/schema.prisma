@@ -108,6 +108,7 @@ model Post {
   savedBy       PostSave[]
   communities   PostCommunity[]
   monthlyAwards MonthlyAward[]
+  gifts         String[]       @default([])
 }
 
 model PostLike {
@@ -150,6 +151,7 @@ model Comment {
   parent    Comment? @relation("CommentReplies", fields: [parentId], references: [id], onDelete: Cascade)
   replies   Comment[] @relation("CommentReplies")
   createdAt DateTime @default(now())
+  gifts     String[] @default([])
 }
 
 model Community {
