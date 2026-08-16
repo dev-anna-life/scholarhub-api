@@ -2,9 +2,9 @@ const prisma = require('../../../lib/prisma')
 const { protect } = require('../../../lib/auth')
 
 const badgeItems = [
-  { id: 'badge_basic', name: 'Basic', price: 3000, durationMonths: 1 },
-  { id: 'badge_premium', name: 'Premium', price: 10000, durationMonths: 3 },
-  { id: 'badge_extra_premium', name: 'Extra Premium', price: 20000, durationMonths: 12 },
+  { id: 'badge_basic', name: 'Basic', price: 2000, durationMonths: 1 },
+  { id: 'badge_premium', name: 'Premium', price: 4500, durationMonths: 1 },
+  { id: 'badge_extra_premium', name: 'Extra Premium', price: 7000, durationMonths: 1 },
 ]
 
 export default async function handler(req, res) {

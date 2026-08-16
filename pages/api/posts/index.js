@@ -2,7 +2,19 @@ const prisma = require('../../../lib/prisma')
 const jwt = require('jsonwebtoken')
 const { protect } = require('../../../lib/auth')
 
-const authorSelect = { id: true, name: true, username: true, avatar: true, school: true, faculty: true, department: true, level: true }
+const authorSelect = {
+  id: true,
+  name: true,
+  username: true,
+  avatar: true,
+  school: true,
+  faculty: true,
+  department: true,
+  level: true,
+  badgeSubscriptions: {
+    select: { badgeId: true, expiresAt: true }
+  }
+}
 
 async function getOptionalUser(req) {
   let token
@@ -202,8 +214,38 @@ export default async function handler(req, res) {
       if (user.status && user.status !== 'Current Student') {
         return res.status(403).json({ message: `${user.status === 'Graduate' ? 'Graduates' : 'Alumni'} cannot create posts` })
       }
-      let { title, content, category, image, communityIds } = req.body
+      let { title, content, category, image, video, communityIds } = req.body
       if (!title || !content) return res.status(400).json({ message: 'Title and content are required' })
+
+      // Check subscription tier limits
+      const now = new Date()
+      const activeSubs = (user.badgeSubscriptions || []).filter(s => new Date(s.expiresAt) > now)
+      const hasExtra = activeSubs.some(s => s.badgeId === 'badge_extra_premium' || s.id === 'badge_extra_premium')
+      const hasPremium = activeSubs.some(s => s.badgeId === 'badge_premium' || s.id === 'badge_premium')
+      const hasBasic = activeSubs.some(s => s.badgeId === 'badge_basic' || s.id === 'badge_basic')
+
+      const wordCount = content.trim().split(/\s+/).length
+      const charCount = content.length
+
+      if (!hasExtra && !hasPremium && !hasBasic) {
+        // Free tier
+        if (charCount > 250) {
+          return res.status(400).json({ message: 'Free accounts can write up to 250 characters. Upgrade to Basic (₦2,000/mo) to post up to 500 words.' })
+        }
+        if (video) {
+          return res.status(400).json({ message: 'Free accounts can only post pictures. Upgrade to Basic to post up to 30s video.' })
+        }
+      } else if (hasBasic && !hasPremium && !hasExtra) {
+        // Basic tier
+        if (wordCount > 500 && charCount > 2500) {
+          return res.status(400).json({ message: 'Basic accounts can write up to 500 words. Upgrade to Premium for 1,000 words or Extra Premium for unlimited writing.' })
+        }
+      } else if (hasPremium && !hasExtra) {
+        // Premium tier
+        if (wordCount > 1000 && charCount > 5000) {
+          return res.status(400).json({ message: 'Premium accounts can write up to 1,000 words. Upgrade to Extra Premium for unlimited writing.' })
+        }
+      }
 
       // Clean and validate communityIds array
       if (!Array.isArray(communityIds)) {
