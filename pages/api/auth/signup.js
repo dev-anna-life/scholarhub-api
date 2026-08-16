@@ -10,6 +10,7 @@ const signupSchema = z.object({
   email: z.string().email({ message: 'Invalid email address' }),
   username: z.string().min(3, { message: 'Username must be at least 3 characters' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters' }),
+  phone: z.string().optional(),
   school: z.string().optional(),
   level: z.string().optional(),
   state: z.string().optional(),
@@ -66,7 +67,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: errorMsg })
     }
 
-    const { name, email: rawEmail, username: rawUsername, password, school, level, course, track, state, city, country, faculty, department, interests, referralCode, status, secondaryClass, secondarySubjects } = validationResult.data
+    const { name, email: rawEmail, username: rawUsername, password, phone, school, level, course, track, state, city, country, faculty, department, interests, referralCode, status, secondaryClass, secondarySubjects } = validationResult.data
     const email = rawEmail.trim().toLowerCase()
     const username = rawUsername.trim().toLowerCase()
 
@@ -93,6 +94,7 @@ export default async function handler(req, res) {
     const user = await prisma.user.create({
       data: {
         name: name.trim(), email, username, password: hashedPassword,
+        phone: phone || '',
         school: school || '', level: level || 'University',
         status: status || 'Current Student',
         secondaryClass: ['Science', 'Arts'].includes(secondaryClass) ? secondaryClass : null,
