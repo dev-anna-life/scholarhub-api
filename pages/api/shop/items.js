@@ -2,14 +2,14 @@ const badgeItems = [
   {
     id: 'badge_basic', name: 'Basic', price: 2000, durationMonths: 1, icon: '⭐', color: '#94A3B8',
     description: '1 month badge: write more and post video clips',
-    maxWords: 500,
+    maxWords: 80,
     maxChars: 2500,
     maxVideoSeconds: 30,
     canUploadVideo: true,
     hasPortfolio: true,
     dailyBotMessages: 30,
     features: [
-      'Write up to 500 words per post',
+      'Write 0 - 80 words per post',
       'Upload up to 30 seconds video',
       'Personalized Ads experience',
       'Student Portfolio access',

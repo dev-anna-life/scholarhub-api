@@ -237,8 +237,8 @@ export default async function handler(req, res) {
         }
       } else if (hasBasic && !hasPremium && !hasExtra) {
         // Basic tier
-        if (wordCount > 500 && charCount > 2500) {
-          return res.status(400).json({ message: 'Basic accounts can write up to 500 words. Upgrade to Premium for 1,000 words or Extra Premium for unlimited writing.' })
+        if (wordCount > 80) {
+          return res.status(400).json({ message: 'Basic accounts can write up to 80 words. Upgrade to Premium for 1,000 words or Extra Premium for unlimited writing.' })
         }
       } else if (hasPremium && !hasExtra) {
         // Premium tier
