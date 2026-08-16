@@ -42,6 +42,12 @@ export default async function handler(req, res) {
       data: { userId: sender.id, recipientId, itemId, itemName: item.name, price: item.price, type: 'gift' }
     })
 
+    let targetPostId = postId || null
+    if (!targetPostId && commentId) {
+      const c = await prisma.comment.findUnique({ where: { id: commentId }, select: { postId: true } })
+      if (c) targetPostId = c.postId
+    }
+
     if (commentId) {
       await prisma.comment.update({
         where: { id: commentId },
@@ -57,10 +63,14 @@ export default async function handler(req, res) {
     await sendNotificationWithEmail({
       userId: recipientId,
       fromUserId: sender.id,
-      postId: postId || null,
+      postId: targetPostId,
       type: 'gift',
-      text: `awarded your comment a ${item.name} reaction gift (+${item.price} coins)!`,
-      customSubject: `${sender.name} awarded your comment a ${item.name} reaction!`
+      text: commentId
+        ? `awarded your comment a ${item.name} reaction gift (+${item.price} coins)!`
+        : `awarded your post a ${item.name} reaction gift (+${item.price} coins)!`,
+      customSubject: commentId
+        ? `${sender.name} awarded your comment a ${item.name} reaction!`
+        : `${sender.name} awarded your post a ${item.name} reaction!`
     })
 
     const updatedSender = await prisma.user.findUnique({ where: { id: sender.id } })
