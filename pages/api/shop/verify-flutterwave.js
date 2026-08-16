@@ -32,7 +32,7 @@ export default async function handler(req, res) {
     const flwSecret = process.env.FLUTTERWAVE_SECRET_KEY || process.env.FLW_SECRET_KEY
     if (!flwSecret) {
       return res.status(501).json({
-        message: 'Flutterwave integration is not configured on this server.'
+        message: 'Flutterwave integration is not configured on this server. Please set FLUTTERWAVE_SECRET_KEY in environment variables.'
       })
     }
 

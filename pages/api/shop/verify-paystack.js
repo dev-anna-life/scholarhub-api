@@ -33,7 +33,7 @@ export default async function handler(req, res) {
     const paystackSecret = process.env.PAYSTACK_SECRET_KEY
     if (!paystackSecret) {
       return res.status(501).json({
-        message: 'Paystack integration is not configured on this server. Please set PAYSTACK_SECRET_KEY.'
+        message: 'Paystack integration is not configured on this server. Please set PAYSTACK_SECRET_KEY in environment variables.'
       })
     }
 
