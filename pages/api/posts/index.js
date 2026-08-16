@@ -229,8 +229,8 @@ export default async function handler(req, res) {
 
       if (!hasExtra && !hasPremium && !hasBasic) {
         // Free tier
-        if (charCount > 250) {
-          return res.status(400).json({ message: 'Free accounts can write up to 250 characters. Upgrade to Basic (₦2,000/mo) to post up to 500 words.' })
+        if (wordCount > 80) {
+          return res.status(400).json({ message: 'Free accounts can write up to 80 words. Upgrade to Basic (₦2,000/mo) to post up to 500 words.' })
         }
         if (video) {
           return res.status(400).json({ message: 'Free accounts can only post pictures. Upgrade to Basic to post up to 30s video.' })
