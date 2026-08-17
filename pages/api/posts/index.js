@@ -346,6 +346,8 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: 'Please select at least one community to post' })
           }
         }
+      }
+
       // Run Gemini AI Content Safety & Academic Citation Moderation
       const safetyAnalysis = await analyzePostSafetyAndCitation(title, content, category)
       if (!safetyAnalysis.isSafe) {
