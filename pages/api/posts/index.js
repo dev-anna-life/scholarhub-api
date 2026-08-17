@@ -68,7 +68,7 @@ Return ONLY valid JSON:
   "citationSummary": "string"
 }`
 
-    const response = await fetch(
+    let response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
@@ -83,6 +83,25 @@ Return ONLY valid JSON:
         })
       }
     )
+
+    if (!response.ok) {
+      // Fallback to gemini-1.5-flash
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ role: 'user', parts: [{ text: prompt }] }],
+            generationConfig: {
+              temperature: 0.2,
+              maxOutputTokens: 300,
+              responseMimeType: 'application/json'
+            }
+          })
+        }
+      )
+    }
 
     if (!response.ok) return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
     const data = await response.json()
