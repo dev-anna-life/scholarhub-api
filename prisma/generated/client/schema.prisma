@@ -98,8 +98,9 @@ model Post {
   video           String?
   trending        Boolean  @default(false)
   boosted         Boolean  @default(false)
-  citationStatus  String?  @default("discussion")
+  citationStatus  String?  @default("unverified")
   citationSummary String?
+  citationSource  String?
   authorId        String
   author          User     @relation(fields: [authorId], references: [id])
   createdAt       DateTime @default(now())

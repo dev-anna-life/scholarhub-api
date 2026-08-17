@@ -37,32 +37,34 @@ async function getOptionalUser(req) {
   }
 }
 
-async function analyzePostSafetyAndCitation(title, content, category) {
+async function analyzePostSafetyAndCitation(title, content, category, citationSource) {
   const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Community Discussion' }
+  if (!apiKey) return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
 
   try {
-    const prompt = `You are the ScholarHub Academic Semantic AI Engine.
+    const prompt = `You are the ScholarHub Academic Semantic Citation & Fact-Checking Engine.
 ScholarHub is an academic social platform for university and secondary school students.
-Analyze this post:
+Analyze this student post:
 Title: "${title || ''}"
 Content: "${content || ''}"
 Category: "${category || 'General'}"
+Claimed Citation / Source: "${citationSource || 'None provided'}"
 
 Instructions:
 1. SAFETY CHECK:
-   - If the content contains explicit pornography, graphic violence, hate speech, severe harassment, or academic scam/fraud: set "isSafe": false and "flagReason" with a clear polite explanation.
-2. SEMANTIC CITATION CHECK (If safe):
-   - "verified" (🟢): The post provides educational knowledge, study tips, scientific/academic explanations, historical facts, coding/math tutorials, or course insights that are factually sound.
-   - "discussion" (🟡): The post expresses personal feelings, campus thoughts, social questions, campus gist, or casual student life (not educating others).
-   - "misinformation" (🔴): The post makes debunked or false claims, examination leak rumors, or misleading academic information.
-3. CITATION SUMMARY: Provide a concise 1-sentence note (e.g. "Verified by AI: Accurately explains AI video generation concepts." or "Campus Discussion: Student sharing personal thoughts.").
+   - Check if content contains explicit pornography, graphic violence, harassment, hate speech, or dangerous scams. If unsafe, return "isSafe": false and "flagReason".
+2. ACADEMIC CITATION & FACT-CHECKING:
+   - Cross-check the information against official university/secondary curricula (e.g. NUC, SURCON, WAEC/JAMB, standard university benchmarks) and Google Scholar/academic textbooks.
+   - "verified" (🟢): The information is factually accurate and thoroughly matches the cited source (or official curriculum standards).
+   - "unverified" (🟡): The information is plausible, general student opinion, or roughly right, but cannot be directly confirmed in the cited database or no official source was provided.
+   - "false_claim" (🔴): The information is factually wrong, pseudoscientific, contradicts established academic facts, or is a deceptive exam leak rumor.
+3. CITATION SUMMARY: Provide a concise 1-sentence note explaining the verification result (e.g., "Verified: Accurately aligns with SURCON & NUC Surveying curriculum." or "Unverified: Plausible concept, but source is unconfirmed.").
 
 Return ONLY valid JSON:
 {
   "isSafe": true,
   "flagReason": null,
-  "citationStatus": "verified" | "discussion" | "misinformation",
+  "citationStatus": "verified" | "unverified" | "false_claim",
   "citationSummary": "string"
 }`
 
@@ -82,14 +84,14 @@ Return ONLY valid JSON:
       }
     )
 
-    if (!response.ok) return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Community Discussion' }
+    if (!response.ok) return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
     const data = await response.json()
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-    if (!text) return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Community Discussion' }
+    if (!text) return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
     return JSON.parse(text)
   } catch (err) {
-    console.error('AI Moderation error:', err)
-    return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Community Discussion' }
+    console.error('AI Citation error:', err)
+    return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
   }
 }
 
@@ -351,21 +353,21 @@ export default async function handler(req, res) {
       }
 
       // Run Gemini AI Content Safety & Academic Citation Moderation
-      const safetyAnalysis = await analyzePostSafetyAndCitation(title, content, category)
+      const safetyAnalysis = await analyzePostSafetyAndCitation(title, content, category, citationSource)
       if (!safetyAnalysis.isSafe) {
         return res.status(400).json({
           message: safetyAnalysis.flagReason || 'Post blocked by ScholarHub AI Safety: Content violates academic safety guidelines (explicit or harmful material detected).'
         })
       }
 
-      if (safetyAnalysis.citationStatus === 'misinformation') {
+      if (safetyAnalysis.citationStatus === 'false_claim') {
         return res.status(400).json({
-          message: safetyAnalysis.citationSummary || 'Post blocked by ScholarHub AI: Unverified claims or misinformation detected. Please provide accurate academic sources.'
+          message: safetyAnalysis.citationSummary || 'Post rejected by ScholarHub AI Fact-Checker: The information provided contradicts verified academic curriculum standards.'
         })
       }
 
-      const citationStatus = safetyAnalysis.citationStatus === 'verified' ? 'verified' : 'discussion'
-      const citationSummary = safetyAnalysis.citationSummary || (citationStatus === 'verified' ? 'Verified academic insight' : 'Community discussion')
+      const citationStatus = safetyAnalysis.citationStatus === 'verified' ? 'verified' : 'unverified'
+      const citationSummary = safetyAnalysis.citationSummary || (citationStatus === 'verified' ? 'Verified against academic curriculum standards' : 'No verified source found in database (Unverified)')
 
       const postStatus = 'approved'
       const post = await prisma.post.create({
@@ -375,6 +377,7 @@ export default async function handler(req, res) {
           category: category || '',
           image: image || '',
           video: video || '',
+          citationSource: citationSource ? citationSource.trim() : null,
           citationStatus,
           citationSummary,
           authorId: user.id,

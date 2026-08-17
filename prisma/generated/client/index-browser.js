@@ -187,6 +187,7 @@ exports.Prisma.PostScalarFieldEnum = {
   boosted: 'boosted',
   citationStatus: 'citationStatus',
   citationSummary: 'citationSummary',
+  citationSource: 'citationSource',
   authorId: 'authorId',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',

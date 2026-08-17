@@ -6074,6 +6074,7 @@ export namespace Prisma {
     boosted: boolean | null
     citationStatus: string | null
     citationSummary: string | null
+    citationSource: string | null
     authorId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -6091,6 +6092,7 @@ export namespace Prisma {
     boosted: boolean | null
     citationStatus: string | null
     citationSummary: string | null
+    citationSource: string | null
     authorId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -6108,6 +6110,7 @@ export namespace Prisma {
     boosted: number
     citationStatus: number
     citationSummary: number
+    citationSource: number
     authorId: number
     createdAt: number
     updatedAt: number
@@ -6128,6 +6131,7 @@ export namespace Prisma {
     boosted?: true
     citationStatus?: true
     citationSummary?: true
+    citationSource?: true
     authorId?: true
     createdAt?: true
     updatedAt?: true
@@ -6145,6 +6149,7 @@ export namespace Prisma {
     boosted?: true
     citationStatus?: true
     citationSummary?: true
+    citationSource?: true
     authorId?: true
     createdAt?: true
     updatedAt?: true
@@ -6162,6 +6167,7 @@ export namespace Prisma {
     boosted?: true
     citationStatus?: true
     citationSummary?: true
+    citationSource?: true
     authorId?: true
     createdAt?: true
     updatedAt?: true
@@ -6253,6 +6259,7 @@ export namespace Prisma {
     boosted: boolean
     citationStatus: string | null
     citationSummary: string | null
+    citationSource: string | null
     authorId: string
     createdAt: Date
     updatedAt: Date
@@ -6288,6 +6295,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: boolean
     citationSummary?: boolean
+    citationSource?: boolean
     authorId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6313,6 +6321,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: boolean
     citationSummary?: boolean
+    citationSource?: boolean
     authorId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6332,6 +6341,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: boolean
     citationSummary?: boolean
+    citationSource?: boolean
     authorId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -6351,13 +6361,14 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: boolean
     citationSummary?: boolean
+    citationSource?: boolean
     authorId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     gifts?: boolean
   }
 
-  export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "content" | "category" | "status" | "image" | "video" | "trending" | "boosted" | "citationStatus" | "citationSummary" | "authorId" | "createdAt" | "updatedAt" | "gifts", ExtArgs["result"]["post"]>
+  export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "content" | "category" | "status" | "image" | "video" | "trending" | "boosted" | "citationStatus" | "citationSummary" | "citationSource" | "authorId" | "createdAt" | "updatedAt" | "gifts", ExtArgs["result"]["post"]>
   export type PostInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     author?: boolean | UserDefaultArgs<ExtArgs>
     comments?: boolean | Post$commentsArgs<ExtArgs>
@@ -6396,6 +6407,7 @@ export namespace Prisma {
       boosted: boolean
       citationStatus: string | null
       citationSummary: string | null
+      citationSource: string | null
       authorId: string
       createdAt: Date
       updatedAt: Date
@@ -6840,6 +6852,7 @@ export namespace Prisma {
     readonly boosted: FieldRef<"Post", 'Boolean'>
     readonly citationStatus: FieldRef<"Post", 'String'>
     readonly citationSummary: FieldRef<"Post", 'String'>
+    readonly citationSource: FieldRef<"Post", 'String'>
     readonly authorId: FieldRef<"Post", 'String'>
     readonly createdAt: FieldRef<"Post", 'DateTime'>
     readonly updatedAt: FieldRef<"Post", 'DateTime'>
@@ -24097,6 +24110,7 @@ export namespace Prisma {
     boosted: 'boosted',
     citationStatus: 'citationStatus',
     citationSummary: 'citationSummary',
+    citationSource: 'citationSource',
     authorId: 'authorId',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
@@ -24770,6 +24784,7 @@ export namespace Prisma {
     boosted?: BoolFilter<"Post"> | boolean
     citationStatus?: StringNullableFilter<"Post"> | string | null
     citationSummary?: StringNullableFilter<"Post"> | string | null
+    citationSource?: StringNullableFilter<"Post"> | string | null
     authorId?: StringFilter<"Post"> | string
     createdAt?: DateTimeFilter<"Post"> | Date | string
     updatedAt?: DateTimeFilter<"Post"> | Date | string
@@ -24794,6 +24809,7 @@ export namespace Prisma {
     boosted?: SortOrder
     citationStatus?: SortOrderInput | SortOrder
     citationSummary?: SortOrderInput | SortOrder
+    citationSource?: SortOrderInput | SortOrder
     authorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -24821,6 +24837,7 @@ export namespace Prisma {
     boosted?: BoolFilter<"Post"> | boolean
     citationStatus?: StringNullableFilter<"Post"> | string | null
     citationSummary?: StringNullableFilter<"Post"> | string | null
+    citationSource?: StringNullableFilter<"Post"> | string | null
     authorId?: StringFilter<"Post"> | string
     createdAt?: DateTimeFilter<"Post"> | Date | string
     updatedAt?: DateTimeFilter<"Post"> | Date | string
@@ -24845,6 +24862,7 @@ export namespace Prisma {
     boosted?: SortOrder
     citationStatus?: SortOrderInput | SortOrder
     citationSummary?: SortOrderInput | SortOrder
+    citationSource?: SortOrderInput | SortOrder
     authorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -24869,6 +24887,7 @@ export namespace Prisma {
     boosted?: BoolWithAggregatesFilter<"Post"> | boolean
     citationStatus?: StringNullableWithAggregatesFilter<"Post"> | string | null
     citationSummary?: StringNullableWithAggregatesFilter<"Post"> | string | null
+    citationSource?: StringNullableWithAggregatesFilter<"Post"> | string | null
     authorId?: StringWithAggregatesFilter<"Post"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Post"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Post"> | Date | string
@@ -26325,6 +26344,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     gifts?: PostCreategiftsInput | string[]
@@ -26348,6 +26368,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26371,6 +26392,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gifts?: PostUpdategiftsInput | string[]
@@ -26394,6 +26416,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26417,6 +26440,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26435,6 +26459,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gifts?: PostUpdategiftsInput | string[]
@@ -26452,6 +26477,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27988,6 +28014,7 @@ export namespace Prisma {
     boosted?: SortOrder
     citationStatus?: SortOrder
     citationSummary?: SortOrder
+    citationSource?: SortOrder
     authorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -28006,6 +28033,7 @@ export namespace Prisma {
     boosted?: SortOrder
     citationStatus?: SortOrder
     citationSummary?: SortOrder
+    citationSource?: SortOrder
     authorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -28023,6 +28051,7 @@ export namespace Prisma {
     boosted?: SortOrder
     citationStatus?: SortOrder
     citationSummary?: SortOrder
+    citationSource?: SortOrder
     authorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -30864,6 +30893,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     gifts?: PostCreategiftsInput | string[]
@@ -30886,6 +30916,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     gifts?: PostCreategiftsInput | string[]
@@ -31656,6 +31687,7 @@ export namespace Prisma {
     boosted?: BoolFilter<"Post"> | boolean
     citationStatus?: StringNullableFilter<"Post"> | string | null
     citationSummary?: StringNullableFilter<"Post"> | string | null
+    citationSource?: StringNullableFilter<"Post"> | string | null
     authorId?: StringFilter<"Post"> | string
     createdAt?: DateTimeFilter<"Post"> | Date | string
     updatedAt?: DateTimeFilter<"Post"> | Date | string
@@ -33210,6 +33242,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     gifts?: PostCreategiftsInput | string[]
@@ -33232,6 +33265,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33411,6 +33445,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gifts?: PostUpdategiftsInput | string[]
@@ -33433,6 +33468,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33602,6 +33638,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     gifts?: PostCreategiftsInput | string[]
@@ -33624,6 +33661,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -33803,6 +33841,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gifts?: PostUpdategiftsInput | string[]
@@ -33825,6 +33864,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -33994,6 +34034,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     gifts?: PostCreategiftsInput | string[]
@@ -34016,6 +34057,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34085,6 +34127,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gifts?: PostUpdategiftsInput | string[]
@@ -34107,6 +34150,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34307,6 +34351,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     gifts?: PostCreategiftsInput | string[]
@@ -34329,6 +34374,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34569,6 +34615,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gifts?: PostUpdategiftsInput | string[]
@@ -34591,6 +34638,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -36238,6 +36286,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     gifts?: PostCreategiftsInput | string[]
@@ -36260,6 +36309,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -36439,6 +36489,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gifts?: PostUpdategiftsInput | string[]
@@ -36461,6 +36512,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -38868,6 +38920,7 @@ export namespace Prisma {
     boosted?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
+    citationSource?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     gifts?: PostCreategiftsInput | string[]
@@ -39228,6 +39281,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gifts?: PostUpdategiftsInput | string[]
@@ -39250,6 +39304,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gifts?: PostUpdategiftsInput | string[]
@@ -39272,6 +39327,7 @@ export namespace Prisma {
     boosted?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSource?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     gifts?: PostUpdategiftsInput | string[]
