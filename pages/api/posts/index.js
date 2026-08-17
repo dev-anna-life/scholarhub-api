@@ -11,6 +11,7 @@ const authorSelect = {
   faculty: true,
   department: true,
   level: true,
+  scholarScore: true,
   badgeSubscriptions: {
     select: { badgeId: true, expiresAt: true }
   }
@@ -42,23 +43,28 @@ async function analyzePostSafetyAndCitation(title, content, category, citationSo
   if (!apiKey) return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
 
   try {
-    const prompt = `You are the ScholarHub Academic Semantic Citation & Fact-Checking Engine.
-ScholarHub is an academic social platform for university and secondary school students.
-Analyze this student post:
+    const prompt = `You are the ScholarHub Academic Semantic Citation & Global Fact-Checking Engine.
+ScholarHub connects university and secondary school students across Africa and globally.
+Analyze this student post submission:
 Title: "${title || ''}"
 Content: "${content || ''}"
 Category: "${category || 'General'}"
-Claimed Citation / Source: "${citationSource || 'None provided'}"
+Claimed Citation / Academic Source: "${citationSource || 'None provided'}"
 
-Instructions:
+Global Knowledge Bases & Standards to Cross-Reference:
+1. NIGERIAN & AFRICAN CURRICULA: NUC (National Universities Commission) CCMAS benchmarks, professional regulatory curricula (SURCON for Surveying, COREN for Engineering, MDCN for Medicine, NBA/Council of Legal Education for Law, ICAN for Accounting, WAEC/NECO/JAMB).
+2. BRITISH CURRICULA: Cambridge International, UK GCSE/A-Levels, UK QAA (Quality Assurance Agency) higher education benchmark statements.
+3. AMERICAN CURRICULA: US Common Core, AP (Advanced Placement), ABET accreditation standards for engineering/technology, US College Board benchmarks.
+4. TECHNOLOGY & COMPUTING: ACM / IEEE Computing Curricula (Computer Science, Software Engineering, Cybersecurity, AI/Data Science, IT).
+
+Evaluation Guidelines:
 1. SAFETY CHECK:
-   - Check if content contains explicit pornography, graphic violence, harassment, hate speech, or dangerous scams. If unsafe, return "isSafe": false and "flagReason".
-2. ACADEMIC CITATION & FACT-CHECKING:
-   - Cross-check the information against official university/secondary curricula (e.g. NUC, SURCON, WAEC/JAMB, standard university benchmarks) and Google Scholar/academic textbooks.
-   - "verified" (🟢): The information is factually accurate and thoroughly matches the cited source (or official curriculum standards).
-   - "unverified" (🟡): The information is plausible, general student opinion, or roughly right, but cannot be directly confirmed in the cited database or no official source was provided.
-   - "false_claim" (🔴): The information is factually wrong, pseudoscientific, contradicts established academic facts, or is a deceptive exam leak rumor.
-3. CITATION SUMMARY: Provide a concise 1-sentence note explaining the verification result (e.g., "Verified: Accurately aligns with SURCON & NUC Surveying curriculum." or "Unverified: Plausible concept, but source is unconfirmed.").
+   - If content contains explicit pornography, graphic violence, severe harassment, hate speech, dangerous weapons, or non-academic harmful scams: return "isSafe": false and a polite reason in "flagReason".
+2. ACADEMIC CITATION & AUTHENTICITY:
+   - "verified" (🟢): The post provides factually accurate, sound educational knowledge that thoroughly aligns with the cited curriculum database or recognized academic standard. Awards +1 Scholar Score.
+   - "unverified" (🟡): The post is casual student thoughts, opinion, campus gist, or plausible concept without confirmed curriculum alignment, or is a raw AI chatbot copy-paste without a verified curriculum reference. (0 points).
+   - "false_claim" (🔴): The post contains factually incorrect information, pseudoscientific claims, debunked rumors, or misleading false facts. Deducts -1 Scholar Score.
+3. CITATION SUMMARY: Provide a concise 1-sentence note explaining the verification result (e.g., "Verified: Accurately aligns with SURCON & NUC Surveying curriculum." or "Unverified: General campus discussion.").
 
 Return ONLY valid JSON:
 {
@@ -387,8 +393,14 @@ export default async function handler(req, res) {
       }
 
       if (safetyAnalysis.citationStatus === 'false_claim') {
+        // Penalty for posting false claims / misleading content
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { scholarScore: { decrement: 1 } }
+        }).catch(() => {})
+
         return res.status(400).json({
-          message: safetyAnalysis.citationSummary || 'Post rejected by ScholarHub AI Fact-Checker: The information provided contradicts verified academic curriculum standards.'
+          message: `${safetyAnalysis.citationSummary || 'Post rejected by ScholarHub AI Fact-Checker: The information provided contradicts verified academic curriculum standards.'} (-1 Scholar Score point penalty applied)`
         })
       }
 
@@ -416,6 +428,14 @@ export default async function handler(req, res) {
           author: { select: authorSelect },
         }
       })
+
+      // If verified post, award +1 Scholar Score point to author
+      if (citationStatus === 'verified') {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { scholarScore: { increment: 1 } }
+        }).catch(() => {})
+      }
 
       // Safely notify community members without throwing errors
       try {

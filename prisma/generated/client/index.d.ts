@@ -2808,6 +2808,7 @@ export namespace Prisma {
     coins: number | null
     lifetimeCoins: number | null
     monthlyCoins: number | null
+    scholarScore: number | null
     streak: number | null
     weeklyEngagementCoins: number | null
     botUsageCount: number | null
@@ -2817,6 +2818,7 @@ export namespace Prisma {
     coins: number | null
     lifetimeCoins: number | null
     monthlyCoins: number | null
+    scholarScore: number | null
     streak: number | null
     weeklyEngagementCoins: number | null
     botUsageCount: number | null
@@ -2846,6 +2848,7 @@ export namespace Prisma {
     coins: number | null
     lifetimeCoins: number | null
     monthlyCoins: number | null
+    scholarScore: number | null
     monthlyCoinsMonth: string | null
     streak: number | null
     lastPostDate: Date | null
@@ -2891,6 +2894,7 @@ export namespace Prisma {
     coins: number | null
     lifetimeCoins: number | null
     monthlyCoins: number | null
+    scholarScore: number | null
     monthlyCoinsMonth: string | null
     streak: number | null
     lastPostDate: Date | null
@@ -2939,6 +2943,7 @@ export namespace Prisma {
     coins: number
     lifetimeCoins: number
     monthlyCoins: number
+    scholarScore: number
     monthlyCoinsMonth: number
     streak: number
     lastPostDate: number
@@ -2967,6 +2972,7 @@ export namespace Prisma {
     coins?: true
     lifetimeCoins?: true
     monthlyCoins?: true
+    scholarScore?: true
     streak?: true
     weeklyEngagementCoins?: true
     botUsageCount?: true
@@ -2976,6 +2982,7 @@ export namespace Prisma {
     coins?: true
     lifetimeCoins?: true
     monthlyCoins?: true
+    scholarScore?: true
     streak?: true
     weeklyEngagementCoins?: true
     botUsageCount?: true
@@ -3005,6 +3012,7 @@ export namespace Prisma {
     coins?: true
     lifetimeCoins?: true
     monthlyCoins?: true
+    scholarScore?: true
     monthlyCoinsMonth?: true
     streak?: true
     lastPostDate?: true
@@ -3050,6 +3058,7 @@ export namespace Prisma {
     coins?: true
     lifetimeCoins?: true
     monthlyCoins?: true
+    scholarScore?: true
     monthlyCoinsMonth?: true
     streak?: true
     lastPostDate?: true
@@ -3098,6 +3107,7 @@ export namespace Prisma {
     coins?: true
     lifetimeCoins?: true
     monthlyCoins?: true
+    scholarScore?: true
     monthlyCoinsMonth?: true
     streak?: true
     lastPostDate?: true
@@ -3234,6 +3244,7 @@ export namespace Prisma {
     coins: number
     lifetimeCoins: number
     monthlyCoins: number
+    scholarScore: number
     monthlyCoinsMonth: string | null
     streak: number
     lastPostDate: Date | null
@@ -3302,6 +3313,7 @@ export namespace Prisma {
     coins?: boolean
     lifetimeCoins?: boolean
     monthlyCoins?: boolean
+    scholarScore?: boolean
     monthlyCoinsMonth?: boolean
     streak?: boolean
     lastPostDate?: boolean
@@ -3373,6 +3385,7 @@ export namespace Prisma {
     coins?: boolean
     lifetimeCoins?: boolean
     monthlyCoins?: boolean
+    scholarScore?: boolean
     monthlyCoinsMonth?: boolean
     streak?: boolean
     lastPostDate?: boolean
@@ -3423,6 +3436,7 @@ export namespace Prisma {
     coins?: boolean
     lifetimeCoins?: boolean
     monthlyCoins?: boolean
+    scholarScore?: boolean
     monthlyCoinsMonth?: boolean
     streak?: boolean
     lastPostDate?: boolean
@@ -3473,6 +3487,7 @@ export namespace Prisma {
     coins?: boolean
     lifetimeCoins?: boolean
     monthlyCoins?: boolean
+    scholarScore?: boolean
     monthlyCoinsMonth?: boolean
     streak?: boolean
     lastPostDate?: boolean
@@ -3495,7 +3510,7 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "username" | "phone" | "password" | "googleId" | "avatar" | "bio" | "level" | "status" | "secondaryClass" | "secondarySubjects" | "school" | "faculty" | "department" | "state" | "city" | "country" | "course" | "track" | "interests" | "badges" | "coins" | "lifetimeCoins" | "monthlyCoins" | "monthlyCoinsMonth" | "streak" | "lastPostDate" | "badge" | "activatedFeatures" | "weeklyEngagementCoins" | "lastWeeklyPayout" | "isVerified" | "isAdmin" | "resetToken" | "resetTokenExpiry" | "twoFactorEnabled" | "referralCode" | "referredById" | "lastActive" | "showActivityStatus" | "botUsageDate" | "botUsageCount" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "name" | "email" | "username" | "phone" | "password" | "googleId" | "avatar" | "bio" | "level" | "status" | "secondaryClass" | "secondarySubjects" | "school" | "faculty" | "department" | "state" | "city" | "country" | "course" | "track" | "interests" | "badges" | "coins" | "lifetimeCoins" | "monthlyCoins" | "scholarScore" | "monthlyCoinsMonth" | "streak" | "lastPostDate" | "badge" | "activatedFeatures" | "weeklyEngagementCoins" | "lastWeeklyPayout" | "isVerified" | "isAdmin" | "resetToken" | "resetTokenExpiry" | "twoFactorEnabled" | "referralCode" | "referredById" | "lastActive" | "showActivityStatus" | "botUsageDate" | "botUsageCount" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     referredBy?: boolean | User$referredByArgs<ExtArgs>
     referrals?: boolean | User$referralsArgs<ExtArgs>
@@ -3579,6 +3594,7 @@ export namespace Prisma {
       coins: number
       lifetimeCoins: number
       monthlyCoins: number
+      scholarScore: number
       monthlyCoinsMonth: string | null
       streak: number
       lastPostDate: Date | null
@@ -4069,6 +4085,7 @@ export namespace Prisma {
     readonly coins: FieldRef<"User", 'Int'>
     readonly lifetimeCoins: FieldRef<"User", 'Int'>
     readonly monthlyCoins: FieldRef<"User", 'Int'>
+    readonly scholarScore: FieldRef<"User", 'Int'>
     readonly monthlyCoinsMonth: FieldRef<"User", 'String'>
     readonly streak: FieldRef<"User", 'Int'>
     readonly lastPostDate: FieldRef<"User", 'DateTime'>
@@ -24064,6 +24081,7 @@ export namespace Prisma {
     coins: 'coins',
     lifetimeCoins: 'lifetimeCoins',
     monthlyCoins: 'monthlyCoins',
+    scholarScore: 'scholarScore',
     monthlyCoinsMonth: 'monthlyCoinsMonth',
     streak: 'streak',
     lastPostDate: 'lastPostDate',
@@ -24428,6 +24446,7 @@ export namespace Prisma {
     coins?: IntFilter<"User"> | number
     lifetimeCoins?: IntFilter<"User"> | number
     monthlyCoins?: IntFilter<"User"> | number
+    scholarScore?: IntFilter<"User"> | number
     monthlyCoinsMonth?: StringNullableFilter<"User"> | string | null
     streak?: IntFilter<"User"> | number
     lastPostDate?: DateTimeNullableFilter<"User"> | Date | string | null
@@ -24498,6 +24517,7 @@ export namespace Prisma {
     coins?: SortOrder
     lifetimeCoins?: SortOrder
     monthlyCoins?: SortOrder
+    scholarScore?: SortOrder
     monthlyCoinsMonth?: SortOrderInput | SortOrder
     streak?: SortOrder
     lastPostDate?: SortOrderInput | SortOrder
@@ -24572,6 +24592,7 @@ export namespace Prisma {
     coins?: IntFilter<"User"> | number
     lifetimeCoins?: IntFilter<"User"> | number
     monthlyCoins?: IntFilter<"User"> | number
+    scholarScore?: IntFilter<"User"> | number
     monthlyCoinsMonth?: StringNullableFilter<"User"> | string | null
     streak?: IntFilter<"User"> | number
     lastPostDate?: DateTimeNullableFilter<"User"> | Date | string | null
@@ -24641,6 +24662,7 @@ export namespace Prisma {
     coins?: SortOrder
     lifetimeCoins?: SortOrder
     monthlyCoins?: SortOrder
+    scholarScore?: SortOrder
     monthlyCoinsMonth?: SortOrderInput | SortOrder
     streak?: SortOrder
     lastPostDate?: SortOrderInput | SortOrder
@@ -24698,6 +24720,7 @@ export namespace Prisma {
     coins?: IntWithAggregatesFilter<"User"> | number
     lifetimeCoins?: IntWithAggregatesFilter<"User"> | number
     monthlyCoins?: IntWithAggregatesFilter<"User"> | number
+    scholarScore?: IntWithAggregatesFilter<"User"> | number
     monthlyCoinsMonth?: StringNullableWithAggregatesFilter<"User"> | string | null
     streak?: IntWithAggregatesFilter<"User"> | number
     lastPostDate?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
@@ -25897,6 +25920,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -25966,6 +25990,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -26035,6 +26060,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26104,6 +26130,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26173,6 +26200,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -26222,6 +26250,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -26270,6 +26299,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -27730,6 +27760,7 @@ export namespace Prisma {
     coins?: SortOrder
     lifetimeCoins?: SortOrder
     monthlyCoins?: SortOrder
+    scholarScore?: SortOrder
     monthlyCoinsMonth?: SortOrder
     streak?: SortOrder
     lastPostDate?: SortOrder
@@ -27756,6 +27787,7 @@ export namespace Prisma {
     coins?: SortOrder
     lifetimeCoins?: SortOrder
     monthlyCoins?: SortOrder
+    scholarScore?: SortOrder
     streak?: SortOrder
     weeklyEngagementCoins?: SortOrder
     botUsageCount?: SortOrder
@@ -27785,6 +27817,7 @@ export namespace Prisma {
     coins?: SortOrder
     lifetimeCoins?: SortOrder
     monthlyCoins?: SortOrder
+    scholarScore?: SortOrder
     monthlyCoinsMonth?: SortOrder
     streak?: SortOrder
     lastPostDate?: SortOrder
@@ -27830,6 +27863,7 @@ export namespace Prisma {
     coins?: SortOrder
     lifetimeCoins?: SortOrder
     monthlyCoins?: SortOrder
+    scholarScore?: SortOrder
     monthlyCoinsMonth?: SortOrder
     streak?: SortOrder
     lastPostDate?: SortOrder
@@ -27855,6 +27889,7 @@ export namespace Prisma {
     coins?: SortOrder
     lifetimeCoins?: SortOrder
     monthlyCoins?: SortOrder
+    scholarScore?: SortOrder
     streak?: SortOrder
     weeklyEngagementCoins?: SortOrder
     botUsageCount?: SortOrder
@@ -30621,6 +30656,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -30689,6 +30725,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -30762,6 +30799,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -30830,6 +30868,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -31479,6 +31518,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -31547,6 +31587,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -31634,6 +31675,7 @@ export namespace Prisma {
     coins?: IntFilter<"User"> | number
     lifetimeCoins?: IntFilter<"User"> | number
     monthlyCoins?: IntFilter<"User"> | number
+    scholarScore?: IntFilter<"User"> | number
     monthlyCoinsMonth?: StringNullableFilter<"User"> | string | null
     streak?: IntFilter<"User"> | number
     lastPostDate?: DateTimeNullableFilter<"User"> | Date | string | null
@@ -32183,6 +32225,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -32251,6 +32294,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -32324,6 +32368,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -32392,6 +32437,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -32476,6 +32522,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -32544,6 +32591,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -32623,6 +32671,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -32691,6 +32740,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -32759,6 +32809,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -32827,6 +32878,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -33033,6 +33085,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33101,6 +33154,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33308,6 +33362,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -33376,6 +33431,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -33517,6 +33573,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33585,6 +33642,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33704,6 +33762,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -33772,6 +33831,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -33913,6 +33973,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -33981,6 +34042,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -34225,6 +34287,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -34293,6 +34356,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -34483,6 +34547,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -34551,6 +34616,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -34723,6 +34789,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -34791,6 +34858,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -34913,6 +34981,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -34981,6 +35050,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -35112,6 +35182,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -35180,6 +35251,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -35301,6 +35373,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -35369,6 +35442,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -35437,6 +35511,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -35505,6 +35580,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -35589,6 +35665,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -35657,6 +35734,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -35725,6 +35803,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -35793,6 +35872,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -35866,6 +35946,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -35934,6 +36015,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -36018,6 +36100,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -36086,6 +36169,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -36165,6 +36249,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -36233,6 +36318,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -36352,6 +36438,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -36420,6 +36507,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -36561,6 +36649,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -36629,6 +36718,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -36697,6 +36787,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -36765,6 +36856,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -36838,6 +36930,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -36906,6 +36999,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -36990,6 +37084,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37058,6 +37153,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37137,6 +37233,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37205,6 +37302,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37372,6 +37470,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -37440,6 +37539,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -37551,6 +37651,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37619,6 +37720,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37687,6 +37789,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -37755,6 +37858,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -37860,6 +37964,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -37928,6 +38033,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -38023,6 +38129,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -38091,6 +38198,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -38164,6 +38272,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -38232,6 +38341,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -38316,6 +38426,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -38384,6 +38495,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -38463,6 +38575,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -38531,6 +38644,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -38599,6 +38713,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -38667,6 +38782,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -38751,6 +38867,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -38819,6 +38936,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -38887,6 +39005,7 @@ export namespace Prisma {
     coins?: number
     lifetimeCoins?: number
     monthlyCoins?: number
+    scholarScore?: number
     monthlyCoinsMonth?: string | null
     streak?: number
     lastPostDate?: Date | string | null
@@ -39112,6 +39231,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -39180,6 +39300,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
@@ -39248,6 +39369,7 @@ export namespace Prisma {
     coins?: IntFieldUpdateOperationsInput | number
     lifetimeCoins?: IntFieldUpdateOperationsInput | number
     monthlyCoins?: IntFieldUpdateOperationsInput | number
+    scholarScore?: IntFieldUpdateOperationsInput | number
     monthlyCoinsMonth?: NullableStringFieldUpdateOperationsInput | string | null
     streak?: IntFieldUpdateOperationsInput | number
     lastPostDate?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null

@@ -147,6 +147,7 @@ exports.Prisma.UserScalarFieldEnum = {
   coins: 'coins',
   lifetimeCoins: 'lifetimeCoins',
   monthlyCoins: 'monthlyCoins',
+  scholarScore: 'scholarScore',
   monthlyCoinsMonth: 'monthlyCoinsMonth',
   streak: 'streak',
   lastPostDate: 'lastPostDate',
