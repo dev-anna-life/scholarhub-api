@@ -37,6 +37,60 @@ async function getOptionalUser(req) {
   }
 }
 
+async function analyzePostSafetyAndCitation(title, content, category) {
+  const apiKey = process.env.GEMINI_API_KEY
+  if (!apiKey) return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Student post' }
+
+  try {
+    const prompt = `You are the ScholarHub Academic Content Safety & Citation AI.
+ScholarHub is a safe, academic social platform for African university and secondary students.
+Review this post submission:
+Title: "${title || ''}"
+Content: "${content || ''}"
+Category: "${category || 'General'}"
+
+Instructions:
+1. SAFETY: Check if the text or topic contains explicit pornographic content, extreme graphic violence, severe harassment, hate speech, dangerous weapons, or non-academic harmful scams. If any are present, return "isSafe": false and provide a polite reason in "flagReason".
+2. CITATION: If safe, classify the academic nature:
+   - "verified": Educational, study tips, verified scientific/academic facts, course explanations.
+   - "discussion": Campus gist, student question, general social discussion, school events.
+   - "needs_source": Rumor, unverified academic claim, or potential examination leak rumor.
+
+Respond ONLY with a valid JSON object:
+{
+  "isSafe": true,
+  "flagReason": null,
+  "citationStatus": "verified",
+  "citationSummary": "Brief 1-sentence note"
+}`
+
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.2,
+            maxOutputTokens: 300,
+            responseMimeType: 'application/json'
+          }
+        })
+      }
+    )
+
+    if (!response.ok) return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Student post' }
+    const data = await response.json()
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text
+    if (!text) return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Student post' }
+    return JSON.parse(text)
+  } catch (err) {
+    console.error('AI Moderation error:', err)
+    return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Student post' }
+  }
+}
+
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
@@ -292,15 +346,22 @@ export default async function handler(req, res) {
             return res.status(400).json({ message: 'Please select at least one community to post' })
           }
         }
+      // Run Gemini AI Content Safety & Academic Citation Moderation
+      const safetyAnalysis = await analyzePostSafetyAndCitation(title, content, category)
+      if (!safetyAnalysis.isSafe) {
+        return res.status(400).json({
+          message: safetyAnalysis.flagReason || 'Post blocked by ScholarHub AI Safety: Content violates academic safety guidelines (explicit or harmful material detected).'
+        })
       }
 
-      const postStatus = (user.isAdmin || user.email?.toLowerCase() === 'admin@scholarhub.app') ? 'approved' : 'pending'
+      const postStatus = 'approved'
       const post = await prisma.post.create({
         data: {
           title,
           content,
           category: category || '',
           image: image || '',
+          video: video || '',
           authorId: user.id,
           status: postStatus,
           communities: {
