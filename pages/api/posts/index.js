@@ -388,17 +388,6 @@ export default async function handler(req, res) {
         }
       })
 
-      // If verified academic post, reward author with +15 scholar coins / points
-      if (citationStatus === 'verified') {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: {
-            coins: { increment: 15 },
-            lifetimeCoins: { increment: 15 },
-          }
-        }).catch(() => {})
-      }
-
       // Safely notify community members without throwing errors
       try {
         for (const cid of communityIds) {
