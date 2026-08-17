@@ -88,7 +88,14 @@ Return ONLY valid JSON:
     const data = await response.json()
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text
     if (!text) return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
-    return JSON.parse(text)
+    try {
+      const cleaned = text.replace(/```json/gi, '').replace(/```/g, '').trim()
+      return JSON.parse(cleaned)
+    } catch (e) {
+      const match = text.match(/\{[\s\S]*\}/)
+      if (match) return JSON.parse(match[0])
+      return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
+    }
   } catch (err) {
     console.error('AI Citation error:', err)
     return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
