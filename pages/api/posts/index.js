@@ -39,29 +39,31 @@ async function getOptionalUser(req) {
 
 async function analyzePostSafetyAndCitation(title, content, category) {
   const apiKey = process.env.GEMINI_API_KEY
-  if (!apiKey) return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Student post' }
+  if (!apiKey) return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Community Discussion' }
 
   try {
-    const prompt = `You are the ScholarHub Academic Content Safety & Citation AI.
-ScholarHub is a safe, academic social platform for African university and secondary students.
-Review this post submission:
+    const prompt = `You are the ScholarHub Academic Semantic AI Engine.
+ScholarHub is an academic social platform for university and secondary school students.
+Analyze this post:
 Title: "${title || ''}"
 Content: "${content || ''}"
 Category: "${category || 'General'}"
 
 Instructions:
-1. SAFETY: Check if the text or topic contains explicit pornographic content, extreme graphic violence, severe harassment, hate speech, dangerous weapons, or non-academic harmful scams. If any are present, return "isSafe": false and provide a polite reason in "flagReason".
-2. CITATION: If safe, classify the academic nature:
-   - "verified": Educational, study tips, verified scientific/academic facts, course explanations.
-   - "discussion": Campus gist, student question, general social discussion, school events.
-   - "needs_source": Rumor, unverified academic claim, or potential examination leak rumor.
+1. SAFETY CHECK:
+   - If the content contains explicit pornography, graphic violence, hate speech, severe harassment, or academic scam/fraud: set "isSafe": false and "flagReason" with a clear polite explanation.
+2. SEMANTIC CITATION CHECK (If safe):
+   - "verified" (🟢): The post provides educational knowledge, study tips, scientific/academic explanations, historical facts, coding/math tutorials, or course insights that are factually sound.
+   - "discussion" (🟡): The post expresses personal feelings, campus thoughts, social questions, campus gist, or casual student life (not educating others).
+   - "misinformation" (🔴): The post makes debunked or false claims, examination leak rumors, or misleading academic information.
+3. CITATION SUMMARY: Provide a concise 1-sentence note (e.g. "Verified by AI: Accurately explains AI video generation concepts." or "Campus Discussion: Student sharing personal thoughts.").
 
-Respond ONLY with a valid JSON object:
+Return ONLY valid JSON:
 {
   "isSafe": true,
   "flagReason": null,
-  "citationStatus": "verified",
-  "citationSummary": "Brief 1-sentence note"
+  "citationStatus": "verified" | "discussion" | "misinformation",
+  "citationSummary": "string"
 }`
 
     const response = await fetch(
@@ -80,14 +82,14 @@ Respond ONLY with a valid JSON object:
       }
     )
 
-    if (!response.ok) return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Student post' }
+    if (!response.ok) return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Community Discussion' }
     const data = await response.json()
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text
-    if (!text) return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Student post' }
+    if (!text) return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Community Discussion' }
     return JSON.parse(text)
   } catch (err) {
     console.error('AI Moderation error:', err)
-    return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Student post' }
+    return { isSafe: true, flagReason: null, citationStatus: 'discussion', citationSummary: 'Community Discussion' }
   }
 }
 
@@ -356,6 +358,15 @@ export default async function handler(req, res) {
         })
       }
 
+      if (safetyAnalysis.citationStatus === 'misinformation') {
+        return res.status(400).json({
+          message: safetyAnalysis.citationSummary || 'Post blocked by ScholarHub AI: Unverified claims or misinformation detected. Please provide accurate academic sources.'
+        })
+      }
+
+      const citationStatus = safetyAnalysis.citationStatus === 'verified' ? 'verified' : 'discussion'
+      const citationSummary = safetyAnalysis.citationSummary || (citationStatus === 'verified' ? 'Verified academic insight' : 'Community discussion')
+
       const postStatus = 'approved'
       const post = await prisma.post.create({
         data: {
@@ -364,6 +375,8 @@ export default async function handler(req, res) {
           category: category || '',
           image: image || '',
           video: video || '',
+          citationStatus,
+          citationSummary,
           authorId: user.id,
           status: postStatus,
           communities: {
@@ -374,6 +387,17 @@ export default async function handler(req, res) {
           author: { select: authorSelect },
         }
       })
+
+      // If verified academic post, reward author with +15 scholar coins / points
+      if (citationStatus === 'verified') {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            coins: { increment: 15 },
+            lifetimeCoins: { increment: 15 },
+          }
+        }).catch(() => {})
+      }
 
       // Safely notify community members without throwing errors
       try {

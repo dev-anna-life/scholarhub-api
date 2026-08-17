@@ -96,9 +96,11 @@ model Post {
   status    String   @default("pending")
   image     String?
   video     String?
-  trending  Boolean  @default(false)
-  boosted   Boolean  @default(false)
-  authorId  String
+  trending        Boolean        @default(false)
+  boosted         Boolean        @default(false)
+  citationStatus  String?        @default("discussion")
+  citationSummary String?
+  authorId        String
   author    User     @relation(fields: [authorId], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

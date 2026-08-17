@@ -6072,6 +6072,8 @@ export namespace Prisma {
     video: string | null
     trending: boolean | null
     boosted: boolean | null
+    citationStatus: string | null
+    citationSummary: string | null
     authorId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -6087,6 +6089,8 @@ export namespace Prisma {
     video: string | null
     trending: boolean | null
     boosted: boolean | null
+    citationStatus: string | null
+    citationSummary: string | null
     authorId: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -6102,9 +6106,12 @@ export namespace Prisma {
     video: number
     trending: number
     boosted: number
+    citationStatus: number
+    citationSummary: number
     authorId: number
     createdAt: number
     updatedAt: number
+    gifts: number
     _all: number
   }
 
@@ -6119,6 +6126,8 @@ export namespace Prisma {
     video?: true
     trending?: true
     boosted?: true
+    citationStatus?: true
+    citationSummary?: true
     authorId?: true
     createdAt?: true
     updatedAt?: true
@@ -6134,6 +6143,8 @@ export namespace Prisma {
     video?: true
     trending?: true
     boosted?: true
+    citationStatus?: true
+    citationSummary?: true
     authorId?: true
     createdAt?: true
     updatedAt?: true
@@ -6149,9 +6160,12 @@ export namespace Prisma {
     video?: true
     trending?: true
     boosted?: true
+    citationStatus?: true
+    citationSummary?: true
     authorId?: true
     createdAt?: true
     updatedAt?: true
+    gifts?: true
     _all?: true
   }
 
@@ -6237,9 +6251,12 @@ export namespace Prisma {
     video: string | null
     trending: boolean
     boosted: boolean
+    citationStatus: string | null
+    citationSummary: string | null
     authorId: string
     createdAt: Date
     updatedAt: Date
+    gifts: string[]
     _count: PostCountAggregateOutputType | null
     _min: PostMinAggregateOutputType | null
     _max: PostMaxAggregateOutputType | null
@@ -6269,9 +6286,12 @@ export namespace Prisma {
     video?: boolean
     trending?: boolean
     boosted?: boolean
+    citationStatus?: boolean
+    citationSummary?: boolean
     authorId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    gifts?: boolean
     author?: boolean | UserDefaultArgs<ExtArgs>
     comments?: boolean | Post$commentsArgs<ExtArgs>
     likes?: boolean | Post$likesArgs<ExtArgs>
@@ -6291,9 +6311,12 @@ export namespace Prisma {
     video?: boolean
     trending?: boolean
     boosted?: boolean
+    citationStatus?: boolean
+    citationSummary?: boolean
     authorId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    gifts?: boolean
     author?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["post"]>
 
@@ -6307,9 +6330,12 @@ export namespace Prisma {
     video?: boolean
     trending?: boolean
     boosted?: boolean
+    citationStatus?: boolean
+    citationSummary?: boolean
     authorId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    gifts?: boolean
     author?: boolean | UserDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["post"]>
 
@@ -6323,12 +6349,15 @@ export namespace Prisma {
     video?: boolean
     trending?: boolean
     boosted?: boolean
+    citationStatus?: boolean
+    citationSummary?: boolean
     authorId?: boolean
     createdAt?: boolean
     updatedAt?: boolean
+    gifts?: boolean
   }
 
-  export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "content" | "category" | "status" | "image" | "video" | "trending" | "boosted" | "authorId" | "createdAt" | "updatedAt", ExtArgs["result"]["post"]>
+  export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "content" | "category" | "status" | "image" | "video" | "trending" | "boosted" | "citationStatus" | "citationSummary" | "authorId" | "createdAt" | "updatedAt" | "gifts", ExtArgs["result"]["post"]>
   export type PostInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     author?: boolean | UserDefaultArgs<ExtArgs>
     comments?: boolean | Post$commentsArgs<ExtArgs>
@@ -6365,9 +6394,12 @@ export namespace Prisma {
       video: string | null
       trending: boolean
       boosted: boolean
+      citationStatus: string | null
+      citationSummary: string | null
       authorId: string
       createdAt: Date
       updatedAt: Date
+      gifts: string[]
     }, ExtArgs["result"]["post"]>
     composites: {}
   }
@@ -6806,9 +6838,12 @@ export namespace Prisma {
     readonly video: FieldRef<"Post", 'String'>
     readonly trending: FieldRef<"Post", 'Boolean'>
     readonly boosted: FieldRef<"Post", 'Boolean'>
+    readonly citationStatus: FieldRef<"Post", 'String'>
+    readonly citationSummary: FieldRef<"Post", 'String'>
     readonly authorId: FieldRef<"Post", 'String'>
     readonly createdAt: FieldRef<"Post", 'DateTime'>
     readonly updatedAt: FieldRef<"Post", 'DateTime'>
+    readonly gifts: FieldRef<"Post", 'String[]'>
   }
     
 
@@ -10505,6 +10540,7 @@ export namespace Prisma {
     postId: number
     parentId: number
     createdAt: number
+    gifts: number
     _all: number
   }
 
@@ -10534,6 +10570,7 @@ export namespace Prisma {
     postId?: true
     parentId?: true
     createdAt?: true
+    gifts?: true
     _all?: true
   }
 
@@ -10616,6 +10653,7 @@ export namespace Prisma {
     postId: string
     parentId: string | null
     createdAt: Date
+    gifts: string[]
     _count: CommentCountAggregateOutputType | null
     _min: CommentMinAggregateOutputType | null
     _max: CommentMaxAggregateOutputType | null
@@ -10642,6 +10680,7 @@ export namespace Prisma {
     postId?: boolean
     parentId?: boolean
     createdAt?: boolean
+    gifts?: boolean
     author?: boolean | UserDefaultArgs<ExtArgs>
     post?: boolean | PostDefaultArgs<ExtArgs>
     parent?: boolean | Comment$parentArgs<ExtArgs>
@@ -10656,6 +10695,7 @@ export namespace Prisma {
     postId?: boolean
     parentId?: boolean
     createdAt?: boolean
+    gifts?: boolean
     author?: boolean | UserDefaultArgs<ExtArgs>
     post?: boolean | PostDefaultArgs<ExtArgs>
     parent?: boolean | Comment$parentArgs<ExtArgs>
@@ -10668,6 +10708,7 @@ export namespace Prisma {
     postId?: boolean
     parentId?: boolean
     createdAt?: boolean
+    gifts?: boolean
     author?: boolean | UserDefaultArgs<ExtArgs>
     post?: boolean | PostDefaultArgs<ExtArgs>
     parent?: boolean | Comment$parentArgs<ExtArgs>
@@ -10680,9 +10721,10 @@ export namespace Prisma {
     postId?: boolean
     parentId?: boolean
     createdAt?: boolean
+    gifts?: boolean
   }
 
-  export type CommentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "text" | "authorId" | "postId" | "parentId" | "createdAt", ExtArgs["result"]["comment"]>
+  export type CommentOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "text" | "authorId" | "postId" | "parentId" | "createdAt" | "gifts", ExtArgs["result"]["comment"]>
   export type CommentInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     author?: boolean | UserDefaultArgs<ExtArgs>
     post?: boolean | PostDefaultArgs<ExtArgs>
@@ -10716,6 +10758,7 @@ export namespace Prisma {
       postId: string
       parentId: string | null
       createdAt: Date
+      gifts: string[]
     }, ExtArgs["result"]["comment"]>
     composites: {}
   }
@@ -11149,6 +11192,7 @@ export namespace Prisma {
     readonly postId: FieldRef<"Comment", 'String'>
     readonly parentId: FieldRef<"Comment", 'String'>
     readonly createdAt: FieldRef<"Comment", 'DateTime'>
+    readonly gifts: FieldRef<"Comment", 'String[]'>
   }
     
 
@@ -24051,9 +24095,12 @@ export namespace Prisma {
     video: 'video',
     trending: 'trending',
     boosted: 'boosted',
+    citationStatus: 'citationStatus',
+    citationSummary: 'citationSummary',
     authorId: 'authorId',
     createdAt: 'createdAt',
-    updatedAt: 'updatedAt'
+    updatedAt: 'updatedAt',
+    gifts: 'gifts'
   };
 
   export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof PostScalarFieldEnum]
@@ -24091,7 +24138,8 @@ export namespace Prisma {
     authorId: 'authorId',
     postId: 'postId',
     parentId: 'parentId',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    gifts: 'gifts'
   };
 
   export type CommentScalarFieldEnum = (typeof CommentScalarFieldEnum)[keyof typeof CommentScalarFieldEnum]
@@ -24720,9 +24768,12 @@ export namespace Prisma {
     video?: StringNullableFilter<"Post"> | string | null
     trending?: BoolFilter<"Post"> | boolean
     boosted?: BoolFilter<"Post"> | boolean
+    citationStatus?: StringNullableFilter<"Post"> | string | null
+    citationSummary?: StringNullableFilter<"Post"> | string | null
     authorId?: StringFilter<"Post"> | string
     createdAt?: DateTimeFilter<"Post"> | Date | string
     updatedAt?: DateTimeFilter<"Post"> | Date | string
+    gifts?: StringNullableListFilter<"Post">
     author?: XOR<UserScalarRelationFilter, UserWhereInput>
     comments?: CommentListRelationFilter
     likes?: PostLikeListRelationFilter
@@ -24741,9 +24792,12 @@ export namespace Prisma {
     video?: SortOrderInput | SortOrder
     trending?: SortOrder
     boosted?: SortOrder
+    citationStatus?: SortOrderInput | SortOrder
+    citationSummary?: SortOrderInput | SortOrder
     authorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    gifts?: SortOrder
     author?: UserOrderByWithRelationInput
     comments?: CommentOrderByRelationAggregateInput
     likes?: PostLikeOrderByRelationAggregateInput
@@ -24765,9 +24819,12 @@ export namespace Prisma {
     video?: StringNullableFilter<"Post"> | string | null
     trending?: BoolFilter<"Post"> | boolean
     boosted?: BoolFilter<"Post"> | boolean
+    citationStatus?: StringNullableFilter<"Post"> | string | null
+    citationSummary?: StringNullableFilter<"Post"> | string | null
     authorId?: StringFilter<"Post"> | string
     createdAt?: DateTimeFilter<"Post"> | Date | string
     updatedAt?: DateTimeFilter<"Post"> | Date | string
+    gifts?: StringNullableListFilter<"Post">
     author?: XOR<UserScalarRelationFilter, UserWhereInput>
     comments?: CommentListRelationFilter
     likes?: PostLikeListRelationFilter
@@ -24786,9 +24843,12 @@ export namespace Prisma {
     video?: SortOrderInput | SortOrder
     trending?: SortOrder
     boosted?: SortOrder
+    citationStatus?: SortOrderInput | SortOrder
+    citationSummary?: SortOrderInput | SortOrder
     authorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    gifts?: SortOrder
     _count?: PostCountOrderByAggregateInput
     _max?: PostMaxOrderByAggregateInput
     _min?: PostMinOrderByAggregateInput
@@ -24807,9 +24867,12 @@ export namespace Prisma {
     video?: StringNullableWithAggregatesFilter<"Post"> | string | null
     trending?: BoolWithAggregatesFilter<"Post"> | boolean
     boosted?: BoolWithAggregatesFilter<"Post"> | boolean
+    citationStatus?: StringNullableWithAggregatesFilter<"Post"> | string | null
+    citationSummary?: StringNullableWithAggregatesFilter<"Post"> | string | null
     authorId?: StringWithAggregatesFilter<"Post"> | string
     createdAt?: DateTimeWithAggregatesFilter<"Post"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Post"> | Date | string
+    gifts?: StringNullableListFilter<"Post">
   }
 
   export type PostLikeWhereInput = {
@@ -24964,6 +25027,7 @@ export namespace Prisma {
     postId?: StringFilter<"Comment"> | string
     parentId?: StringNullableFilter<"Comment"> | string | null
     createdAt?: DateTimeFilter<"Comment"> | Date | string
+    gifts?: StringNullableListFilter<"Comment">
     author?: XOR<UserScalarRelationFilter, UserWhereInput>
     post?: XOR<PostScalarRelationFilter, PostWhereInput>
     parent?: XOR<CommentNullableScalarRelationFilter, CommentWhereInput> | null
@@ -24977,6 +25041,7 @@ export namespace Prisma {
     postId?: SortOrder
     parentId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    gifts?: SortOrder
     author?: UserOrderByWithRelationInput
     post?: PostOrderByWithRelationInput
     parent?: CommentOrderByWithRelationInput
@@ -24993,6 +25058,7 @@ export namespace Prisma {
     postId?: StringFilter<"Comment"> | string
     parentId?: StringNullableFilter<"Comment"> | string | null
     createdAt?: DateTimeFilter<"Comment"> | Date | string
+    gifts?: StringNullableListFilter<"Comment">
     author?: XOR<UserScalarRelationFilter, UserWhereInput>
     post?: XOR<PostScalarRelationFilter, PostWhereInput>
     parent?: XOR<CommentNullableScalarRelationFilter, CommentWhereInput> | null
@@ -25006,6 +25072,7 @@ export namespace Prisma {
     postId?: SortOrder
     parentId?: SortOrderInput | SortOrder
     createdAt?: SortOrder
+    gifts?: SortOrder
     _count?: CommentCountOrderByAggregateInput
     _max?: CommentMaxOrderByAggregateInput
     _min?: CommentMinOrderByAggregateInput
@@ -25021,6 +25088,7 @@ export namespace Prisma {
     postId?: StringWithAggregatesFilter<"Comment"> | string
     parentId?: StringNullableWithAggregatesFilter<"Comment"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Comment"> | Date | string
+    gifts?: StringNullableListFilter<"Comment">
   }
 
   export type CommunityWhereInput = {
@@ -26255,8 +26323,11 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     author: UserCreateNestedOneWithoutPostsInput
     comments?: CommentCreateNestedManyWithoutPostInput
     likes?: PostLikeCreateNestedManyWithoutPostInput
@@ -26275,9 +26346,12 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     comments?: CommentUncheckedCreateNestedManyWithoutPostInput
     likes?: PostLikeUncheckedCreateNestedManyWithoutPostInput
     savedBy?: PostSaveUncheckedCreateNestedManyWithoutPostInput
@@ -26295,8 +26369,11 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     author?: UserUpdateOneRequiredWithoutPostsNestedInput
     comments?: CommentUpdateManyWithoutPostNestedInput
     likes?: PostLikeUpdateManyWithoutPostNestedInput
@@ -26315,9 +26392,12 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     comments?: CommentUncheckedUpdateManyWithoutPostNestedInput
     likes?: PostLikeUncheckedUpdateManyWithoutPostNestedInput
     savedBy?: PostSaveUncheckedUpdateManyWithoutPostNestedInput
@@ -26335,9 +26415,12 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
   }
 
   export type PostUpdateManyMutationInput = {
@@ -26350,8 +26433,11 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
   }
 
   export type PostUncheckedUpdateManyInput = {
@@ -26364,9 +26450,12 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
   }
 
   export type PostLikeCreateInput = {
@@ -26487,6 +26576,7 @@ export namespace Prisma {
     id?: string
     text: string
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
     author: UserCreateNestedOneWithoutCommentsInput
     post: PostCreateNestedOneWithoutCommentsInput
     parent?: CommentCreateNestedOneWithoutRepliesInput
@@ -26500,6 +26590,7 @@ export namespace Prisma {
     postId: string
     parentId?: string | null
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
     replies?: CommentUncheckedCreateNestedManyWithoutParentInput
   }
 
@@ -26507,6 +26598,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
     author?: UserUpdateOneRequiredWithoutCommentsNestedInput
     post?: PostUpdateOneRequiredWithoutCommentsNestedInput
     parent?: CommentUpdateOneWithoutRepliesNestedInput
@@ -26520,6 +26612,7 @@ export namespace Prisma {
     postId?: StringFieldUpdateOperationsInput | string
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
     replies?: CommentUncheckedUpdateManyWithoutParentNestedInput
   }
 
@@ -26530,12 +26623,14 @@ export namespace Prisma {
     postId: string
     parentId?: string | null
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
   }
 
   export type CommentUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
   }
 
   export type CommentUncheckedUpdateManyInput = {
@@ -26545,6 +26640,7 @@ export namespace Prisma {
     postId?: StringFieldUpdateOperationsInput | string
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
   }
 
   export type CommunityCreateInput = {
@@ -27890,9 +27986,12 @@ export namespace Prisma {
     video?: SortOrder
     trending?: SortOrder
     boosted?: SortOrder
+    citationStatus?: SortOrder
+    citationSummary?: SortOrder
     authorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+    gifts?: SortOrder
   }
 
   export type PostMaxOrderByAggregateInput = {
@@ -27905,6 +28004,8 @@ export namespace Prisma {
     video?: SortOrder
     trending?: SortOrder
     boosted?: SortOrder
+    citationStatus?: SortOrder
+    citationSummary?: SortOrder
     authorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -27920,6 +28021,8 @@ export namespace Prisma {
     video?: SortOrder
     trending?: SortOrder
     boosted?: SortOrder
+    citationStatus?: SortOrder
+    citationSummary?: SortOrder
     authorId?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -28013,6 +28116,7 @@ export namespace Prisma {
     postId?: SortOrder
     parentId?: SortOrder
     createdAt?: SortOrder
+    gifts?: SortOrder
   }
 
   export type CommentMaxOrderByAggregateInput = {
@@ -29408,6 +29512,10 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutFollowersInput, UserUpdateWithoutFollowersInput>, UserUncheckedUpdateWithoutFollowersInput>
   }
 
+  export type PostCreategiftsInput = {
+    set: string[]
+  }
+
   export type UserCreateNestedOneWithoutPostsInput = {
     create?: XOR<UserCreateWithoutPostsInput, UserUncheckedCreateWithoutPostsInput>
     connectOrCreate?: UserCreateOrConnectWithoutPostsInput
@@ -29482,6 +29590,11 @@ export namespace Prisma {
     connectOrCreate?: MonthlyAwardCreateOrConnectWithoutPostInput | MonthlyAwardCreateOrConnectWithoutPostInput[]
     createMany?: MonthlyAwardCreateManyPostInputEnvelope
     connect?: MonthlyAwardWhereUniqueInput | MonthlyAwardWhereUniqueInput[]
+  }
+
+  export type PostUpdategiftsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type UserUpdateOneRequiredWithoutPostsNestedInput = {
@@ -29716,6 +29829,10 @@ export namespace Prisma {
     update?: XOR<XOR<CommunityUpdateToOneWithWhereWithoutPostsInput, CommunityUpdateWithoutPostsInput>, CommunityUncheckedUpdateWithoutPostsInput>
   }
 
+  export type CommentCreategiftsInput = {
+    set: string[]
+  }
+
   export type UserCreateNestedOneWithoutCommentsInput = {
     create?: XOR<UserCreateWithoutCommentsInput, UserUncheckedCreateWithoutCommentsInput>
     connectOrCreate?: UserCreateOrConnectWithoutCommentsInput
@@ -29746,6 +29863,11 @@ export namespace Prisma {
     connectOrCreate?: CommentCreateOrConnectWithoutParentInput | CommentCreateOrConnectWithoutParentInput[]
     createMany?: CommentCreateManyParentInputEnvelope
     connect?: CommentWhereUniqueInput | CommentWhereUniqueInput[]
+  }
+
+  export type CommentUpdategiftsInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type UserUpdateOneRequiredWithoutCommentsNestedInput = {
@@ -30740,8 +30862,11 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     comments?: CommentCreateNestedManyWithoutPostInput
     likes?: PostLikeCreateNestedManyWithoutPostInput
     savedBy?: PostSaveCreateNestedManyWithoutPostInput
@@ -30759,8 +30884,11 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     comments?: CommentUncheckedCreateNestedManyWithoutPostInput
     likes?: PostLikeUncheckedCreateNestedManyWithoutPostInput
     savedBy?: PostSaveUncheckedCreateNestedManyWithoutPostInput
@@ -31114,6 +31242,7 @@ export namespace Prisma {
     id?: string
     text: string
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
     post: PostCreateNestedOneWithoutCommentsInput
     parent?: CommentCreateNestedOneWithoutRepliesInput
     replies?: CommentCreateNestedManyWithoutParentInput
@@ -31125,6 +31254,7 @@ export namespace Prisma {
     postId: string
     parentId?: string | null
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
     replies?: CommentUncheckedCreateNestedManyWithoutParentInput
   }
 
@@ -31524,9 +31654,12 @@ export namespace Prisma {
     video?: StringNullableFilter<"Post"> | string | null
     trending?: BoolFilter<"Post"> | boolean
     boosted?: BoolFilter<"Post"> | boolean
+    citationStatus?: StringNullableFilter<"Post"> | string | null
+    citationSummary?: StringNullableFilter<"Post"> | string | null
     authorId?: StringFilter<"Post"> | string
     createdAt?: DateTimeFilter<"Post"> | Date | string
     updatedAt?: DateTimeFilter<"Post"> | Date | string
+    gifts?: StringNullableListFilter<"Post">
   }
 
   export type NotificationUpsertWithWhereUniqueWithoutUserInput = {
@@ -31821,6 +31954,7 @@ export namespace Prisma {
     postId?: StringFilter<"Comment"> | string
     parentId?: StringNullableFilter<"Comment"> | string | null
     createdAt?: DateTimeFilter<"Comment"> | Date | string
+    gifts?: StringNullableListFilter<"Comment">
   }
 
   export type FollowUpsertWithWhereUniqueWithoutFollowingInput = {
@@ -32711,6 +32845,7 @@ export namespace Prisma {
     id?: string
     text: string
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
     author: UserCreateNestedOneWithoutCommentsInput
     parent?: CommentCreateNestedOneWithoutRepliesInput
     replies?: CommentCreateNestedManyWithoutParentInput
@@ -32722,6 +32857,7 @@ export namespace Prisma {
     authorId: string
     parentId?: string | null
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
     replies?: CommentUncheckedCreateNestedManyWithoutParentInput
   }
 
@@ -33072,8 +33208,11 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     author: UserCreateNestedOneWithoutPostsInput
     comments?: CommentCreateNestedManyWithoutPostInput
     savedBy?: PostSaveCreateNestedManyWithoutPostInput
@@ -33091,9 +33230,12 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     comments?: CommentUncheckedCreateNestedManyWithoutPostInput
     savedBy?: PostSaveUncheckedCreateNestedManyWithoutPostInput
     communities?: PostCommunityUncheckedCreateNestedManyWithoutPostInput
@@ -33267,8 +33409,11 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     author?: UserUpdateOneRequiredWithoutPostsNestedInput
     comments?: CommentUpdateManyWithoutPostNestedInput
     savedBy?: PostSaveUpdateManyWithoutPostNestedInput
@@ -33286,9 +33431,12 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     comments?: CommentUncheckedUpdateManyWithoutPostNestedInput
     savedBy?: PostSaveUncheckedUpdateManyWithoutPostNestedInput
     communities?: PostCommunityUncheckedUpdateManyWithoutPostNestedInput
@@ -33452,8 +33600,11 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     author: UserCreateNestedOneWithoutPostsInput
     comments?: CommentCreateNestedManyWithoutPostInput
     likes?: PostLikeCreateNestedManyWithoutPostInput
@@ -33471,9 +33622,12 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     comments?: CommentUncheckedCreateNestedManyWithoutPostInput
     likes?: PostLikeUncheckedCreateNestedManyWithoutPostInput
     communities?: PostCommunityUncheckedCreateNestedManyWithoutPostInput
@@ -33647,8 +33801,11 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     author?: UserUpdateOneRequiredWithoutPostsNestedInput
     comments?: CommentUpdateManyWithoutPostNestedInput
     likes?: PostLikeUpdateManyWithoutPostNestedInput
@@ -33666,9 +33823,12 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     comments?: CommentUncheckedUpdateManyWithoutPostNestedInput
     likes?: PostLikeUncheckedUpdateManyWithoutPostNestedInput
     communities?: PostCommunityUncheckedUpdateManyWithoutPostNestedInput
@@ -33832,8 +33992,11 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     author: UserCreateNestedOneWithoutPostsInput
     comments?: CommentCreateNestedManyWithoutPostInput
     likes?: PostLikeCreateNestedManyWithoutPostInput
@@ -33851,9 +34014,12 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     comments?: CommentUncheckedCreateNestedManyWithoutPostInput
     likes?: PostLikeUncheckedCreateNestedManyWithoutPostInput
     savedBy?: PostSaveUncheckedCreateNestedManyWithoutPostInput
@@ -33917,8 +34083,11 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     author?: UserUpdateOneRequiredWithoutPostsNestedInput
     comments?: CommentUpdateManyWithoutPostNestedInput
     likes?: PostLikeUpdateManyWithoutPostNestedInput
@@ -33936,9 +34105,12 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     comments?: CommentUncheckedUpdateManyWithoutPostNestedInput
     likes?: PostLikeUncheckedUpdateManyWithoutPostNestedInput
     savedBy?: PostSaveUncheckedUpdateManyWithoutPostNestedInput
@@ -34133,8 +34305,11 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     author: UserCreateNestedOneWithoutPostsInput
     likes?: PostLikeCreateNestedManyWithoutPostInput
     savedBy?: PostSaveCreateNestedManyWithoutPostInput
@@ -34152,9 +34327,12 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     likes?: PostLikeUncheckedCreateNestedManyWithoutPostInput
     savedBy?: PostSaveUncheckedCreateNestedManyWithoutPostInput
     communities?: PostCommunityUncheckedCreateNestedManyWithoutPostInput
@@ -34170,6 +34348,7 @@ export namespace Prisma {
     id?: string
     text: string
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
     author: UserCreateNestedOneWithoutCommentsInput
     post: PostCreateNestedOneWithoutCommentsInput
     parent?: CommentCreateNestedOneWithoutRepliesInput
@@ -34182,6 +34361,7 @@ export namespace Prisma {
     postId: string
     parentId?: string | null
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
   }
 
   export type CommentCreateOrConnectWithoutRepliesInput = {
@@ -34193,6 +34373,7 @@ export namespace Prisma {
     id?: string
     text: string
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
     author: UserCreateNestedOneWithoutCommentsInput
     post: PostCreateNestedOneWithoutCommentsInput
     replies?: CommentCreateNestedManyWithoutParentInput
@@ -34204,6 +34385,7 @@ export namespace Prisma {
     authorId: string
     postId: string
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
     replies?: CommentUncheckedCreateNestedManyWithoutParentInput
   }
 
@@ -34385,8 +34567,11 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     author?: UserUpdateOneRequiredWithoutPostsNestedInput
     likes?: PostLikeUpdateManyWithoutPostNestedInput
     savedBy?: PostSaveUpdateManyWithoutPostNestedInput
@@ -34404,9 +34589,12 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     likes?: PostLikeUncheckedUpdateManyWithoutPostNestedInput
     savedBy?: PostSaveUncheckedUpdateManyWithoutPostNestedInput
     communities?: PostCommunityUncheckedUpdateManyWithoutPostNestedInput
@@ -34428,6 +34616,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
     author?: UserUpdateOneRequiredWithoutCommentsNestedInput
     post?: PostUpdateOneRequiredWithoutCommentsNestedInput
     parent?: CommentUpdateOneWithoutRepliesNestedInput
@@ -34440,6 +34629,7 @@ export namespace Prisma {
     postId?: StringFieldUpdateOperationsInput | string
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
   }
 
   export type CommentUpsertWithWhereUniqueWithoutParentInput = {
@@ -36046,8 +36236,11 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     author: UserCreateNestedOneWithoutPostsInput
     comments?: CommentCreateNestedManyWithoutPostInput
     likes?: PostLikeCreateNestedManyWithoutPostInput
@@ -36065,9 +36258,12 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     authorId: string
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
     comments?: CommentUncheckedCreateNestedManyWithoutPostInput
     likes?: PostLikeUncheckedCreateNestedManyWithoutPostInput
     savedBy?: PostSaveUncheckedCreateNestedManyWithoutPostInput
@@ -36241,8 +36437,11 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     author?: UserUpdateOneRequiredWithoutPostsNestedInput
     comments?: CommentUpdateManyWithoutPostNestedInput
     likes?: PostLikeUpdateManyWithoutPostNestedInput
@@ -36260,9 +36459,12 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     authorId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     comments?: CommentUncheckedUpdateManyWithoutPostNestedInput
     likes?: PostLikeUncheckedUpdateManyWithoutPostNestedInput
     savedBy?: PostSaveUncheckedUpdateManyWithoutPostNestedInput
@@ -38664,8 +38866,11 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    citationStatus?: string | null
+    citationSummary?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
+    gifts?: PostCreategiftsInput | string[]
   }
 
   export type NotificationCreateManyUserInput = {
@@ -38788,6 +38993,7 @@ export namespace Prisma {
     postId: string
     parentId?: string | null
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
   }
 
   export type FollowCreateManyFollowingInput = {
@@ -39020,8 +39226,11 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     comments?: CommentUpdateManyWithoutPostNestedInput
     likes?: PostLikeUpdateManyWithoutPostNestedInput
     savedBy?: PostSaveUpdateManyWithoutPostNestedInput
@@ -39039,8 +39248,11 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
     comments?: CommentUncheckedUpdateManyWithoutPostNestedInput
     likes?: PostLikeUncheckedUpdateManyWithoutPostNestedInput
     savedBy?: PostSaveUncheckedUpdateManyWithoutPostNestedInput
@@ -39058,8 +39270,11 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
+    citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: PostUpdategiftsInput | string[]
   }
 
   export type NotificationUpdateWithoutUserInput = {
@@ -39412,6 +39627,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
     post?: PostUpdateOneRequiredWithoutCommentsNestedInput
     parent?: CommentUpdateOneWithoutRepliesNestedInput
     replies?: CommentUpdateManyWithoutParentNestedInput
@@ -39423,6 +39639,7 @@ export namespace Prisma {
     postId?: StringFieldUpdateOperationsInput | string
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
     replies?: CommentUncheckedUpdateManyWithoutParentNestedInput
   }
 
@@ -39432,6 +39649,7 @@ export namespace Prisma {
     postId?: StringFieldUpdateOperationsInput | string
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
   }
 
   export type FollowUpdateWithoutFollowingInput = {
@@ -39548,6 +39766,7 @@ export namespace Prisma {
     authorId: string
     parentId?: string | null
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
   }
 
   export type PostLikeCreateManyPostInput = {
@@ -39580,6 +39799,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
     author?: UserUpdateOneRequiredWithoutCommentsNestedInput
     parent?: CommentUpdateOneWithoutRepliesNestedInput
     replies?: CommentUpdateManyWithoutParentNestedInput
@@ -39591,6 +39811,7 @@ export namespace Prisma {
     authorId?: StringFieldUpdateOperationsInput | string
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
     replies?: CommentUncheckedUpdateManyWithoutParentNestedInput
   }
 
@@ -39600,6 +39821,7 @@ export namespace Prisma {
     authorId?: StringFieldUpdateOperationsInput | string
     parentId?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
   }
 
   export type PostLikeUpdateWithoutPostInput = {
@@ -39686,12 +39908,14 @@ export namespace Prisma {
     authorId: string
     postId: string
     createdAt?: Date | string
+    gifts?: CommentCreategiftsInput | string[]
   }
 
   export type CommentUpdateWithoutParentInput = {
     id?: StringFieldUpdateOperationsInput | string
     text?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
     author?: UserUpdateOneRequiredWithoutCommentsNestedInput
     post?: PostUpdateOneRequiredWithoutCommentsNestedInput
     replies?: CommentUpdateManyWithoutParentNestedInput
@@ -39703,6 +39927,7 @@ export namespace Prisma {
     authorId?: StringFieldUpdateOperationsInput | string
     postId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
     replies?: CommentUncheckedUpdateManyWithoutParentNestedInput
   }
 
@@ -39712,6 +39937,7 @@ export namespace Prisma {
     authorId?: StringFieldUpdateOperationsInput | string
     postId?: StringFieldUpdateOperationsInput | string
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    gifts?: CommentUpdategiftsInput | string[]
   }
 
   export type CommunityMemberCreateManyCommunityInput = {

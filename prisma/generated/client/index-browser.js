@@ -185,9 +185,12 @@ exports.Prisma.PostScalarFieldEnum = {
   video: 'video',
   trending: 'trending',
   boosted: 'boosted',
+  citationStatus: 'citationStatus',
+  citationSummary: 'citationSummary',
   authorId: 'authorId',
   createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
+  updatedAt: 'updatedAt',
+  gifts: 'gifts'
 };
 
 exports.Prisma.PostLikeScalarFieldEnum = {
@@ -213,7 +216,8 @@ exports.Prisma.CommentScalarFieldEnum = {
   authorId: 'authorId',
   postId: 'postId',
   parentId: 'parentId',
-  createdAt: 'createdAt'
+  createdAt: 'createdAt',
+  gifts: 'gifts'
 };
 
 exports.Prisma.CommunityScalarFieldEnum = {
