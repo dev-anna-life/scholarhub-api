@@ -82,8 +82,8 @@ Return ONLY valid JSON:
         body: JSON.stringify({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
           generationConfig: {
-            temperature: 0.2,
-            maxOutputTokens: 300,
+            temperature: 0.1,
+            maxOutputTokens: 1000,
             responseMimeType: 'application/json'
           }
         })
@@ -100,8 +100,8 @@ Return ONLY valid JSON:
           body: JSON.stringify({
             contents: [{ role: 'user', parts: [{ text: prompt }] }],
             generationConfig: {
-              temperature: 0.2,
-              maxOutputTokens: 300,
+              temperature: 0.1,
+              maxOutputTokens: 1000,
               responseMimeType: 'application/json'
             }
           })
