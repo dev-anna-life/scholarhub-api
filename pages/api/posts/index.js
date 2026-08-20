@@ -304,7 +304,7 @@ export default async function handler(req, res) {
       if (user.status && user.status !== 'Current Student') {
         return res.status(403).json({ message: `${user.status === 'Graduate' ? 'Graduates' : 'Alumni'} cannot create posts` })
       }
-      let { title, content, category, image, video, communityIds } = req.body
+      let { title, content, category, image, video, communityIds, citationSource } = req.body
       if (!title || !content) return res.status(400).json({ message: 'Title and content are required' })
 
       // Check subscription tier limits
