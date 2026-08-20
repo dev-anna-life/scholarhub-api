@@ -74,7 +74,20 @@ Return ONLY valid JSON:
   "citationSummary": "string"
 }`
 
-    let response = await fetch(
+    const fetchWithTimeout = async (url, options, timeoutMs = 6000) => {
+      const controller = new AbortController()
+      const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
+      try {
+        const res = await fetch(url, { ...options, signal: controller.signal })
+        clearTimeout(timeoutId)
+        return res
+      } catch (e) {
+        clearTimeout(timeoutId)
+        throw e
+      }
+    }
+
+    let response = await fetchWithTimeout(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
@@ -88,11 +101,11 @@ Return ONLY valid JSON:
           }
         })
       }
-    )
+    ).catch(() => null)
 
-    if (!response.ok) {
+    if (!response || !response.ok) {
       // Fallback to gemini-1.5-flash
-      response = await fetch(
+      response = await fetchWithTimeout(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         {
           method: 'POST',
@@ -106,10 +119,10 @@ Return ONLY valid JSON:
             }
           })
         }
-      )
+      ).catch(() => null)
     }
 
-    if (!response.ok) return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
+    if (!response || !response.ok) return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
     const data = await response.json()
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text
     if (!text) return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
@@ -122,7 +135,7 @@ Return ONLY valid JSON:
       return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
     }
   } catch (err) {
-    console.error('AI Citation error:', err)
+    console.error('AI Citation non-blocking fallback:', err)
     return { isSafe: true, flagReason: null, citationStatus: 'unverified', citationSummary: 'Community post' }
   }
 }
@@ -212,39 +225,55 @@ export default async function handler(req, res) {
           const scored = posts.map(p => {
             const age = now - new Date(p.createdAt).getTime()
             const hoursOld = age / (1000 * 60 * 60)
+
+            // 1. Freshness Priority (Brand new posts lead the timeline)
             let recencyBoost = 0
-            if (hoursOld < 1) recencyBoost = 100
-            else if (hoursOld < 6) recencyBoost = 70
-            else if (hoursOld < 24) recencyBoost = 40
-            else if (hoursOld < 48) recencyBoost = 20
-            else if (hoursOld < 168) recencyBoost = 10
+            if (hoursOld < 1) recencyBoost = 600
+            else if (hoursOld < 3) recencyBoost = 400
+            else if (hoursOld < 12) recencyBoost = 250
+            else if (hoursOld < 24) recencyBoost = 120
+            else if (hoursOld < 48) recencyBoost = 50
+            else if (hoursOld < 168) recencyBoost = 15
 
-            const likeCount = p._count.likes
-            const commentCount = p._count.comments
-            const engagementBoost = likeCount * 3 + commentCount * 10
+            // 2. Academic & Departmental Affinity
+            const authorDept = p.author?.department || ''
+            const authorFaculty = p.author?.faculty || ''
+            const authorSchool = p.author?.school || ''
 
-            const followBoost = followedIds.includes(p.authorId) ? 80 : 0
+            const isSameDept = userDept && authorDept && userDept.toLowerCase().trim() === authorDept.toLowerCase().trim()
+            const isSameFaculty = userFaculty && authorFaculty && userFaculty.toLowerCase().trim() === authorFaculty.toLowerCase().trim()
+            const isSameSchool = userSchool && authorSchool && userSchool.toLowerCase().trim() === authorSchool.toLowerCase().trim()
 
+            const deptBoost = isSameDept ? 160 : 0
+            const facultyBoost = isSameFaculty ? 80 : 0
+            const schoolBoost = isSameSchool ? 40 : 0
+
+            // 3. Verified Academic Source Bonus
+            const verifiedBoost = p.citationStatus === 'verified' ? 80 : 0
+
+            // 4. Follow & Community Affinity
+            const followBoost = followedIds.includes(p.authorId) ? 90 : 0
             let communityBoost = 0
             const pComIds = p.communities.map(pc => pc.communityId)
             for (const cid of pComIds) {
               const com = myComMap[cid]
               if (!com) continue
-              const isDept = com.department === userDept && com.faculty === userFaculty && com.type === 'department'
-              const isFaculty = com.faculty === userFaculty && com.type === 'faculty'
-              const isSchool = com.school === userSchool && com.type === 'school'
-              if (isDept) communityBoost = Math.max(communityBoost, 80)
-              else if (isFaculty) communityBoost = Math.max(communityBoost, 60)
-              else if (isSchool) communityBoost = Math.max(communityBoost, 50)
+              if (com.department === userDept && com.type === 'department') communityBoost = Math.max(communityBoost, 100)
+              else if (com.faculty === userFaculty && com.type === 'faculty') communityBoost = Math.max(communityBoost, 70)
+              else if (com.school === userSchool && com.type === 'school') communityBoost = Math.max(communityBoost, 50)
               else communityBoost = Math.max(communityBoost, 30)
             }
 
-            const boostedBoost = p.boosted ? 200 : 0
-            const trendingScore = likeCount * 3 + commentCount * 10
-            const isRecent = hoursOld < 24
-            const trending = isRecent && trendingScore >= 30
+            // 5. Engagement Score (High engagement stays visible, inactive drops)
+            const likeCount = p._count.likes
+            const commentCount = p._count.comments
+            const engagementScore = (likeCount * 4) + (commentCount * 12)
 
-            const score = recencyBoost + followBoost + communityBoost + engagementBoost + boostedBoost
+            const boostedBoost = p.boosted ? 250 : 0
+            const isRecent = hoursOld < 24
+            const trending = isRecent && (likeCount * 3 + commentCount * 10) >= 30
+
+            const score = recencyBoost + deptBoost + facultyBoost + schoolBoost + verifiedBoost + communityBoost + followBoost + engagementScore + boostedBoost
 
             const { _count, ...rest } = p
             return {
