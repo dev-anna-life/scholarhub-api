@@ -6,10 +6,56 @@ export default async function handler(req, res) {
     const user = await protect(req, res)
     if (!user) return
 
-    const communities = await prisma.community.findMany({
+    let communities = await prisma.community.findMany({
       where: { members: { some: { userId: user.id } } },
       orderBy: [{ type: 'asc' }, { name: 'asc' }],
     })
+
+    if (communities.length === 0) {
+      // Auto-enroll user in their relevant communities
+      const commsToJoin = []
+      if (user.department) {
+        const deptCom = await prisma.community.findFirst({
+          where: { department: user.department }
+        })
+        if (deptCom) commsToJoin.push(deptCom.id)
+      }
+      if (user.faculty) {
+        const facCom = await prisma.community.findFirst({
+          where: { faculty: user.faculty }
+        })
+        if (facCom) commsToJoin.push(facCom.id)
+      }
+      if (user.school) {
+        const schoolCom = await prisma.community.findFirst({
+          where: { school: user.school }
+        })
+        if (schoolCom) commsToJoin.push(schoolCom.id)
+      }
+      const generalCom = await prisma.community.findFirst({
+        where: { name: { contains: 'General', mode: 'insensitive' } }
+      })
+      if (generalCom) commsToJoin.push(generalCom.id)
+
+      // If no specific found, get all standard communities
+      if (commsToJoin.length === 0) {
+        const allStandard = await prisma.community.findMany({ take: 6 })
+        for (const ac of allStandard) commsToJoin.push(ac.id)
+      }
+
+      for (const cid of commsToJoin) {
+        await prisma.communityMember.upsert({
+          where: { communityId_userId: { communityId: cid, userId: user.id } },
+          update: {},
+          create: { communityId: cid, userId: user.id }
+        }).catch(() => {})
+      }
+
+      communities = await prisma.community.findMany({
+        where: { members: { some: { userId: user.id } } },
+        orderBy: [{ type: 'asc' }, { name: 'asc' }],
+      })
+    }
 
     const postsByCommunity = {}
     for (const c of communities) {
