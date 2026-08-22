@@ -28,9 +28,21 @@ const signupSchema = z.object({
 })
 
 async function ensureCommunity(name, type, school, faculty, department, userId) {
-  let community = await prisma.community.findFirst({
-    where: { name, type, school, faculty, department },
-  })
+  let community
+  if (name === 'General University Hub' || type === 'general') {
+    community = await prisma.community.findFirst({
+      where: { name: { contains: 'General University Hub', mode: 'insensitive' } }
+    })
+  } else {
+    community = await prisma.community.findFirst({
+      where: {
+        name,
+        type,
+        school: school || null,
+      },
+    })
+  }
+
   if (!community) {
     community = await prisma.community.create({
       data: {
@@ -123,20 +135,13 @@ export default async function handler(req, res) {
     }
 
     if (school && level?.toLowerCase() === 'university') {
-      await ensureCommunity(
-        `${faculty || 'General'} - ${department || 'General'}`,
-        'department', school, faculty || '', department || '', user.id
-      )
+      if (department) {
+        await ensureCommunity(department, 'department', school, faculty || '', department, user.id)
+      }
       if (faculty) {
-        await ensureCommunity(`${faculty}`, 'faculty', school, faculty, '', user.id)
+        await ensureCommunity(faculty, 'faculty', school, faculty, '', user.id)
       }
       await ensureCommunity(school, 'school', school, '', '', user.id)
-      if (department) {
-        await ensureCommunity(`${department}`, 'general', '', faculty || '', department, user.id)
-      }
-      if (faculty) {
-        await ensureCommunity(`${faculty} (Global)`, 'general', '', faculty, '', user.id)
-      }
       await ensureCommunity('General University Hub', 'general', '', '', '', user.id)
     }
 
