@@ -74,7 +74,7 @@ Return ONLY valid JSON:
   "citationSummary": "string"
 }`
 
-    const fetchWithTimeout = async (url, options, timeoutMs = 6000) => {
+    const fetchWithTimeout = async (url, options, timeoutMs = 15000) => {
       const controller = new AbortController()
       const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
       try {
