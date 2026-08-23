@@ -6,36 +6,43 @@ const User = require("../models/User");
 const createPost = async (req, res) => {
   try {
     const { title, content, category, image, video } = req.body;
-    if (!title || !content || !category) {
-      return res.status(400).json({ message: "Title, content and category are required" });
+    const finalCategory = category && category.trim() ? category.trim() : 'Sciences';
+    if (!title || !content) {
+      return res.status(400).json({ message: "Title and content are required" });
     }
 
-    const FREE_LIMIT = 250
-    const user = await User.findById(req.user.id)
-    if (!user) return res.status(404).json({ message: "User not found" })
+    const FREE_LIMIT = 1500;
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
     if (user.status && user.status !== 'Current Student') {
-      return res.status(403).json({ message: `${user.status === 'Graduate' ? 'Graduates' : 'Alumni'} cannot create posts` })
+      return res.status(403).json({ message: `${user.status === 'Graduate' ? 'Graduates' : 'Alumni'} cannot create posts` });
     }
 
     const badgeTiers = [
-      { id: 'badge_extra_premium', limit: 100000, canUploadVideo: true }, { id: 'badge_premium', limit: 1000 }, { id: 'badge_basic', limit: 500 },
-    ]
-    const subs = user.badgeSubscriptions || []
-    const active = subs.filter(s => new Date(s.expiresAt) > new Date())
-    const highest = badgeTiers.find(t => active.some(s => s.id === t.id))
-    const maxChars = highest ? highest.limit : FREE_LIMIT
+      { id: 'badge_extra_premium', limit: 500000, canUploadVideo: true },
+      { id: 'badge_premium', limit: 12000 },
+      { id: 'badge_basic', limit: 6000 },
+    ];
+    const subs = user.badgeSubscriptions || [];
+    const active = subs.filter(s => new Date(s.expiresAt) > new Date());
+    const highest = badgeTiers.find(t => active.some(s => s.id === t.id));
+    const maxChars = highest ? highest.limit : FREE_LIMIT;
 
     if (content.length > maxChars) {
-      return res.status(400).json({ message: `Post exceeds ${maxChars} character limit for your badge tier. Upgrade to write more.` })
+      return res.status(400).json({ message: `Post exceeds character limit for your tier. Upgrade to write more.` });
     }
 
     if (video && !highest?.canUploadVideo) {
-      return res.status(403).json({ message: "Only Extra Premium badge holders can upload videos. Upgrade your badge." })
+      return res.status(403).json({ message: "Only Extra Premium badge holders can upload videos. Upgrade your badge." });
     }
 
     const post = await Post.create({
       author: req.user.id,
-      title, content, category, image, video,
+      title: title.trim(),
+      content: content.trim(),
+      category: finalCategory,
+      image,
+      video,
       status: "pending",
     });
     res.status(201).json({ message: "Post submitted for review successfully", post });
