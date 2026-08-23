@@ -159,8 +159,23 @@ export default async function handler(req, res) {
         : {}
 
       if (user) {
+        const userLevelLower = user.level?.toLowerCase() || ''
+        const isSecondaryUser = ['jss', 'sss', 'secondary', 'jss1', 'jss2', 'jss3', 'sss1', 'sss2', 'sss3'].includes(userLevelLower)
+
+        let levelFilter = {}
+        if (isSecondaryUser) {
+          levelFilter = { level: { in: ['JSS', 'SSS', 'Secondary', 'JSS1', 'JSS2', 'JSS3', 'SSS1', 'SSS2', 'SSS3', 'jss', 'sss', 'secondary'] } }
+        } else if (userLevelLower) {
+          levelFilter = {
+            OR: [
+              { level: { notIn: ['JSS', 'SSS', 'Secondary', 'JSS1', 'JSS2', 'JSS3', 'SSS1', 'SSS2', 'SSS3', 'jss', 'sss', 'secondary'] } },
+              { level: null }
+            ]
+          }
+        }
+
         const sameLevelUsers = await prisma.user.findMany({
-          where: { level: user.level },
+          where: levelFilter,
           select: { id: true }
         })
         const levelUserIds = sameLevelUsers.map(u => u.id)
@@ -182,14 +197,18 @@ export default async function handler(req, res) {
 
         let baseWhere = {
           status: 'approved',
-          authorId: { in: levelUserIds },
           ...searchFilter
         }
+
+        if (levelUserIds.length > 0) {
+          baseWhere.authorId = { in: levelUserIds }
+        }
+
         let isForYou = false
 
         if (tab === 'following') {
           const followingAtSameLevel = followedIds.filter(id => levelUserIds.includes(id))
-          baseWhere.authorId = { in: followingAtSameLevel }
+          baseWhere.authorId = { in: followingAtSameLevel.length > 0 ? followingAtSameLevel : followedIds }
         } else if (tab === 'category' && category) {
           baseWhere.category = category
         } else if (tab === 'community' && communityId) {
@@ -198,7 +217,11 @@ export default async function handler(req, res) {
           isForYou = true
         }
 
-        const total = await prisma.post.count({ where: baseWhere })
+        let total = await prisma.post.count({ where: baseWhere })
+        if (total === 0 && isForYou && !search) {
+          delete baseWhere.authorId
+          total = await prisma.post.count({ where: baseWhere })
+        }
         const totalPages = Math.ceil(total / limitNum)
 
         const posts = await prisma.post.findMany({
