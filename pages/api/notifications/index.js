@@ -22,24 +22,25 @@ export default async function handler(req, res) {
         take: 50,
       })
 
-      // Resolve missing postId for post-related notifications (like, comment)
-      const missingPostNotifs = notifications.filter(n => (n.type === 'like' || n.type === 'comment') && !n.postId)
-      if (missingPostNotifs.length > 0) {
-        const userPosts = await prisma.post.findMany({
-          where: { authorId: user.id },
-          select: { id: true, title: true, content: true },
-          orderBy: { createdAt: 'desc' },
-          take: 10,
-        })
-        
-        if (userPosts.length > 0) {
-          const defaultPostId = userPosts[0].id
-          for (const n of missingPostNotifs) {
-            n.postId = defaultPostId
-            prisma.notification.update({
-              where: { id: n.id },
-              data: { postId: defaultPostId }
-            }).catch(() => {})
+      // Resolve missing or comment-targeted postId for post notifications
+      const userPosts = await prisma.post.findMany({
+        where: { authorId: user.id },
+        select: { id: true },
+        orderBy: { createdAt: 'desc' },
+        take: 5,
+      })
+
+      for (const n of notifications) {
+        if (n.type !== 'follow' && n.type !== 'message') {
+          if (n.postId && n.postId.startsWith('cmt')) {
+            const comment = await prisma.comment.findUnique({ where: { id: n.postId }, select: { postId: true } }).catch(() => null)
+            if (comment && comment.postId) {
+              n.postId = comment.postId
+              prisma.notification.update({ where: { id: n.id }, data: { postId: comment.postId } }).catch(() => {})
+            }
+          } else if (!n.postId && userPosts.length > 0) {
+            n.postId = userPosts[0].id
+            prisma.notification.update({ where: { id: n.id }, data: { postId: userPosts[0].id } }).catch(() => {})
           }
         }
       }
