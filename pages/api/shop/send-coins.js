@@ -7,7 +7,7 @@ export default async function handler(req, res) {
     const sender = await protect(req, res)
     if (!sender) return
 
-    const { username, amount } = req.body
+    const { username, amount, postId } = req.body
     if (!username || !amount || amount < 1) {
       return res.status(400).json({ message: 'username and amount (min 1) required' })
     }
@@ -35,6 +35,17 @@ export default async function handler(req, res) {
     await prisma.notification.create({
       data: { userId: recipient.id, fromUserId: sender.id, type: 'gift', text: `${sender.name} sent you ${parsed} coins!` }
     })
+
+    if (postId) {
+      await prisma.comment.create({
+        data: {
+          text: `🎁 Gifted ${parsed} Scholar Coins to @${recipient.username || recipient.name}!`,
+          content: `🎁 Gifted ${parsed} Scholar Coins to @${recipient.username || recipient.name}!`,
+          postId,
+          authorId: sender.id,
+        }
+      }).catch(() => {})
+    }
 
     const updatedSender = await prisma.user.findUnique({ where: { id: sender.id } })
     res.json({ message: `Sent ${parsed} coins to ${recipient.name}`, coins: updatedSender.coins })

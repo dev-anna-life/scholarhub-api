@@ -60,6 +60,18 @@ export default async function handler(req, res) {
       })
     }
 
+    if (targetPostId) {
+      await prisma.comment.create({
+        data: {
+          text: `🎁 Awarded a ${item.name} reaction gift (+${item.price} coins) to @${recipient.username || recipient.name}!`,
+          content: `🎁 Awarded a ${item.name} reaction gift (+${item.price} coins) to @${recipient.username || recipient.name}!`,
+          postId: targetPostId,
+          authorId: sender.id,
+          gifts: [itemId]
+        }
+      }).catch(() => {})
+    }
+
     await sendNotificationWithEmail({
       userId: recipientId,
       fromUserId: sender.id,
