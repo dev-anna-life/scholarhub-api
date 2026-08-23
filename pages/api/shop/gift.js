@@ -52,12 +52,14 @@ export default async function handler(req, res) {
       await prisma.comment.update({
         where: { id: commentId },
         data: { gifts: { push: itemId } }
-      })
-    } else if (postId) {
+      }).catch(() => {})
+    }
+
+    if (targetPostId) {
       await prisma.post.update({
-        where: { id: postId },
+        where: { id: targetPostId },
         data: { gifts: { push: itemId } }
-      })
+      }).catch(() => {})
     }
 
     if (targetPostId) {
