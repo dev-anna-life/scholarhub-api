@@ -489,7 +489,7 @@ export default async function handler(req, res) {
         }).catch(() => {})
       }
 
-      // Safely notify community members without throwing errors
+      // Safely notify community members and mentioned users without throwing errors
       try {
         for (const cid of communityIds) {
           const members = await prisma.communityMember.findMany({
@@ -510,6 +510,33 @@ export default async function handler(req, res) {
                 text: `${user.name.split(' ')[0]} posted in ${commName}`,
               }))
             })
+          }
+        }
+
+        // Parse @mentions in post title/content
+        const fullText = `${title || ''} ${content || ''}`
+        const mentionMatches = fullText.match(/@([a-zA-Z0-9_.]+)/g)
+        if (mentionMatches && mentionMatches.length > 0) {
+          const handles = Array.from(new Set(mentionMatches.map(m => m.slice(1).toLowerCase())))
+          const mentionedUsers = await prisma.user.findMany({
+            where: {
+              OR: [
+                { username: { in: handles, mode: 'insensitive' } },
+                { name: { in: handles, mode: 'insensitive' } }
+              ],
+              id: { not: user.id }
+            },
+            select: { id: true }
+          })
+
+          for (const mUser of mentionedUsers) {
+            sendNotificationWithEmail({
+              userId: mUser.id,
+              fromUserId: user.id,
+              postId: post.id,
+              type: 'mention',
+              text: `${user.name} tagged you in a post: "${title.slice(0, 50)}"`
+            }).catch(() => {})
           }
         }
       } catch (notifErr) {

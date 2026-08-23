@@ -58,6 +58,36 @@ export default async function handler(req, res) {
         })
       }
 
+      // Check for @mentions in comment text
+      try {
+        const mentionMatches = text.match(/@([a-zA-Z0-9_.]+)/g)
+        if (mentionMatches && mentionMatches.length > 0) {
+          const handles = Array.from(new Set(mentionMatches.map(m => m.slice(1).toLowerCase())))
+          const mentionedUsers = await prisma.user.findMany({
+            where: {
+              OR: [
+                { username: { in: handles, mode: 'insensitive' } },
+                { name: { in: handles, mode: 'insensitive' } }
+              ],
+              id: { not: user.id }
+            },
+            select: { id: true }
+          })
+
+          for (const mUser of mentionedUsers) {
+            sendNotificationWithEmail({
+              userId: mUser.id,
+              fromUserId: user.id,
+              postId: req.query.id,
+              type: 'mention',
+              text: `${user.name} mentioned you in a comment`
+            }).catch(() => {})
+          }
+        }
+      } catch (mErr) {
+        console.error('Comment mention error:', mErr)
+      }
+
       return res.status(201).json(comment)
     }
 
