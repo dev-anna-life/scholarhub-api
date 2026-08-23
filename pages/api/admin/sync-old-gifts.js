@@ -19,11 +19,10 @@ export default async function handler(req, res) {
       where: {
         OR: [
           { gifts: { isEmpty: false } },
-          { text: { contains: '🎁' } },
-          { content: { contains: '🎁' } }
+          { text: { contains: '🎁' } }
         ]
       },
-      select: { postId: true, gifts: true, text: true, content: true }
+      select: { postId: true, gifts: true, text: true }
     })
 
     for (const c of commentsWithGifts) {
@@ -31,7 +30,7 @@ export default async function handler(req, res) {
       let giftIds = c.gifts || []
 
       // Parse text if gifts array was empty
-      const textContent = c.text || c.content || ''
+      const textContent = c.text || ''
       if (giftIds.length === 0 && textContent.includes('🎁')) {
         for (const [gName, gId] of Object.entries(giftNameToId)) {
           if (textContent.includes(gName)) {
