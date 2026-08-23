@@ -143,6 +143,7 @@ Return ONLY valid JSON:
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
       const { community, search, page = 1, limit = 20, tab, category, communityId } = req.query
       const user = await getOptionalUser(req)
       const pageNum = Math.max(1, parseInt(page))
