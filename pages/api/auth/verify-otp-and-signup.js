@@ -37,79 +37,115 @@ export default async function handler(req, res) {
 
     const email = rawEmail.trim().toLowerCase()
     const username = rawUsername ? rawUsername.trim().toLowerCase() : ''
+    const submittedOtp = otp.toString().trim()
 
-    // Verify 6-Digit OTP Code
-    const otpResult = verifyOTP(email, otp.toString())
-    if (!otpResult.valid) {
-      return res.status(400).json({ message: otpResult.message })
-    }
-
-    // Double check email & username uniqueness
-    const existingEmail = await prisma.user.findFirst({
-      where: { email: { equals: email, mode: 'insensitive' } },
+    // 1. Fetch user record from PostgreSQL
+    const existingUser = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: 'insensitive' } }
     })
-    if (existingEmail) {
-      return res.status(400).json({ message: 'An account with this email already exists.' })
+
+    // If an active account with a confirmed password already exists, block registration
+    if (existingUser && existingUser.password !== null) {
+      return res.status(400).json({ message: 'An account with this email already exists. Please sign in instead.' })
     }
 
+    // 2. Validate OTP code against DB persistent record or Memory Store fallback
+    let isOtpValid = false
+
+    if (existingUser && existingUser.resetToken === submittedOtp) {
+      if (existingUser.resetTokenExpiry && new Date() > new Date(existingUser.resetTokenExpiry)) {
+        return res.status(400).json({ message: 'Verification code has expired. Please request a new code.' })
+      }
+      isOtpValid = true
+    } else {
+      // Check memory store fallback
+      const memoryCheck = verifyOTP(email, submittedOtp)
+      if (memoryCheck.valid) {
+        isOtpValid = true
+      }
+    }
+
+    if (!isOtpValid) {
+      return res.status(400).json({ message: 'No verification code found for this email, or invalid code. Please check your email and try again.' })
+    }
+
+    // 3. Double check username uniqueness among active accounts
     if (username) {
-      const existingUser = await prisma.user.findFirst({
-        where: { username: { equals: username, mode: 'insensitive' } },
+      const existingUsername = await prisma.user.findFirst({
+        where: { 
+          username: { equals: username, mode: 'insensitive' },
+          password: { not: null },
+          id: existingUser ? { not: existingUser.id } : undefined
+        },
       })
-      if (existingUser) {
+      if (existingUsername) {
         return res.status(400).json({ message: 'This username is already taken.' })
       }
     }
 
     const hashedPassword = await bcrypt.hash(password, 10)
-    const referralCode = `${username || name.split(' ')[0]}_${Math.floor(1000 + Math.random() * 9000)}`
+    const referralCode = `${username || (name ? name.split(' ')[0] : 'user')}_${Math.floor(1000 + Math.random() * 9000)}`
 
-    const newUser = await prisma.user.create({
-      data: {
-        name: name.trim(),
-        email,
-        username: username || undefined,
-        phone: phone ? phone.trim() : undefined,
-        password: hashedPassword,
-        school: school || '',
-        level: level || 'University',
-        course: course || '',
-        track: track || 'Science',
-        state: state || '',
-        city: city || '',
-        country: country || 'United States',
-        faculty: faculty || '',
-        department: department || '',
-        interests: Array.isArray(interests) ? interests : [],
-        referralCode,
-        isVerified: true,
-      },
-    })
+    const userData = {
+      name: name ? name.trim() : 'Student User',
+      email,
+      username: username || undefined,
+      phone: phone ? phone.trim() : undefined,
+      password: hashedPassword,
+      isVerified: true,
+      resetToken: null,
+      resetTokenExpiry: null,
+      school: school || '',
+      level: level || 'University',
+      course: course || '',
+      track: track || 'Science',
+      state: state || '',
+      city: city || '',
+      country: country || 'United States',
+      faculty: faculty || '',
+      department: department || '',
+      interests: interests || [],
+      scholarTrack: scholarTrack || 'academic',
+      skillDomain: skillDomain || '',
+      skillLevel: skillLevel || '',
+      referralCode,
+    }
+
+    let newUser
+    if (existingUser) {
+      newUser = await prisma.user.update({
+        where: { id: existingUser.id },
+        data: userData
+      })
+    } else {
+      newUser = await prisma.user.create({
+        data: userData
+      })
+    }
 
     const token = generateToken(newUser.id)
 
-    // Omit sensitive data
-    const sanitizedUser = {
+    const userObj = {
       id: newUser.id,
       name: newUser.name,
       email: newUser.email,
       username: newUser.username,
-      phone: newUser.phone,
-      school: newUser.school,
+      avatar: newUser.avatar,
       level: newUser.level,
+      track: newUser.track,
+      school: newUser.school,
       coins: newUser.coins,
-      referralCode: newUser.referralCode,
-      isVerified: true,
+      isVerified: newUser.isVerified,
+      isAdmin: newUser.isAdmin,
     }
 
     return res.status(201).json({
-      success: true,
+      message: 'Account created successfully!',
       token,
-      user: sanitizedUser,
-      message: 'Account created and verified successfully!'
+      user: userObj,
     })
   } catch (err) {
-    console.error('[VERIFY OTP AND SIGNUP ERROR]', err)
-    res.status(500).json({ message: err.message || 'Failed to complete signup.' })
+    console.error('[VERIFY OTP & SIGNUP ERROR]', err)
+    res.status(500).json({ message: err.message || 'Signup failed. Please try again.' })
   }
 }

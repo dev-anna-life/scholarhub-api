@@ -39,15 +39,15 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: 'Your email address is incomplete' })
     }
 
-    // Only block if account is active with password
-    const existingEmail = await prisma.user.findFirst({
+    // Only block if account is ALREADY active with a set password
+    const existingActiveUser = await prisma.user.findFirst({
       where: { 
         email: { equals: email, mode: 'insensitive' },
         password: { not: null },
       },
     })
-    if (existingEmail) {
-      return res.status(400).json({ message: 'This email address is already linked to an account. Please sign in instead.' })
+    if (existingActiveUser) {
+      return res.status(400).json({ message: 'This email address is already linked to an active account. Please sign in instead.' })
     }
 
     if (phone && phone.trim()) {
@@ -61,7 +61,35 @@ export default async function handler(req, res) {
 
     // Generate secure 6-digit OTP code
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
+    const expiresAt = new Date(Date.now() + 10 * 60 * 1000) // 10 minutes
+
+    // 1. Save in global memory store for local fallback
     saveOTP(email, phone, otpCode)
+
+    // 2. Persist OTP directly in PostgreSQL DB so Vercel Serverless Lambdas share the code across instances
+    const existingUserRecord = await prisma.user.findFirst({
+      where: { email: { equals: email, mode: 'insensitive' } }
+    })
+
+    if (existingUserRecord) {
+      await prisma.user.update({
+        where: { id: existingUserRecord.id },
+        data: {
+          resetToken: otpCode,
+          resetTokenExpiry: expiresAt,
+        }
+      })
+    } else {
+      await prisma.user.create({
+        data: {
+          name: 'Pending User',
+          email,
+          password: null, // Unverified until OTP verification completes
+          resetToken: otpCode,
+          resetTokenExpiry: expiresAt,
+        }
+      })
+    }
 
     // Dispatch real email via Nodemailer
     const mailResult = await sendVerificationEmail(email, otpCode)
@@ -69,11 +97,11 @@ export default async function handler(req, res) {
     if (mailResult && mailResult.error) {
       console.error(`[MAIL DISPATCH FAILED] ${mailResult.error}`)
       return res.status(500).json({
-        message: 'Could not send verification email. Please verify SMTP credentials or generate a fresh Google App Password.'
+        message: 'Could not send verification email. Please try again or contact support.'
       })
     }
 
-    console.log(`[SECURITY OTP] Real email sent with 6-digit code to ${email}`)
+    console.log(`[SECURITY OTP] Real email sent with 6-digit code ${otpCode} to ${email}`)
 
     return res.status(200).json({
       success: true,
