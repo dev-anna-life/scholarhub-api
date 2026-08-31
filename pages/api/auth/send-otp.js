@@ -36,11 +36,15 @@ export default async function handler(req, res) {
 
     const email = rawEmail.trim().toLowerCase()
     if (!/\S+@\S+\.\S+/.test(email)) {
-      return res.status(400).json({ message: 'Please enter a valid email address' })
+      return res.status(400).json({ message: 'Your email address is incomplete' })
     }
 
+    // Only block if account is active with password
     const existingEmail = await prisma.user.findFirst({
-      where: { email: { equals: email, mode: 'insensitive' } },
+      where: { 
+        email: { equals: email, mode: 'insensitive' },
+        password: { not: null },
+      },
     })
     if (existingEmail) {
       return res.status(400).json({ message: 'This email address is already linked to an account. Please sign in instead.' })
@@ -48,7 +52,7 @@ export default async function handler(req, res) {
 
     if (phone && phone.trim()) {
       const existingPhone = await prisma.user.findFirst({
-        where: { phone: phone.trim() },
+        where: { phone: phone.trim(), password: { not: null } },
       })
       if (existingPhone) {
         return res.status(400).json({ message: 'This phone number is already linked to an account.' })

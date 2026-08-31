@@ -2,7 +2,6 @@ const dbConnect = require('../../../lib/db')
 const prisma = require('../../../lib/prisma')
 const cors = require('cors')
 
-// Helper for CORS middleware
 function runMiddleware(req, res, fn) {
   return new Promise((resolve, reject) => {
     fn(req, res, (result) => {
@@ -31,8 +30,12 @@ export default async function handler(req, res) {
 
     if (email && email.trim()) {
       const cleanEmail = email.trim().toLowerCase()
+      // Only block if account is active with password
       const existingEmail = await prisma.user.findFirst({
-        where: { email: { equals: cleanEmail, mode: 'insensitive' } },
+        where: { 
+          email: { equals: cleanEmail, mode: 'insensitive' },
+          password: { not: null },
+        },
       })
       if (existingEmail) {
         return res.json({ available: false, field: 'email', message: 'This email address is already linked to an account. Please sign in instead.' })
@@ -42,7 +45,7 @@ export default async function handler(req, res) {
     if (phone && phone.trim()) {
       const cleanPhone = phone.trim()
       const existingPhone = await prisma.user.findFirst({
-        where: { phone: cleanPhone },
+        where: { phone: cleanPhone, password: { not: null } },
       })
       if (existingPhone) {
         return res.json({ available: false, field: 'phone', message: 'This phone number is already linked to an account. Please use a different number.' })
