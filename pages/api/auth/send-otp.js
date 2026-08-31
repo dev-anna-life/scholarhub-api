@@ -63,19 +63,21 @@ export default async function handler(req, res) {
     const otpCode = Math.floor(100000 + Math.random() * 900000).toString()
     saveOTP(email, phone, otpCode)
 
-    // Attempt to dispatch real email via Nodemailer
-    try {
-      await sendVerificationEmail(email, otpCode)
-    } catch (mailErr) {
-      console.warn('[MAIL WARNING] Could not deliver email directly:', mailErr.message)
+    // Dispatch real email via Nodemailer
+    const mailResult = await sendVerificationEmail(email, otpCode)
+
+    if (mailResult && mailResult.error) {
+      console.error(`[MAIL DISPATCH FAILED] ${mailResult.error}`)
+      return res.status(500).json({
+        message: 'Could not send verification email. Please verify SMTP credentials or generate a fresh Google App Password.'
+      })
     }
 
-    console.log(`[SECURITY OTP] Generated 6-digit code ${otpCode} for ${email}`)
+    console.log(`[SECURITY OTP] Real email sent with 6-digit code to ${email}`)
 
     return res.status(200).json({
       success: true,
-      message: `Verification code sent to ${email}`,
-      otp: otpCode // Always include OTP so verification is 100% reliable for testing & backup!
+      message: `Verification code sent to ${email}`
     })
   } catch (err) {
     console.error('[SEND OTP ERROR]', err)
