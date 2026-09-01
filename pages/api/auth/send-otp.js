@@ -66,16 +66,29 @@ export default async function handler(req, res) {
     // 1. Save in global memory store for local fallback
     saveOTP(email, phone, otpCode)
 
-    // 2. Persist OTP directly in PostgreSQL DB so Vercel Serverless Lambdas share the code across instances
+    // 2. Persist OTP directly in PostgreSQL DB (support multi-code resilience on resend)
     const existingUserRecord = await prisma.user.findFirst({
       where: { email: { equals: email, mode: 'insensitive' } }
     })
+
+    let validCodes = [otpCode]
+    if (existingUserRecord && existingUserRecord.resetToken) {
+      const prevCodes = existingUserRecord.resetToken.split(',').map(c => c.trim())
+      prevCodes.forEach(c => {
+        if (/^\d{6}$/.test(c) && !validCodes.includes(c)) {
+          validCodes.push(c)
+        }
+      })
+      validCodes = validCodes.slice(0, 2) // Keep up to 2 active valid codes
+    }
+
+    const tokenString = validCodes.join(',')
 
     if (existingUserRecord) {
       await prisma.user.update({
         where: { id: existingUserRecord.id },
         data: {
-          resetToken: otpCode,
+          resetToken: tokenString,
           resetTokenExpiry: expiresAt,
         }
       })
@@ -85,7 +98,7 @@ export default async function handler(req, res) {
           name: 'Pending User',
           email,
           password: null, // Unverified until OTP verification completes
-          resetToken: otpCode,
+          resetToken: tokenString,
           resetTokenExpiry: expiresAt,
         }
       })

@@ -52,13 +52,20 @@ export default async function handler(req, res) {
 
     // 2. Validate OTP code against DB persistent record or Memory Store fallback
     let isOtpValid = false
+    let isExpired = false
 
-    if (existingUser && existingUser.resetToken === submittedOtp) {
-      if (existingUser.resetTokenExpiry && new Date() > new Date(existingUser.resetTokenExpiry)) {
-        return res.status(400).json({ message: 'Verification code has expired. Please request a new code.' })
+    if (existingUser && existingUser.resetToken) {
+      const activeCodes = existingUser.resetToken.split(',').map(c => c.trim())
+      if (activeCodes.includes(submittedOtp)) {
+        if (existingUser.resetTokenExpiry && new Date() > new Date(existingUser.resetTokenExpiry)) {
+          isExpired = true
+        } else {
+          isOtpValid = true
+        }
       }
-      isOtpValid = true
-    } else {
+    }
+
+    if (!isOtpValid && !isExpired) {
       // Check memory store fallback
       const memoryCheck = verifyOTP(email, submittedOtp)
       if (memoryCheck.valid) {
@@ -66,8 +73,15 @@ export default async function handler(req, res) {
       }
     }
 
+    if (isExpired) {
+      return res.status(400).json({ message: 'Verification code has expired. Please click "Resend Code" to get a fresh code.' })
+    }
+
     if (!isOtpValid) {
-      return res.status(400).json({ message: 'No verification code found for this email, or invalid code. Please check your email and try again.' })
+      if (!existingUser || !existingUser.resetToken) {
+        return res.status(400).json({ message: 'No verification code request was found for this email. Please click "Resend Code".' })
+      }
+      return res.status(400).json({ message: 'Invalid 6-digit code. Please double-check the 6 digits sent to your email and try again.' })
     }
 
     // 3. Double check username uniqueness among active accounts
