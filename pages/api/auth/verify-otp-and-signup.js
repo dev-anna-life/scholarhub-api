@@ -3,6 +3,7 @@ const dbConnect = require('../../../lib/db')
 const prisma = require('../../../lib/prisma')
 const { generateToken } = require('../../../lib/auth')
 const { verifyOTP } = require('../../../lib/otpStore')
+const { sendWelcomeEmail } = require('../../../lib/mailer')
 const cors = require('cors')
 
 function runMiddleware(req, res, fn) {
@@ -120,6 +121,11 @@ export default async function handler(req, res) {
         data: userData
       })
     }
+
+    // Dispatch branded Welcome Email to the user
+    sendWelcomeEmail(newUser.email, newUser.name).catch(err => {
+      console.warn('[WELCOME MAIL WARNING]', err.message)
+    })
 
     const token = generateToken(newUser.id)
 
