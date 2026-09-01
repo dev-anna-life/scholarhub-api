@@ -86,6 +86,7 @@ export default async function handler(req, res) {
     const hashedPassword = await bcrypt.hash(password, 10)
     const referralCode = `${username || (name ? name.split(' ')[0] : 'user')}_${Math.floor(1000 + Math.random() * 9000)}`
 
+    // Only pass schema-compliant fields to Prisma User model
     const userData = {
       name: name ? name.trim() : 'Student User',
       email,
@@ -97,17 +98,14 @@ export default async function handler(req, res) {
       resetTokenExpiry: null,
       school: school || '',
       level: level || 'University',
-      course: course || '',
-      track: track || 'Science',
+      course: course || skillDomain || '',
+      track: track || scholarTrack || 'Science',
       state: state || '',
       city: city || '',
       country: country || 'United States',
       faculty: faculty || '',
       department: department || '',
-      interests: interests || [],
-      scholarTrack: scholarTrack || 'academic',
-      skillDomain: skillDomain || '',
-      skillLevel: skillLevel || '',
+      interests: Array.isArray(interests) ? interests : [],
       referralCode,
     }
 
