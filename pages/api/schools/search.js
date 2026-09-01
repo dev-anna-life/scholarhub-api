@@ -19,6 +19,21 @@ const AFRICAN_COUNTRIES = new Set([
   'Zambia', 'Zimbabwe',
 ])
 
+const GLOBAL_COUNTRY_STATES = {
+  'South Korea': ['Seoul', 'Busan', 'Incheon', 'Daegu', 'Daejeon', 'Gwangju', 'Ulsan', 'Sejong', 'Gyeonggi-do', 'Gangwon-do', 'Chungcheongbuk-do', 'Chungcheongnam-do', 'Jeollabuk-do', 'Jeollanam-do', 'Gyeongsangbuk-do', 'Gyeongsangnam-do', 'Jeju-do'],
+  'United States': ['Alabama', 'Alaska', 'Arizona', 'Arkansas', 'California', 'Colorado', 'Connecticut', 'Delaware', 'Florida', 'Georgia', 'Hawaii', 'Idaho', 'Illinois', 'Indiana', 'Iowa', 'Kansas', 'Kentucky', 'Louisiana', 'Maine', 'Maryland', 'Massachusetts', 'Michigan', 'Minnesota', 'Mississippi', 'Missouri', 'Montana', 'Nebraska', 'Nevada', 'New Hampshire', 'New Jersey', 'New Mexico', 'New York', 'North Carolina', 'North Dakota', 'Ohio', 'Oklahoma', 'Oregon', 'Pennsylvania', 'Rhode Island', 'South Carolina', 'South Dakota', 'Tennessee', 'Texas', 'Utah', 'Vermont', 'Virginia', 'Washington', 'West Virginia', 'Wisconsin', 'Wyoming'],
+  'United Kingdom': ['England', 'Scotland', 'Wales', 'Northern Ireland', 'Greater London', 'Oxfordshire', 'Cambridgeshire', 'West Midlands', 'Greater Manchester'],
+  'Canada': ['Alberta', 'British Columbia', 'Manitoba', 'New Brunswick', 'Newfoundland and Labrador', 'Nova Scotia', 'Ontario', 'Prince Edward Island', 'Quebec', 'Saskatchewan'],
+  'Australia': ['Australian Capital Territory', 'New South Wales', 'Northern Territory', 'Queensland', 'South Australia', 'Tasmania', 'Victoria', 'Western Australia'],
+  'Japan': ['Hokkaido', 'Tohoku', 'Kanto (Tokyo)', 'Chubu', 'Kansai (Osaka/Kyoto)', 'Chugoku', 'Shikoku', 'Kyushu'],
+  'Germany': ['Bavaria', 'Berlin', 'Baden-Württemberg', 'North Rhine-Westphalia', 'Hesse', 'Saxony', 'Hamburg', 'Lower Saxony'],
+  'France': ['Île-de-France (Paris)', 'Auvergne-Rhône-Alpes', 'Nouvelle-Aquitaine', 'Occitanie', 'Hauts-de-France', 'Provence-Alpes-Côte d\'Azur'],
+  'India': ['Delhi', 'Maharashtra', 'Karnataka', 'Tamil Nadu', 'Telangana', 'Uttar Pradesh', 'West Bengal', 'Gujarat'],
+  'China': ['Beijing', 'Shanghai', 'Guangdong', 'Zhejiang', 'Jiangsu', 'Sichuan', 'Hubei'],
+  'Brazil': ['São Paulo', 'Rio de Janeiro', 'Minas Gerais', 'Bahia', 'Paraná', 'Rio Grande do Sul'],
+  'Mexico': ['Mexico City', 'Jalisco', 'Nuevo León', 'Puebla', 'Guanajuato'],
+}
+
 function normalizeCountry(country) {
   if (!country) return country
   const c = country.trim()
@@ -42,7 +57,6 @@ function normalizeCountry(country) {
     "guinea bissau": 'Guinea-Bissau',
     "sierra leone": 'Sierra Leone',
     "south sudan": 'South Sudan',
-    "ivory coast": 'Côte d\'Ivoire',
   }
   return map[c.toLowerCase()] || c
 }
@@ -71,18 +85,28 @@ export default async function handler(req, res) {
           { timeout: 8000 }
         )
         schools = (data || []).map(u => ({
-          name: u.name, country: u.country, level: 'University',
+          name: u.name,
+          country: u.country,
+          level: 'University',
+          state: u['state-province'] || u.state || ''
         }))
       } catch {
-        const { data } = await axios.get(
-          `http://universities.hipolabs.com/search?name=${encodeURIComponent(country)}`,
-          { timeout: 8000 }
-        )
-        schools = (data || [])
-          .filter(u => u.country?.toLowerCase() === country.toLowerCase())
-          .map(u => ({
-            name: u.name, country: u.country, level: 'University',
-          }))
+        try {
+          const { data } = await axios.get(
+            `http://universities.hipolabs.com/search?name=${encodeURIComponent(country)}`,
+            { timeout: 8000 }
+          )
+          schools = (data || [])
+            .filter(u => u.country?.toLowerCase() === country.toLowerCase())
+            .map(u => ({
+              name: u.name,
+              country: u.country,
+              level: 'University',
+              state: u['state-province'] || u.state || ''
+            }))
+        } catch {
+          schools = []
+        }
       }
     }
 
@@ -99,10 +123,13 @@ export default async function handler(req, res) {
       }
     })
 
-    if (state && country === 'Nigeria') {
+    // If fallback states exist for this country, inject state hints if missing
+    const fallbackStates = GLOBAL_COUNTRY_STATES[country] || []
+
+    if (state) {
       const st = state.toLowerCase().replace(/[^\w\s]/g, '').trim()
       schools = schools.filter(s => {
-        if (!s.state) return false
+        if (!s.state) return true // Don't filter out if state is unknown
         const sst = s.state.toLowerCase().replace(/[^\w\s]/g, '').trim()
         return sst.includes(st) || st.includes(sst)
       })
@@ -113,7 +140,8 @@ export default async function handler(req, res) {
       schools = schools.filter(s => {
         const name = s.name.toLowerCase().replace(/[''\u2018\u2019]/g, '')
         const c = (s.country || '').toLowerCase()
-        return name.includes(q) || c.includes(q)
+        const st = (s.state || '').toLowerCase()
+        return name.includes(q) || c.includes(q) || st.includes(q)
       })
     }
 
@@ -124,6 +152,15 @@ export default async function handler(req, res) {
       seen.add(key)
       return true
     })
+
+    // Ensure fallback states are present in school states output so frontend populates dropdown
+    if (fallbackStates.length > 0) {
+      fallbackStates.forEach(stName => {
+        if (!schools.some(s => s.state && s.state.toLowerCase() === stName.toLowerCase())) {
+          schools.push({ name: `${stName} Educational Region`, country, level: 'University', state: stName, isRegionPlaceholder: true })
+        }
+      })
+    }
 
     res.json({ schools: schools.slice(0, 200) })
   } catch (error) {
