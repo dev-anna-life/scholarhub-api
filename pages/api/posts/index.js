@@ -6,6 +6,7 @@ const authorSelect = {
   id: true,
   name: true,
   username: true,
+  email: true,
   avatar: true,
   school: true,
   faculty: true,
@@ -357,7 +358,7 @@ export default async function handler(req, res) {
       if (user.status && user.status !== 'Current Student') {
         return res.status(403).json({ message: `${user.status === 'Graduate' ? 'Graduates' : 'Alumni'} cannot create posts` })
       }
-      let { title, content, category, image, video, communityIds, citationSource } = req.body
+      let { title, content, category, image, video, communityIds, citationSource, isAiAssisted, isVoiceClip, isHandwritten } = req.body
       if (!title || !content) return res.status(400).json({ message: 'Title and content are required' })
 
       // Check subscription tier limits
@@ -460,6 +461,9 @@ export default async function handler(req, res) {
       const citationStatus = safetyAnalysis.citationStatus === 'verified' ? 'verified' : 'unverified'
       const citationSummary = safetyAnalysis.citationSummary || (citationStatus === 'verified' ? 'Verified against academic curriculum standards' : 'No verified source found in database (Unverified)')
 
+      const isBotUser = user.email ? user.email.startsWith('bot_') : false
+      const finalIsAiAssisted = Boolean(isAiAssisted || isBotUser)
+
       const postStatus = 'approved'
       const post = await prisma.post.create({
         data: {
@@ -468,6 +472,9 @@ export default async function handler(req, res) {
           category: category || '',
           image: image || '',
           video: video || '',
+          isAiAssisted: finalIsAiAssisted,
+          isVoiceClip: Boolean(isVoiceClip),
+          isHandwritten: Boolean(isHandwritten),
           citationSource: citationSource ? citationSource.trim() : null,
           citationStatus,
           citationSummary,

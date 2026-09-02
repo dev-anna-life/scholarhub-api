@@ -6089,6 +6089,9 @@ export namespace Prisma {
     video: string | null
     trending: boolean | null
     boosted: boolean | null
+    isAiAssisted: boolean | null
+    isVoiceClip: boolean | null
+    isHandwritten: boolean | null
     citationStatus: string | null
     citationSummary: string | null
     citationSource: string | null
@@ -6107,6 +6110,9 @@ export namespace Prisma {
     video: string | null
     trending: boolean | null
     boosted: boolean | null
+    isAiAssisted: boolean | null
+    isVoiceClip: boolean | null
+    isHandwritten: boolean | null
     citationStatus: string | null
     citationSummary: string | null
     citationSource: string | null
@@ -6125,6 +6131,9 @@ export namespace Prisma {
     video: number
     trending: number
     boosted: number
+    isAiAssisted: number
+    isVoiceClip: number
+    isHandwritten: number
     citationStatus: number
     citationSummary: number
     citationSource: number
@@ -6146,6 +6155,9 @@ export namespace Prisma {
     video?: true
     trending?: true
     boosted?: true
+    isAiAssisted?: true
+    isVoiceClip?: true
+    isHandwritten?: true
     citationStatus?: true
     citationSummary?: true
     citationSource?: true
@@ -6164,6 +6176,9 @@ export namespace Prisma {
     video?: true
     trending?: true
     boosted?: true
+    isAiAssisted?: true
+    isVoiceClip?: true
+    isHandwritten?: true
     citationStatus?: true
     citationSummary?: true
     citationSource?: true
@@ -6182,6 +6197,9 @@ export namespace Prisma {
     video?: true
     trending?: true
     boosted?: true
+    isAiAssisted?: true
+    isVoiceClip?: true
+    isHandwritten?: true
     citationStatus?: true
     citationSummary?: true
     citationSource?: true
@@ -6274,6 +6292,9 @@ export namespace Prisma {
     video: string | null
     trending: boolean
     boosted: boolean
+    isAiAssisted: boolean
+    isVoiceClip: boolean
+    isHandwritten: boolean
     citationStatus: string | null
     citationSummary: string | null
     citationSource: string | null
@@ -6310,6 +6331,9 @@ export namespace Prisma {
     video?: boolean
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: boolean
     citationSummary?: boolean
     citationSource?: boolean
@@ -6336,6 +6360,9 @@ export namespace Prisma {
     video?: boolean
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: boolean
     citationSummary?: boolean
     citationSource?: boolean
@@ -6356,6 +6383,9 @@ export namespace Prisma {
     video?: boolean
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: boolean
     citationSummary?: boolean
     citationSource?: boolean
@@ -6376,6 +6406,9 @@ export namespace Prisma {
     video?: boolean
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: boolean
     citationSummary?: boolean
     citationSource?: boolean
@@ -6385,7 +6418,7 @@ export namespace Prisma {
     gifts?: boolean
   }
 
-  export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "content" | "category" | "status" | "image" | "video" | "trending" | "boosted" | "citationStatus" | "citationSummary" | "citationSource" | "authorId" | "createdAt" | "updatedAt" | "gifts", ExtArgs["result"]["post"]>
+  export type PostOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "content" | "category" | "status" | "image" | "video" | "trending" | "boosted" | "isAiAssisted" | "isVoiceClip" | "isHandwritten" | "citationStatus" | "citationSummary" | "citationSource" | "authorId" | "createdAt" | "updatedAt" | "gifts", ExtArgs["result"]["post"]>
   export type PostInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     author?: boolean | UserDefaultArgs<ExtArgs>
     comments?: boolean | Post$commentsArgs<ExtArgs>
@@ -6422,6 +6455,9 @@ export namespace Prisma {
       video: string | null
       trending: boolean
       boosted: boolean
+      isAiAssisted: boolean
+      isVoiceClip: boolean
+      isHandwritten: boolean
       citationStatus: string | null
       citationSummary: string | null
       citationSource: string | null
@@ -6867,6 +6903,9 @@ export namespace Prisma {
     readonly video: FieldRef<"Post", 'String'>
     readonly trending: FieldRef<"Post", 'Boolean'>
     readonly boosted: FieldRef<"Post", 'Boolean'>
+    readonly isAiAssisted: FieldRef<"Post", 'Boolean'>
+    readonly isVoiceClip: FieldRef<"Post", 'Boolean'>
+    readonly isHandwritten: FieldRef<"Post", 'Boolean'>
     readonly citationStatus: FieldRef<"Post", 'String'>
     readonly citationSummary: FieldRef<"Post", 'String'>
     readonly citationSource: FieldRef<"Post", 'String'>
@@ -24126,6 +24165,9 @@ export namespace Prisma {
     video: 'video',
     trending: 'trending',
     boosted: 'boosted',
+    isAiAssisted: 'isAiAssisted',
+    isVoiceClip: 'isVoiceClip',
+    isHandwritten: 'isHandwritten',
     citationStatus: 'citationStatus',
     citationSummary: 'citationSummary',
     citationSource: 'citationSource',
@@ -24805,6 +24847,9 @@ export namespace Prisma {
     video?: StringNullableFilter<"Post"> | string | null
     trending?: BoolFilter<"Post"> | boolean
     boosted?: BoolFilter<"Post"> | boolean
+    isAiAssisted?: BoolFilter<"Post"> | boolean
+    isVoiceClip?: BoolFilter<"Post"> | boolean
+    isHandwritten?: BoolFilter<"Post"> | boolean
     citationStatus?: StringNullableFilter<"Post"> | string | null
     citationSummary?: StringNullableFilter<"Post"> | string | null
     citationSource?: StringNullableFilter<"Post"> | string | null
@@ -24830,6 +24875,9 @@ export namespace Prisma {
     video?: SortOrderInput | SortOrder
     trending?: SortOrder
     boosted?: SortOrder
+    isAiAssisted?: SortOrder
+    isVoiceClip?: SortOrder
+    isHandwritten?: SortOrder
     citationStatus?: SortOrderInput | SortOrder
     citationSummary?: SortOrderInput | SortOrder
     citationSource?: SortOrderInput | SortOrder
@@ -24858,6 +24906,9 @@ export namespace Prisma {
     video?: StringNullableFilter<"Post"> | string | null
     trending?: BoolFilter<"Post"> | boolean
     boosted?: BoolFilter<"Post"> | boolean
+    isAiAssisted?: BoolFilter<"Post"> | boolean
+    isVoiceClip?: BoolFilter<"Post"> | boolean
+    isHandwritten?: BoolFilter<"Post"> | boolean
     citationStatus?: StringNullableFilter<"Post"> | string | null
     citationSummary?: StringNullableFilter<"Post"> | string | null
     citationSource?: StringNullableFilter<"Post"> | string | null
@@ -24883,6 +24934,9 @@ export namespace Prisma {
     video?: SortOrderInput | SortOrder
     trending?: SortOrder
     boosted?: SortOrder
+    isAiAssisted?: SortOrder
+    isVoiceClip?: SortOrder
+    isHandwritten?: SortOrder
     citationStatus?: SortOrderInput | SortOrder
     citationSummary?: SortOrderInput | SortOrder
     citationSource?: SortOrderInput | SortOrder
@@ -24908,6 +24962,9 @@ export namespace Prisma {
     video?: StringNullableWithAggregatesFilter<"Post"> | string | null
     trending?: BoolWithAggregatesFilter<"Post"> | boolean
     boosted?: BoolWithAggregatesFilter<"Post"> | boolean
+    isAiAssisted?: BoolWithAggregatesFilter<"Post"> | boolean
+    isVoiceClip?: BoolWithAggregatesFilter<"Post"> | boolean
+    isHandwritten?: BoolWithAggregatesFilter<"Post"> | boolean
     citationStatus?: StringNullableWithAggregatesFilter<"Post"> | string | null
     citationSummary?: StringNullableWithAggregatesFilter<"Post"> | string | null
     citationSource?: StringNullableWithAggregatesFilter<"Post"> | string | null
@@ -26372,6 +26429,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -26396,6 +26456,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -26420,6 +26483,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -26444,6 +26510,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -26468,6 +26537,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -26487,6 +26559,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -26505,6 +26580,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -28047,6 +28125,9 @@ export namespace Prisma {
     video?: SortOrder
     trending?: SortOrder
     boosted?: SortOrder
+    isAiAssisted?: SortOrder
+    isVoiceClip?: SortOrder
+    isHandwritten?: SortOrder
     citationStatus?: SortOrder
     citationSummary?: SortOrder
     citationSource?: SortOrder
@@ -28066,6 +28147,9 @@ export namespace Prisma {
     video?: SortOrder
     trending?: SortOrder
     boosted?: SortOrder
+    isAiAssisted?: SortOrder
+    isVoiceClip?: SortOrder
+    isHandwritten?: SortOrder
     citationStatus?: SortOrder
     citationSummary?: SortOrder
     citationSource?: SortOrder
@@ -28084,6 +28168,9 @@ export namespace Prisma {
     video?: SortOrder
     trending?: SortOrder
     boosted?: SortOrder
+    isAiAssisted?: SortOrder
+    isVoiceClip?: SortOrder
+    isHandwritten?: SortOrder
     citationStatus?: SortOrder
     citationSummary?: SortOrder
     citationSource?: SortOrder
@@ -30930,6 +31017,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -30953,6 +31043,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -31727,6 +31820,9 @@ export namespace Prisma {
     video?: StringNullableFilter<"Post"> | string | null
     trending?: BoolFilter<"Post"> | boolean
     boosted?: BoolFilter<"Post"> | boolean
+    isAiAssisted?: BoolFilter<"Post"> | boolean
+    isVoiceClip?: BoolFilter<"Post"> | boolean
+    isHandwritten?: BoolFilter<"Post"> | boolean
     citationStatus?: StringNullableFilter<"Post"> | string | null
     citationSummary?: StringNullableFilter<"Post"> | string | null
     citationSource?: StringNullableFilter<"Post"> | string | null
@@ -33294,6 +33390,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -33317,6 +33416,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -33499,6 +33601,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33522,6 +33627,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33694,6 +33802,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -33717,6 +33828,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -33899,6 +34013,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -33922,6 +34039,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34094,6 +34214,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -34117,6 +34240,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -34187,6 +34313,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34210,6 +34339,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34413,6 +34545,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -34436,6 +34571,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -34679,6 +34817,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -34702,6 +34843,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36370,6 +36514,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -36393,6 +36540,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -36575,6 +36725,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -36598,6 +36751,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39037,6 +39193,9 @@ export namespace Prisma {
     video?: string | null
     trending?: boolean
     boosted?: boolean
+    isAiAssisted?: boolean
+    isVoiceClip?: boolean
+    isHandwritten?: boolean
     citationStatus?: string | null
     citationSummary?: string | null
     citationSource?: string | null
@@ -39401,6 +39560,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39424,6 +39586,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null
@@ -39447,6 +39612,9 @@ export namespace Prisma {
     video?: NullableStringFieldUpdateOperationsInput | string | null
     trending?: BoolFieldUpdateOperationsInput | boolean
     boosted?: BoolFieldUpdateOperationsInput | boolean
+    isAiAssisted?: BoolFieldUpdateOperationsInput | boolean
+    isVoiceClip?: BoolFieldUpdateOperationsInput | boolean
+    isHandwritten?: BoolFieldUpdateOperationsInput | boolean
     citationStatus?: NullableStringFieldUpdateOperationsInput | string | null
     citationSummary?: NullableStringFieldUpdateOperationsInput | string | null
     citationSource?: NullableStringFieldUpdateOperationsInput | string | null

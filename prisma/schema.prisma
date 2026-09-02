@@ -99,6 +99,9 @@ model Post {
   video     String?
   trending        Boolean        @default(false)
   boosted         Boolean        @default(false)
+  isAiAssisted    Boolean        @default(false)
+  isVoiceClip     Boolean        @default(false)
+  isHandwritten   Boolean        @default(false)
   citationStatus  String?        @default("unverified")
   citationSummary String?
   citationSource  String?
