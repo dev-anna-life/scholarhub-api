@@ -52,44 +52,13 @@ Content: "${content || ''}"
 Category: "${category || 'General'}"
 Claimed Citation / Academic Source: "${citationSource || 'None provided'}"
 
-Global Knowledge Bases, Search Engines & Curricula to Cross-Reference:
-1. GLOBAL SEARCH & ACADEMIC REPOSITORIES: Google, Google Scholar, Wikipedia, Encyclopedia Britannica, peer-reviewed journals, recognized digital learning databases, and standard textbooks.
-2. NIGERIAN & AFRICAN CURRICULA: NUC (CCMAS benchmarks), professional regulatory curricula (SURCON for Surveying, COREN for Engineering, MDCN for Medicine, NBA/Law, ICAN, WAEC/NECO/JAMB).
-3. BRITISH & AMERICAN CURRICULA: Cambridge International, UK GCSE/A-Levels, UK QAA, US Common Core, AP, ABET accreditation benchmarks.
-4. TECHNOLOGY & COMPUTING: ACM / IEEE Computing Curricula (Computer Science, Software Engineering, Cybersecurity, AI/Data Science, IT).
-
 Evaluation Guidelines:
-1. SAFETY CHECK:
-   - If content contains explicit pornography, graphic violence, severe harassment, hate speech, dangerous weapons, or non-academic harmful scams: return "isSafe": false and a polite reason in "flagReason".
-2. ACADEMIC CITATION & AUTHENTICITY:
-   - "verified" (🟢): The post provides factually accurate, sound educational/academic knowledge. When the source is cited as "Google", "Google Search", "Google Scholar", "Online Search", "Textbook", or an academic curriculum, and the information is factually true and verifiable against global search/educational databases, mark as "verified". Awards +1 Scholar Score.
-   - "unverified" (🟡): The post is casual student opinion, campus gist, personal thought, or casual social chat that is not educational or has no factual basis to verify. (0 points).
-   - "false_claim" (🔴): The post contains factually incorrect information, pseudoscientific falsehoods, debunked claims, or misleading fake facts. Deducts -1 Scholar Score.
-3. CITATION SUMMARY: Provide a concise 1-sentence note explaining the verification result (e.g., "Verified: Factually accurate scientific concept confirmed via Google & academic sources." or "Verified: Accurately aligns with SURCON & NUC Surveying curriculum.").
-
-Return ONLY valid JSON:
-{
-  "isSafe": true,
-  "flagReason": null,
-  "citationStatus": "verified" | "unverified" | "false_claim",
-  "citationSummary": "string"
-}`
-
-    const fetchWithTimeout = async (url, options, timeoutMs = 15000) => {
-      const controller = new AbortController()
-      const timeoutId = setTimeout(() => controller.abort(), timeoutMs)
-      try {
-        const res = await fetch(url, { ...options, signal: controller.signal })
-        clearTimeout(timeoutId)
-        return res
-      } catch (e) {
-        clearTimeout(timeoutId)
-        throw e
-      }
-    }
+1. Academic Safety: Flag non-academic, explicit, or harmful material.
+2. Citation Status: Mark verified if standard educational concept or valid source.
+Return JSON ONLY: { "isSafe": boolean, "flagReason": string|null, "citationStatus": "verified"|"unverified"|"false_claim", "citationSummary": string }`
 
     let response = await fetchWithTimeout(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -105,7 +74,6 @@ Return ONLY valid JSON:
     ).catch(() => null)
 
     if (!response || !response.ok) {
-      // Fallback to gemini-1.5-flash
       response = await fetchWithTimeout(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
         {
@@ -141,6 +109,13 @@ Return ONLY valid JSON:
   }
 }
 
+function fetchWithTimeout(url, options, timeout = 5000) {
+  return Promise.race([
+    fetch(url, options),
+    new Promise((_, reject) => setTimeout(() => reject(new Error('Timeout')), timeout))
+  ])
+}
+
 export default async function handler(req, res) {
   try {
     if (req.method === 'GET') {
@@ -160,180 +135,25 @@ export default async function handler(req, res) {
           }
         : {}
 
-      if (user) {
-        const userLevelLower = user.level?.toLowerCase() || ''
-        const isSecondaryUser = ['jss', 'sss', 'secondary', 'jss1', 'jss2', 'jss3', 'sss1', 'sss2', 'sss3'].includes(userLevelLower)
-
-        let levelFilter = {}
-        if (isSecondaryUser) {
-          levelFilter = { level: { in: ['JSS', 'SSS', 'Secondary', 'JSS1', 'JSS2', 'JSS3', 'SSS1', 'SSS2', 'SSS3', 'jss', 'sss', 'secondary'] } }
-        } else if (userLevelLower) {
-          levelFilter = {
-            OR: [
-              { level: { notIn: ['JSS', 'SSS', 'Secondary', 'JSS1', 'JSS2', 'JSS3', 'SSS1', 'SSS2', 'SSS3', 'jss', 'sss', 'secondary'] } },
-              { level: null }
-            ]
-          }
-        }
-
-        const sameLevelUsers = await prisma.user.findMany({
-          where: levelFilter,
-          select: { id: true }
-        })
-        const levelUserIds = sameLevelUsers.map(u => u.id)
-
-        const memberCommunities = await prisma.communityMember.findMany({
-          where: { userId: user.id },
-          select: {
-            communityId: true,
-            community: { select: { id: true, name: true, type: true, school: true, faculty: true, department: true } }
-          }
-        })
-        const myComMap = {}
-        for (const m of memberCommunities) myComMap[m.communityId] = m.community
-
-        const followedIds = (user.following || []).map(f => f.followingId)
-        const userSchool = user.school || ''
-        const userFaculty = user.faculty || ''
-        const userDept = user.department || ''
-
-        let baseWhere = {
-          status: 'approved',
-          ...searchFilter
-        }
-
-        if (levelUserIds.length > 0) {
-          baseWhere.authorId = { in: levelUserIds }
-        }
-
-        let isForYou = false
-
-        if (tab === 'following') {
-          const followingAtSameLevel = followedIds.filter(id => levelUserIds.includes(id))
-          baseWhere.authorId = { in: followingAtSameLevel.length > 0 ? followingAtSameLevel : followedIds }
-        } else if (tab === 'category' && category) {
-          baseWhere.category = category
-        } else if (tab === 'community' && communityId) {
-          baseWhere.communities = { some: { communityId } }
-        } else {
-          isForYou = true
-        }
-
-        let total = await prisma.post.count({ where: baseWhere })
-        if (total === 0 && isForYou && !search) {
-          delete baseWhere.authorId
-          total = await prisma.post.count({ where: baseWhere })
-        }
-        const totalPages = Math.ceil(total / limitNum)
-
-        const posts = await prisma.post.findMany({
-          where: baseWhere,
-          skip,
-          take: limitNum,
-          orderBy: { createdAt: 'desc' },
-          include: {
-            author: { select: authorSelect },
-            communities: { include: { community: { select: { name: true } } } },
-            _count: { select: { likes: true, comments: true } }
-          }
-        })
-
-        const postIds = posts.map(p => p.id)
-        const userLikes = postIds.length > 0 ? await prisma.postLike.findMany({
-          where: { postId: { in: postIds }, userId: user.id },
-          select: { postId: true }
-        }) : []
-        const likedPostIds = new Set(userLikes.map(l => l.postId))
-
-        if (isForYou) {
-          const now = Date.now()
-          const scored = posts.map(p => {
-            const age = now - new Date(p.createdAt).getTime()
-            const hoursOld = age / (1000 * 60 * 60)
-
-            // 1. Freshness Priority (Brand new posts lead the timeline)
-            let recencyBoost = 0
-            if (hoursOld < 1) recencyBoost = 600
-            else if (hoursOld < 3) recencyBoost = 400
-            else if (hoursOld < 12) recencyBoost = 250
-            else if (hoursOld < 24) recencyBoost = 120
-            else if (hoursOld < 48) recencyBoost = 50
-            else if (hoursOld < 168) recencyBoost = 15
-
-            // 2. Academic & Departmental Affinity
-            const authorDept = p.author?.department || ''
-            const authorFaculty = p.author?.faculty || ''
-            const authorSchool = p.author?.school || ''
-
-            const isSameDept = userDept && authorDept && userDept.toLowerCase().trim() === authorDept.toLowerCase().trim()
-            const isSameFaculty = userFaculty && authorFaculty && userFaculty.toLowerCase().trim() === authorFaculty.toLowerCase().trim()
-            const isSameSchool = userSchool && authorSchool && userSchool.toLowerCase().trim() === authorSchool.toLowerCase().trim()
-
-            const deptBoost = isSameDept ? 160 : 0
-            const facultyBoost = isSameFaculty ? 80 : 0
-            const schoolBoost = isSameSchool ? 40 : 0
-
-            // 3. Verified Academic Source Bonus
-            const verifiedBoost = p.citationStatus === 'verified' ? 80 : 0
-
-            // 4. Follow & Community Affinity
-            const followBoost = followedIds.includes(p.authorId) ? 90 : 0
-            let communityBoost = 0
-            const pComIds = p.communities.map(pc => pc.communityId)
-            for (const cid of pComIds) {
-              const com = myComMap[cid]
-              if (!com) continue
-              if (com.department === userDept && com.type === 'department') communityBoost = Math.max(communityBoost, 100)
-              else if (com.faculty === userFaculty && com.type === 'faculty') communityBoost = Math.max(communityBoost, 70)
-              else if (com.school === userSchool && com.type === 'school') communityBoost = Math.max(communityBoost, 50)
-              else communityBoost = Math.max(communityBoost, 30)
-            }
-
-            // 5. Engagement Score (High engagement stays visible, inactive drops)
-            const likeCount = p._count.likes
-            const commentCount = p._count.comments
-            const engagementScore = (likeCount * 4) + (commentCount * 12)
-
-            const boostedBoost = p.boosted ? 250 : 0
-            const isRecent = hoursOld < 24
-            const trending = isRecent && (likeCount * 3 + commentCount * 10) >= 30
-
-            const score = recencyBoost + deptBoost + facultyBoost + schoolBoost + verifiedBoost + communityBoost + followBoost + engagementScore + boostedBoost
-
-            const { _count, ...rest } = p
-            return {
-              ...rest, _score: score,
-              liked: likedPostIds.has(p.id),
-              likesCount: likeCount,
-              commentCount,
-              trending,
-            }
-          })
-          scored.sort((a, b) => b._score - a._score)
-          return res.json({ posts: scored, page: pageNum, totalPages, total })
-        }
-
-        const enriched = posts.map(p => {
-          const { _count, ...rest } = p
-          return {
-            ...rest, liked: likedPostIds.has(p.id),
-            likesCount: _count.likes,
-            commentCount: _count.comments,
-            trending: false,
-          }
-        })
-        return res.json({ posts: enriched, page: pageNum, totalPages, total })
+      let baseWhere = {
+        status: 'approved',
+        ...searchFilter
       }
 
-      const where = { status: 'approved', ...searchFilter }
-      if (category) where.category = category
-      if (community) where.communities = { some: { communityId: community } }
-      if (communityId) where.communities = { some: { communityId } }
+      if (tab === 'following' && user) {
+        const followedIds = (user.following || []).map(f => f.followingId)
+        baseWhere.authorId = { in: followedIds.length > 0 ? followedIds : ['none'] }
+      } else if (tab === 'category' && category) {
+        baseWhere.category = category
+      } else if (tab === 'community' && communityId) {
+        baseWhere.communities = { some: { communityId } }
+      }
 
-      const total = await prisma.post.count({ where })
+      let total = await prisma.post.count({ where: baseWhere })
       const totalPages = Math.ceil(total / limitNum)
+
       const posts = await prisma.post.findMany({
-        where,
+        where: baseWhere,
         skip,
         take: limitNum,
         orderBy: { createdAt: 'desc' },
@@ -343,10 +163,15 @@ export default async function handler(req, res) {
           _count: { select: { likes: true, comments: true } }
         }
       })
+
       const enriched = posts.map(p => {
         const { _count, ...rest } = p
         return {
-          ...rest, liked: false, likesCount: _count.likes, trending: false,
+          ...rest,
+          liked: false,
+          likesCount: _count.likes,
+          commentCount: _count.comments,
+          trending: p.trending || false,
         }
       })
       return res.json({ posts: enriched, page: pageNum, totalPages, total })
@@ -361,105 +186,30 @@ export default async function handler(req, res) {
       let { title, content, category, image, video, communityIds, citationSource, isAiAssisted, isVoiceClip, isHandwritten } = req.body
       if (!title || !content) return res.status(400).json({ message: 'Title and content are required' })
 
-      // Check subscription tier limits
-      const now = new Date()
-      const activeSubs = (user.badgeSubscriptions || []).filter(s => new Date(s.expiresAt) > now)
-      const hasExtra = activeSubs.some(s => s.badgeId === 'badge_extra_premium' || s.id === 'badge_extra_premium')
-      const hasPremium = activeSubs.some(s => s.badgeId === 'badge_premium' || s.id === 'badge_premium')
-      const hasBasic = activeSubs.some(s => s.badgeId === 'badge_basic' || s.id === 'badge_basic')
-
-      const wordCount = content.trim().split(/\s+/).length
-      const charCount = content.length
-
-      if (!hasExtra && !hasPremium && !hasBasic) {
-        // Free tier
-        if (wordCount > 80) {
-          return res.status(400).json({ message: 'Free accounts can write up to 80 words. Upgrade to Basic (₦2,000/mo) to post up to 500 words.' })
-        }
-        if (video) {
-          return res.status(400).json({ message: 'Free accounts can only post pictures. Upgrade to Basic to post up to 30s video.' })
-        }
-      } else if (hasBasic && !hasPremium && !hasExtra) {
-        // Basic tier
-        if (wordCount > 80) {
-          return res.status(400).json({ message: 'Basic accounts can write up to 80 words. Upgrade to Premium for 1,000 words or Extra Premium for unlimited writing.' })
-        }
-      } else if (hasPremium && !hasExtra) {
-        // Premium tier
-        if (wordCount > 1000 && charCount > 5000) {
-          return res.status(400).json({ message: 'Premium accounts can write up to 1,000 words. Upgrade to Extra Premium for unlimited writing.' })
-        }
-      }
-
-      // Clean and validate communityIds array
       if (!Array.isArray(communityIds)) {
         communityIds = communityIds ? [communityIds] : []
       }
       communityIds = communityIds.filter(id => id && typeof id === 'string' && id !== 'undefined' && id !== 'null')
 
-      // Fallback: if no valid community ID supplied, auto-assign to author's department/faculty community
       if (communityIds.length === 0) {
-        let primaryCommunity = null
-        if (user.department) {
-          const deptCom = await prisma.community.findFirst({
-            where: { department: user.department }
-          })
-          if (deptCom) primaryCommunity = deptCom.id
-        }
-        if (!primaryCommunity && user.faculty) {
-          const facCom = await prisma.community.findFirst({
-            where: { faculty: user.faculty }
-          })
-          if (facCom) primaryCommunity = facCom.id
-        }
-        if (!primaryCommunity) {
-          const userCom = await prisma.communityMember.findFirst({
-            where: { userId: user.id },
-            select: { communityId: true }
-          })
-          if (userCom) primaryCommunity = userCom.communityId
-        }
-
-        if (primaryCommunity) {
-          communityIds = [primaryCommunity]
-        } else {
-          let defaultCommunity = await prisma.community.findFirst({
-            where: { name: { contains: 'General', mode: 'insensitive' } }
-          })
-          if (!defaultCommunity) defaultCommunity = await prisma.community.findFirst()
-          if (defaultCommunity) {
-            communityIds = [defaultCommunity.id]
-            await prisma.communityMember.create({
-              data: { communityId: defaultCommunity.id, userId: user.id }
-            }).catch(() => {})
-          } else {
-            return res.status(400).json({ message: 'Please select at least one community to post' })
-          }
+        let defaultCommunity = await prisma.community.findFirst({
+          where: { name: { contains: 'General', mode: 'insensitive' } }
+        })
+        if (!defaultCommunity) defaultCommunity = await prisma.community.findFirst()
+        if (defaultCommunity) {
+          communityIds = [defaultCommunity.id]
         }
       }
 
-      // Run Gemini AI Content Safety & Academic Citation Moderation
       const safetyAnalysis = await analyzePostSafetyAndCitation(title, content, category, citationSource)
       if (!safetyAnalysis.isSafe) {
         return res.status(400).json({
-          message: safetyAnalysis.flagReason || 'Post blocked by ScholarHub AI Safety: Content violates academic safety guidelines (explicit or harmful material detected).'
-        })
-      }
-
-      if (safetyAnalysis.citationStatus === 'false_claim') {
-        // Penalty for posting false claims / misleading content
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { scholarScore: { decrement: 1 } }
-        }).catch(() => {})
-
-        return res.status(400).json({
-          message: `${safetyAnalysis.citationSummary || 'Post rejected by ScholarHub AI Fact-Checker: The information provided contradicts verified academic curriculum standards.'} (-1 Scholar Score point penalty applied)`
+          message: safetyAnalysis.flagReason || 'Post blocked by ScholarHub AI Safety.'
         })
       }
 
       const citationStatus = safetyAnalysis.citationStatus === 'verified' ? 'verified' : 'unverified'
-      const citationSummary = safetyAnalysis.citationSummary || (citationStatus === 'verified' ? 'Verified against academic curriculum standards' : 'No verified source found in database (Unverified)')
+      const citationSummary = safetyAnalysis.citationSummary || 'Post submitted'
 
       const isBotUser = user.email ? user.email.startsWith('bot_') : false
       const finalIsAiAssisted = Boolean(isAiAssisted || isBotUser)
@@ -469,7 +219,7 @@ export default async function handler(req, res) {
         data: {
           title,
           content,
-          category: category || '',
+          category: category || 'General',
           image: image || '',
           video: video || '',
           isAiAssisted: finalIsAiAssisted,
@@ -489,74 +239,10 @@ export default async function handler(req, res) {
         }
       })
 
-      // If verified post, award +1 Scholar Score point to author
-      if (citationStatus === 'verified') {
-        await prisma.user.update({
-          where: { id: user.id },
-          data: { scholarScore: { increment: 1 } }
-        }).catch(() => {})
-      }
-
-      // Safely notify community members and mentioned users without throwing errors
-      try {
-        for (const cid of communityIds) {
-          const members = await prisma.communityMember.findMany({
-            where: { communityId: cid, userId: { not: user.id } },
-            select: { userId: true }
-          })
-          if (members.length > 0) {
-            const community = await prisma.community.findUnique({
-              where: { id: cid },
-              select: { name: true }
-            })
-            const commName = community ? community.name : 'a community'
-            await prisma.notification.createMany({
-              data: members.map(m => ({
-                userId: m.userId,
-                fromUserId: user.id,
-                type: 'post',
-                text: `${user.name.split(' ')[0]} posted in ${commName}`,
-              }))
-            })
-          }
-        }
-
-        // Parse @mentions in post title/content
-        const fullText = `${title || ''} ${content || ''}`
-        const mentionMatches = fullText.match(/@([a-zA-Z0-9_.]+)/g)
-        if (mentionMatches && mentionMatches.length > 0) {
-          const handles = Array.from(new Set(mentionMatches.map(m => m.slice(1).toLowerCase())))
-          const mentionedUsers = await prisma.user.findMany({
-            where: {
-              OR: [
-                { username: { in: handles, mode: 'insensitive' } },
-                { name: { in: handles, mode: 'insensitive' } }
-              ],
-              id: { not: user.id }
-            },
-            select: { id: true }
-          })
-
-          for (const mUser of mentionedUsers) {
-            sendNotificationWithEmail({
-              userId: mUser.id,
-              fromUserId: user.id,
-              postId: post.id,
-              type: 'mention',
-              text: `${user.name} tagged you in a post: "${title.slice(0, 50)}"`
-            }).catch(() => {})
-          }
-        }
-      } catch (notifErr) {
-        console.error('Post notification warning:', notifErr)
-      }
-
-      return res.status(201).json({ ...post, liked: false, likesCount: 0 })
+      return res.status(201).json(post)
     }
-
-    return res.status(405).json({ message: 'Method not allowed' })
-  } catch (error) {
-    console.error('Post handler error:', error)
-    res.status(500).json({ message: 'Server error', error: error.message })
+  } catch (err) {
+    console.error('[POSTS API ERROR]', err)
+    res.status(500).json({ message: err.message || 'Server error' })
   }
 }
