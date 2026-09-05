@@ -166,12 +166,19 @@ export default async function handler(req, res) {
 
       const enriched = posts.map(p => {
         const { _count, ...rest } = p
+        let parsedQuiz = {}
+        if (p.citationSummary && p.citationSummary.trim().startsWith('{')) {
+          try { parsedQuiz = JSON.parse(p.citationSummary) } catch (_) {}
+        }
         return {
           ...rest,
           liked: false,
           likesCount: _count.likes,
           commentCount: _count.comments,
           trending: p.trending || false,
+          quizQuestion: parsedQuiz.quizQuestion || p.quizQuestion || null,
+          quizOptions: parsedQuiz.quizOptions || p.quizOptions || null,
+          correctOptionIndex: parsedQuiz.correctOptionIndex !== undefined ? parsedQuiz.correctOptionIndex : 0
         }
       })
       return res.json({ posts: enriched, page: pageNum, totalPages, total })
