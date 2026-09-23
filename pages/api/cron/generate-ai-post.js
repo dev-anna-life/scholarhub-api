@@ -2,14 +2,19 @@ const prisma = require('../../../lib/prisma')
 
 const BOTS_POOL = [
   { username: 'uni_law', track: 'Law & Jurisprudence', category: 'Law', citationSource: 'Nigerian Constitutional Law & Supreme Court Law Reports' },
-  { username: 'uni_med', track: 'Medical & Health Sciences', category: 'Medicine', citationSource: 'Guyton and Hall Textbook of Medical Physiology' },
+  { username: 'uni_med', track: 'Medical & Clinical Sciences', category: 'Medicine', citationSource: 'Guyton and Hall Textbook of Medical Physiology' },
   { username: 'pro_uiux', track: 'UI/UX & Product Design', category: 'Arts & Humanities', citationSource: 'Figma Official Guidelines & Apple HIG' },
   { username: 'pro_webdev', track: 'Web Engineering & Cloud', category: 'Technology & Engineering', citationSource: 'MDN Web Docs & W3C CSS Standards' },
-  { username: 'highschool_science', track: 'Secondary Physics & Chemistry', category: 'Sciences', citationSource: 'WAEC & Cambridge A-Level Curriculum' }
+  { username: 'highschool_science', track: 'Secondary Physics & Chemistry', category: 'Sciences', citationSource: 'WAEC & Cambridge A-Level Curriculum' },
+  { username: 'pro_data', track: 'Data Science & Artificial Intelligence', category: 'Technology & Engineering', citationSource: 'Python Software Foundation & Scikit-Learn Documentation' },
+  { username: 'uni_accounting', track: 'Accounting & Financial Economics', category: 'Commerce', citationSource: 'International Financial Reporting Standards (IFRS)' },
+  { username: 'uni_polsci', track: 'Political Science & Constitutional Governance', category: 'Law', citationSource: 'African Union & UN Human Rights Charters' },
+  { username: 'highschool_commerce', track: 'Secondary Commerce & Business Economics', category: 'Commerce', citationSource: 'WAEC & Cambridge Business Studies Curriculum' },
+  { username: 'highschool_art', track: 'Literature in English & World History', category: 'Arts & Humanities', citationSource: 'Cambridge Literature & West African History Archives' }
 ]
 
 module.exports = async function handler(req, res) {
-  // Support both GET (for Vercel Cron) and POST
+  // Support both GET (for Cron/GitHub Action) and POST
   if (req.method !== 'GET' && req.method !== 'POST') {
     return res.status(405).json({ message: 'Method not allowed' })
   }
@@ -18,18 +23,33 @@ module.exports = async function handler(req, res) {
     // Pick a bot track
     const randomBotInfo = BOTS_POOL[Math.floor(Math.random() * BOTS_POOL.length)]
     
-    // Find bot user in DB
-    const bot = await prisma.user.findFirst({
+    // Find bot user in DB with flexible matching
+    let bot = await prisma.user.findFirst({
       where: {
         OR: [
           { username: randomBotInfo.username },
-          { email: `bot_${randomBotInfo.username}@scholarhub.africa` }
+          { email: { contains: randomBotInfo.username } },
+          { email: `bot_${randomBotInfo.username}@scholarhub.africa` },
+          { email: `bot_${randomBotInfo.username}@scholarhub.dev` }
         ]
       }
     })
 
+    // If specific bot not found, fall back to any official bot
     if (!bot) {
-      return res.status(404).json({ message: `Bot user @${randomBotInfo.username} not found in database.` })
+      bot = await prisma.user.findFirst({
+        where: {
+          OR: [
+            { isBot: true },
+            { isOfficial: true },
+            { email: { startsWith: 'bot_' } }
+          ]
+        }
+      })
+    }
+
+    if (!bot) {
+      return res.status(404).json({ message: `No bot user available in database.` })
     }
 
     // Get recent titles to prevent duplicates

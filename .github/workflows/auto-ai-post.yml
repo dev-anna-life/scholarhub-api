@@ -1,0 +1,16 @@
+name: Automated AI Study Post Generator
+
+on:
+  schedule:
+    # Runs every 2 hours automatically
+    - cron: '0 */2 * * *'
+  workflow_dispatch: # Allows manual one-click trigger from GitHub
+
+jobs:
+  generate-ai-post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping AI Post Generation Endpoint
+        run: |
+          echo "Triggering ScholarHub AI Post Generator..."
+          curl -s -X GET "https://scholarhub-api.vercel.app/api/cron/generate-ai-post" -H "User-Agent: GitHub-Actions-Cron"
