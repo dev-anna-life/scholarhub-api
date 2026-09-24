@@ -2,15 +2,34 @@ name: Automated AI Study Post Generator
 
 on:
   schedule:
-    # Runs every 2 hours automatically
+    # Runs every 2 hours automatically 24/7 without needing user to visit GitHub
     - cron: '0 */2 * * *'
-  workflow_dispatch: # Allows manual one-click trigger from GitHub
+  workflow_dispatch: # Allows manual one-click trigger from GitHub Actions tab
 
 jobs:
   generate-ai-post:
     runs-on: ubuntu-latest
     steps:
-      - name: Ping AI Post Generation Endpoint
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install pg
+
+      - name: Execute Automated 10-Topic AI Post Generator
+        run: node scripts/generate-ai-post-cron.js
+        env:
+          DIRECT_URL: ${{ secrets.DIRECT_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+
+      - name: Secondary Ping to Web API Endpoint (Optional Fallback)
         run: |
-          echo "Triggering ScholarHub AI Post Generator..."
-          curl -s -X GET "https://scholarhub-api.vercel.app/api/cron/generate-ai-post" -H "User-Agent: GitHub-Actions-Cron"
+          echo "Pinging web endpoint fallback..."
+          curl -s -X GET "https://scholarhub-api.vercel.app/api/cron/generate-ai-post" -H "User-Agent: GitHub-Actions-Cron" || true
