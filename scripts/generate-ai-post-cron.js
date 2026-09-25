@@ -99,9 +99,8 @@ Return JSON ONLY in this exact schema:
 
   // High quality fallback if Gemini fails or key missing
   if (!newPostData) {
-    const timestampStr = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
     newPostData = {
-      title: `${selectedBot.category} Masterclass: Fundamentals of ${selectedBot.track} (${timestampStr})`,
+      title: `${selectedBot.category} Masterclass: Fundamentals of ${selectedBot.track}`,
       content: `THE SIMPLE CONCEPT:\nMastering core principles in ${selectedBot.track} provides the foundation for advanced academic understanding and practical industry problem-solving.\n\nKEY PRACTICAL EXAMPLE:\nStandard application according to accredited examination standards and industry references.\n\nKEY TAKEAWAY MEMORY RULE:\nAlways verify source citations before drawing academic conclusions.\n\nVERIFIED ACADEMIC REFERENCE:\nVerified Source: ${selectedBot.citationSource}`,
       quizQuestion: `What is the cornerstone requirement when analyzing a ${selectedBot.category} principle?`,
       quizOptions: ['Verify primary academic sources and foundational rules', 'Rely purely on anecdotal assumptions', 'Disregard standard curriculum references', 'None of the above'],
