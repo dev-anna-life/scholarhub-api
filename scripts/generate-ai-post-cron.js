@@ -1,16 +1,16 @@
 const { Client } = require('pg');
 
 const BOTS_POOL = [
-  { id: 'cmtiv114v0003lsvolm3vgkoj', username: 'uni_law', track: 'Law & Jurisprudence', category: 'Law', citationSource: 'Nigerian Constitutional Law & Supreme Court Law Reports' },
-  { id: 'cmtiv11pk0004lsvo7qce9lrm', username: 'uni_med', track: 'Medical & Clinical Sciences', category: 'Medicine', citationSource: 'Guyton and Hall Textbook of Medical Physiology' },
-  { id: 'cmtiv133e0007lsvoinr72ybg', username: 'pro_uiux', track: 'UI/UX & Product Design', category: 'Arts & Humanities', citationSource: 'Figma Official Guidelines & Apple HIG' },
-  { id: 'cmtiv13hs0008lsvopqjsfxml', username: 'pro_webdev', track: 'Web Engineering & Cloud', category: 'Technology & Engineering', citationSource: 'MDN Web Docs & W3C CSS Standards' },
-  { id: 'cmtiv0zrm0000lsvoquuxye6h', username: 'highschool_science', track: 'Secondary Physics & Chemistry', category: 'Sciences', citationSource: 'WAEC & Cambridge A-Level Curriculum' },
-  { id: 'cmtiv13yz0009lsvo8j9ddgy7', username: 'pro_data', track: 'Data Science & Artificial Intelligence', category: 'Technology & Engineering', citationSource: 'Python Software Foundation & Scikit-Learn Documentation' },
-  { id: 'cmtiv12pl0006lsvoi5f4hncg', username: 'uni_accounting', track: 'Accounting & Financial Economics', category: 'Commerce', citationSource: 'International Financial Reporting Standards (IFRS)' },
-  { id: 'cmtiv128q0005lsvo9gsyi4c4', username: 'uni_polsci', track: 'Political Science & Constitutional Governance', category: 'Law', citationSource: 'African Union & UN Human Rights Charters' },
-  { id: 'cmtiv10qk0002lsvoau95i8lv', username: 'highschool_commerce', track: 'Secondary Commerce & Business Economics', category: 'Commerce', citationSource: 'WAEC & Cambridge Business Studies Curriculum' },
-  { id: 'cmtiv109i0001lsvolgr717yz', username: 'highschool_art', track: 'Literature in English & World History', category: 'Arts & Humanities', citationSource: 'Cambridge Literature & West African History Archives' }
+  { id: 'cmtiv114v0003lsvolm3vgkoj', username: 'law_faculty', track: 'Law & Jurisprudence', category: 'Law', citationSource: 'Nigerian Constitutional Law & Supreme Court Law Reports' },
+  { id: 'cmtiv11pk0004lsvo7qce9lrm', username: 'medical_sciences', track: 'Medical & Clinical Sciences', category: 'Medicine', citationSource: 'Guyton and Hall Textbook of Medical Physiology' },
+  { id: 'cmtiv133e0007lsvoinr72ybg', username: 'design_studio', track: 'UI/UX & Product Design', category: 'Arts & Humanities', citationSource: 'Figma Official Guidelines & Apple HIG' },
+  { id: 'cmtiv13hs0008lsvopqjsfxml', username: 'web_engineering', track: 'Web Engineering & Cloud', category: 'Technology & Engineering', citationSource: 'MDN Web Docs & W3C CSS Standards' },
+  { id: 'cmtiv0zrm0000lsvoquuxye6h', username: 'science_academy', track: 'Secondary Physics & Chemistry', category: 'Sciences', citationSource: 'WAEC & Cambridge A-Level Curriculum' },
+  { id: 'cmtiv13yz0009lsvo8j9ddgy7', username: 'data_science', track: 'Data Science & Artificial Intelligence', category: 'Technology & Engineering', citationSource: 'Python Software Foundation & Scikit-Learn Documentation' },
+  { id: 'cmtiv12pl0006lsvoi5f4hncg', username: 'accounting_guild', track: 'Accounting & Financial Economics', category: 'Commerce', citationSource: 'International Financial Reporting Standards (IFRS)' },
+  { id: 'cmtiv128q0005lsvo9gsyi4c4', username: 'governance_studies', track: 'Political Science & Constitutional Governance', category: 'Law', citationSource: 'African Union & UN Human Rights Charters' },
+  { id: 'cmtiv10qk0002lsvoau95i8lv', username: 'commerce_academy', track: 'Secondary Commerce & Business Economics', category: 'Commerce', citationSource: 'WAEC & Cambridge Business Studies Curriculum' },
+  { id: 'cmtiv109i0001lsvolgr717yz', username: 'literature_academy', track: 'Literature in English & World History', category: 'Arts & Humanities', citationSource: 'Cambridge Literature & West African History Archives' }
 ];
 
 function generateCuid() {
@@ -61,7 +61,7 @@ async function main() {
 
   if (apiKey) {
     console.log('[CRON GENERATOR] Calling Gemini AI for dynamic curriculum lesson generation...');
-    const promptText = `You are a distinguished university professor writing an official, verified AI Study Lesson for ScholarHub.
+    const promptText = `You are a distinguished academic professor and faculty chair writing an official, verified curriculum Study Lesson for ScholarHub.
 Track: ${selectedBot.track}
 Category: ${selectedBot.category}
 Verified Source Citation: ${selectedBot.citationSource}
@@ -104,7 +104,7 @@ IMPORTANT INSTRUCTIONS:
   // High quality authentic curriculum fallback bank across all 10 academic tracks
   if (!newPostData) {
     const CURRICULUM_BANK = {
-      'uni_med': {
+      'medical_sciences': {
         title: 'Cardiovascular Physiology: Frank-Starling Mechanism in Cardiac Output',
         content: `THE SIMPLE CONCEPT:\nThe Frank-Starling mechanism states that the stroke volume of the heart increases in response to an increase in the volume of blood in the ventricles before contraction (end-diastolic volume), when all other factors remain constant.\n\nCLINICAL PHYSIOLOGY EXAMPLE:\nDuring physical exercise, venous return increases, stretching myocardial sarcomeres closer to their optimal length (~2.2 micrometers). This increases calcium sensitivity of cardiac troponin C, producing a more forceful ventricular contraction.\n\nKEY TAKEAWAY MEMORY RULE:\nGreater ventricular filling (preload) = Greater stroke volume contraction up to physiologic limits.\n\nVERIFIED ACADEMIC REFERENCE:\nVerified Source: ${selectedBot.citationSource}`,
         quizQuestion: 'According to the Frank-Starling Law of the heart, what happens when end-diastolic volume increases?',
@@ -116,7 +116,7 @@ IMPORTANT INSTRUCTIONS:
         ],
         correctOptionIndex: 0
       },
-      'uni_law': {
+      'law_faculty': {
         title: 'Constitutional Jurisprudence: The Doctrine of Judicial Review',
         content: `THE SIMPLE CONCEPT:\nJudicial review is the power of the judiciary to review and invalidate legislative acts, executive actions, or administrative decisions that conflict with the constitution or violate natural justice.\n\nLANDMARK LEGAL PRECEDENT:\nIn the historic case of Marbury v. Madison (1803), Chief Justice John Marshall ruled that "an act of the legislature repugnant to the Constitution is void," firmly establishing the judiciary as the guardian of constitutional supremacy.\n\nKEY TAKEAWAY MEMORY RULE:\nThe Constitution is supreme; any statute inconsistent with it is null and void to the extent of the inconsistency.\n\nVERIFIED ACADEMIC REFERENCE:\nVerified Source: ${selectedBot.citationSource}`,
         quizQuestion: 'Which constitutional landmark firmly established the doctrine of Judicial Review?',
@@ -128,7 +128,7 @@ IMPORTANT INSTRUCTIONS:
         ],
         correctOptionIndex: 0
       },
-      'highschool_science': {
+      'science_academy': {
         title: 'Secondary Chemistry: Le Chatelier\'s Principle in Chemical Equilibrium',
         content: `THE SIMPLE CONCEPT:\nWhen a system at chemical equilibrium is subjected to a change in concentration, temperature, volume, or pressure, the system readjusts itself to counteract the effect of the applied change and establish a new equilibrium.\n\nACADEMIC LABORATORY APPLICATION:\nIn the Haber process (N2 + 3H2 <=> 2NH3 + Heat), the reaction is exothermic. Increasing temperature shifts equilibrium to the left (favoring reactants), while increasing pressure shifts equilibrium to the right (favoring ammonia production with fewer gas moles).\n\nKEY TAKEAWAY MEMORY RULE:\nEquilibrium always shifts in the direction that opposes the disturbance!\n\nVERIFIED ACADEMIC REFERENCE:\nVerified Source: ${selectedBot.citationSource}`,
         quizQuestion: 'For an exothermic reaction at equilibrium, what effect does increasing temperature have?',
@@ -140,7 +140,7 @@ IMPORTANT INSTRUCTIONS:
         ],
         correctOptionIndex: 0
       },
-      'highschool_art': {
+      'literature_academy': {
         title: 'Literature in English: Analyzing Soliloquy in Dramatic Literature',
         content: `THE SIMPLE CONCEPT:\nA soliloquy is a dramatic speech delivered by a character alone on stage, revealing their private innermost motives, emotional conflicts, and moral deliberations directly to the audience without other characters hearing.\n\nCLASSIC DRAMA EXAMPLE:\nIn Shakespeare\'s "Hamlet", the famous soliloquy "To be or not to be" allows the audience to witness Hamlet\'s philosophical contemplation of existence, death, and moral conscience in profound psychological depth.\n\nKEY TAKEAWAY MEMORY RULE:\nAlone on stage + Speaking inner truth = Soliloquy (unlike an aside, which occurs while others are present).\n\nVERIFIED ACADEMIC REFERENCE:\nVerified Source: ${selectedBot.citationSource}`,
         quizQuestion: 'What is the primary dramatic function of a soliloquy in drama?',
@@ -152,7 +152,7 @@ IMPORTANT INSTRUCTIONS:
         ],
         correctOptionIndex: 0
       },
-      'highschool_commerce': {
+      'commerce_academy': {
         title: 'Secondary Commerce: Functions of Central Banks & Monetary Policy',
         content: `THE SIMPLE CONCEPT:\nA Central Bank is the apex financial institution responsible for issuing legal tender, regulating commercial banks, maintaining price stability, and acting as the lender of last resort during liquidity crises.\n\nMONETARY REGULATION EXAMPLE:\nWhen inflation rises excessively, the Central Bank increases the Monetary Policy Rate (MPR) and Cash Reserve Ratio (CRR). This raises borrowing costs, reduces commercial bank lending, and curtails excess money supply in circulation.\n\nKEY TAKEAWAY MEMORY RULE:\nHigher interest rates = Reduced money supply = Inflation containment.\n\nVERIFIED ACADEMIC REFERENCE:\nVerified Source: ${selectedBot.citationSource}`,
         quizQuestion: 'Which institution serves as the lender of last resort in a modern financial system?',
@@ -164,7 +164,7 @@ IMPORTANT INSTRUCTIONS:
         ],
         correctOptionIndex: 0
       },
-      'uni_accounting': {
+      'accounting_guild': {
         title: 'Financial Accounting: The Matching Principle in Accrual Accounting',
         content: `THE SIMPLE CONCEPT:\nThe Matching Principle dictates that expenses incurred to earn revenue must be recognized in the exact same accounting period as the related revenue, regardless of when cash is actually paid or received.\n\nACCOUNTING JOURNAL APPLICATION:\nIf a company delivers $10,000 worth of merchandise to a customer in December, but pays the sales commission of $500 to its sales agent in January, the $500 commission expense must be accrued and recorded in December to match the revenue earned.\n\nKEY TAKEAWAY MEMORY RULE:\nMatch expenses with the revenues they generated in the same reporting period!\n\nVERIFIED ACADEMIC REFERENCE:\nVerified Source: ${selectedBot.citationSource}`,
         quizQuestion: 'What does the Matching Principle in financial accounting require?',
@@ -176,7 +176,7 @@ IMPORTANT INSTRUCTIONS:
         ],
         correctOptionIndex: 0
       },
-      'uni_polsci': {
+      'governance_studies': {
         title: 'Political Science: Unitary vs Federal Constitutional Systems',
         content: `THE SIMPLE CONCEPT:\nA federal system of government divides constitutional powers between a central national authority and autonomous regional constituent units (states or provinces), neither of which derives its authority from the other.\n\nCOMPARATIVE GOVERNANCE STUDY:\nIn countries like Nigeria and the United States, legislative powers are divided into Exclusive and Concurrent lists in a written, rigid constitution, whereas in a unitary state (like the UK), ultimate authority resides in the central parliament.\n\nKEY TAKEAWAY MEMORY RULE:\nFederalism = Constitutionally shared sovereignty; Unitary = Centralized sovereign authority.\n\nVERIFIED ACADEMIC REFERENCE:\nVerified Source: ${selectedBot.citationSource}`,
         quizQuestion: 'In a federal system of government, how is political power distributed?',
@@ -188,7 +188,7 @@ IMPORTANT INSTRUCTIONS:
         ],
         correctOptionIndex: 0
       },
-      'pro_uiux': {
+      'design_studio': {
         title: 'UI/UX Design: Fitts\'s Law in Mobile Interactive Interface Design',
         content: `THE SIMPLE CONCEPT:\nFitts\'s Law states that the time required to rapidly move to a target area is a function of the ratio between the distance to the target and the width of the target.\n\nMOBILE INTERACTION CASE STUDY:\nPlacing primary Call-to-Action (CTA) buttons at the bottom of the mobile screen (the "thumb zone") and giving them a minimum touch target size of 44x44pt minimizes travel distance and reduces touch errors for one-handed smartphone users.\n\nKEY TAKEAWAY MEMORY RULE:\nLarger targets + Shorter distances = Faster, frictionless user actions!\n\nVERIFIED ACADEMIC REFERENCE:\nVerified Source: ${selectedBot.citationSource}`,
         quizQuestion: 'According to Fitts\'s Law, how can UI designers reduce interaction time for a key button?',
@@ -200,7 +200,7 @@ IMPORTANT INSTRUCTIONS:
         ],
         correctOptionIndex: 0
       },
-      'pro_webdev': {
+      'web_engineering': {
         title: 'Web Engineering: RESTful API Principles & HTTP Idempotency',
         content: `THE SIMPLE CONCEPT:\nAn HTTP method is considered idempotent if making multiple identical requests has the exact same effect on the server state as making a single request.\n\nFULLSTACK APPLICATION EXAMPLE:\nGET, PUT, and DELETE methods are idempotent. Sending PUT /api/user/10 with the same JSON payload 5 times leaves the user profile in the exact same state, whereas POST is non-idempotent because 5 requests create 5 new separate database records.\n\nKEY TAKEAWAY MEMORY RULE:\nMultiple calls with identical results = Idempotent (GET, PUT, DELETE, HEAD).\n\nVERIFIED ACADEMIC REFERENCE:\nVerified Source: ${selectedBot.citationSource}`,
         quizQuestion: 'Which HTTP method is defined as idempotent according to the W3C HTTP/1.1 standard?',
@@ -212,7 +212,7 @@ IMPORTANT INSTRUCTIONS:
         ],
         correctOptionIndex: 0
       },
-      'pro_data': {
+      'data_science': {
         title: 'Data Science & AI: Bias-Variance Tradeoff in Supervised Machine Learning',
         content: `THE SIMPLE CONCEPT:\nThe bias-variance tradeoff is the central challenge in machine learning where minimizing training error (reducing bias) can make a model overly sensitive to noise, causing poor generalization to unseen data (increasing variance).\n\nMACHINE LEARNING CASE STUDY:\nA deep decision tree with no max-depth constraint achieves 100% accuracy on training data but drops to 60% on validation data. Regularizing the tree (or using a Random Forest ensemble) reduces variance and improves generalization.\n\nKEY TAKEAWAY MEMORY RULE:\nHigh bias = Underfitting; High variance = Overfitting; Balance achieves minimum total error!\n\nVERIFIED ACADEMIC REFERENCE:\nVerified Source: ${selectedBot.citationSource}`,
         quizQuestion: 'A machine learning model that performs with 99% accuracy on training data but 58% on test data is suffering from:',
@@ -244,7 +244,7 @@ IMPORTANT INSTRUCTIONS:
     quizQuestion: newPostData.quizQuestion,
     quizOptions: newPostData.quizOptions,
     correctOptionIndex: newPostData.correctOptionIndex,
-    summary: 'Official Verified AI Lesson'
+    summary: 'Official Verified Lesson'
   });
 
   const postId = generateCuid();

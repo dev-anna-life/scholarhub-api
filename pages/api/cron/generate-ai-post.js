@@ -1,16 +1,16 @@
 const prisma = require('../../../lib/prisma')
 
 const BOTS_POOL = [
-  { id: 'cmtiv114v0003lsvolm3vgkoj', username: 'uni_law', track: 'Law & Jurisprudence', category: 'Law', citationSource: 'Nigerian Constitutional Law & Supreme Court Law Reports' },
-  { id: 'cmtiv11pk0004lsvo7qce9lrm', username: 'uni_med', track: 'Medical & Clinical Sciences', category: 'Medicine', citationSource: 'Guyton and Hall Textbook of Medical Physiology' },
-  { id: 'cmtiv133e0007lsvoinr72ybg', username: 'pro_uiux', track: 'UI/UX & Product Design', category: 'Arts & Humanities', citationSource: 'Figma Official Guidelines & Apple HIG' },
-  { id: 'cmtiv13hs0008lsvopqjsfxml', username: 'pro_webdev', track: 'Web Engineering & Cloud', category: 'Technology & Engineering', citationSource: 'MDN Web Docs & W3C CSS Standards' },
-  { id: 'cmtiv0zrm0000lsvoquuxye6h', username: 'highschool_science', track: 'Secondary Physics & Chemistry', category: 'Sciences', citationSource: 'WAEC & Cambridge A-Level Curriculum' },
-  { id: 'cmtiv13yz0009lsvo8j9ddgy7', username: 'pro_data', track: 'Data Science & Artificial Intelligence', category: 'Technology & Engineering', citationSource: 'Python Software Foundation & Scikit-Learn Documentation' },
-  { id: 'cmtiv12pl0006lsvoi5f4hncg', username: 'uni_accounting', track: 'Accounting & Financial Economics', category: 'Commerce', citationSource: 'International Financial Reporting Standards (IFRS)' },
-  { id: 'cmtiv128q0005lsvo9gsyi4c4', username: 'uni_polsci', track: 'Political Science & Constitutional Governance', category: 'Law', citationSource: 'African Union & UN Human Rights Charters' },
-  { id: 'cmtiv10qk0002lsvoau95i8lv', username: 'highschool_commerce', track: 'Secondary Commerce & Business Economics', category: 'Commerce', citationSource: 'WAEC & Cambridge Business Studies Curriculum' },
-  { id: 'cmtiv109i0001lsvolgr717yz', username: 'highschool_art', track: 'Literature in English & World History', category: 'Arts & Humanities', citationSource: 'Cambridge Literature & West African History Archives' }
+  { id: 'cmtiv114v0003lsvolm3vgkoj', username: 'law_faculty', track: 'Law & Jurisprudence', category: 'Law', citationSource: 'Nigerian Constitutional Law & Supreme Court Law Reports' },
+  { id: 'cmtiv11pk0004lsvo7qce9lrm', username: 'medical_sciences', track: 'Medical & Clinical Sciences', category: 'Medicine', citationSource: 'Guyton and Hall Textbook of Medical Physiology' },
+  { id: 'cmtiv133e0007lsvoinr72ybg', username: 'design_studio', track: 'UI/UX & Product Design', category: 'Arts & Humanities', citationSource: 'Figma Official Guidelines & Apple HIG' },
+  { id: 'cmtiv13hs0008lsvopqjsfxml', username: 'web_engineering', track: 'Web Engineering & Cloud', category: 'Technology & Engineering', citationSource: 'MDN Web Docs & W3C CSS Standards' },
+  { id: 'cmtiv0zrm0000lsvoquuxye6h', username: 'science_academy', track: 'Secondary Physics & Chemistry', category: 'Sciences', citationSource: 'WAEC & Cambridge A-Level Curriculum' },
+  { id: 'cmtiv13yz0009lsvo8j9ddgy7', username: 'data_science', track: 'Data Science & Artificial Intelligence', category: 'Technology & Engineering', citationSource: 'Python Software Foundation & Scikit-Learn Documentation' },
+  { id: 'cmtiv12pl0006lsvoi5f4hncg', username: 'accounting_guild', track: 'Accounting & Financial Economics', category: 'Commerce', citationSource: 'International Financial Reporting Standards (IFRS)' },
+  { id: 'cmtiv128q0005lsvo9gsyi4c4', username: 'governance_studies', track: 'Political Science & Constitutional Governance', category: 'Law', citationSource: 'African Union & UN Human Rights Charters' },
+  { id: 'cmtiv10qk0002lsvoau95i8lv', username: 'commerce_academy', track: 'Secondary Commerce & Business Economics', category: 'Commerce', citationSource: 'WAEC & Cambridge Business Studies Curriculum' },
+  { id: 'cmtiv109i0001lsvolgr717yz', username: 'literature_academy', track: 'Literature in English & World History', category: 'Arts & Humanities', citationSource: 'Cambridge Literature & West African History Archives' }
 ]
 
 module.exports = async function handler(req, res) {
@@ -23,28 +23,28 @@ module.exports = async function handler(req, res) {
     // Pick a bot track
     const randomBotInfo = BOTS_POOL[Math.floor(Math.random() * BOTS_POOL.length)]
     
-    // Find bot user in DB by exact ID or username/email
+    // Find academy user in DB by exact ID or username/email
     let bot = await prisma.user.findFirst({
       where: {
         OR: [
           { id: randomBotInfo.id },
           { username: randomBotInfo.username },
-          { email: `bot_${randomBotInfo.username}@scholarhub.dev` }
+          { email: `${randomBotInfo.username}@scholarhub.dev` }
         ]
       }
     })
 
-    // Fallback: any user with bot_ email prefix
+    // Fallback: search by ID
     if (!bot) {
       bot = await prisma.user.findFirst({
         where: {
-          email: { startsWith: 'bot_' }
+          id: randomBotInfo.id
         }
       })
     }
 
     if (!bot) {
-      return res.status(404).json({ message: `No bot user available in database.` })
+      return res.status(404).json({ message: `No faculty user available in database.` })
     }
 
     // Get recent titles to prevent duplicates
@@ -60,7 +60,7 @@ module.exports = async function handler(req, res) {
     let newPostData = null
 
     if (apiKey) {
-      const promptText = `You are an expert university & high school professor writing an official AI Study Lesson for ScholarHub.
+      const promptText = `You are a distinguished academic professor and faculty chair writing an official, verified curriculum Study Lesson for ScholarHub.
 Track: ${randomBotInfo.track}
 Category: ${randomBotInfo.category}
 Verified Source Citation: ${randomBotInfo.citationSource}
@@ -111,7 +111,7 @@ Return JSON ONLY in this exact schema:
       quizQuestion: newPostData.quizQuestion,
       quizOptions: newPostData.quizOptions,
       correctOptionIndex: newPostData.correctOptionIndex,
-      summary: 'Official Verified AI Lesson'
+      summary: 'Official Verified Lesson'
     })
 
     // Create the post in Prisma DB

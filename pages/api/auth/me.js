@@ -9,12 +9,17 @@ export default async function handler(req, res) {
     const user = await protect(req, res)
     if (!user) return
 
-    const [followersCount, followingCount] = await Promise.all([
+    const [followersCount, followingCount, followingRows] = await Promise.all([
       prisma.follow.count({ where: { followingId: user.id } }),
       prisma.follow.count({ where: { followerId: user.id } }),
+      prisma.follow.findMany({
+        where: { followerId: user.id },
+        select: { followingId: true }
+      })
     ])
 
-    res.json({ ...user, followersCount, followingCount })
+    const followingIds = followingRows.map(f => f.followingId)
+    res.json({ ...user, followersCount, followingCount, followingIds })
   } catch (error) {
     res.status(500).json({ message: 'Server error', error: error.message })
   }
