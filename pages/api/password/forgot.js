@@ -45,17 +45,23 @@ export default async function handler(req, res) {
     const resetUrl = `${baseUrl.replace(/\/$/, '')}/reset-password/${resetToken}`
 
     try {
-      if (process.env.EMAIL_USER && process.env.EMAIL_PASS) {
+      const emailUser = (process.env.EMAIL_USER || 'scholarhubng1@gmail.com').trim()
+      const emailPass = (process.env.EMAIL_PASS || 'vbjfxgglwesovbpc').replace(/\s+/g, '')
+
+      if (emailUser && emailPass) {
         const transporter = nodemailer.createTransport({
           service: 'gmail',
           auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
+            user: emailUser,
+            pass: emailPass
+          },
+          tls: {
+            rejectUnauthorized: false
           }
         })
 
         await transporter.sendMail({
-          from: `"ScholarHub Support" <${process.env.EMAIL_USER}>`,
+          from: `"ScholarHub Support" <${emailUser}>`,
           to: user.email,
           subject: 'Reset your ScholarHub password',
           html: `
