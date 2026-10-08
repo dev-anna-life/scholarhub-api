@@ -149,20 +149,69 @@ export default async function handler(req, res) {
         baseWhere.communities = { some: { communityId } }
       }
 
-      let total = await prisma.post.count({ where: baseWhere })
-      const totalPages = Math.ceil(total / limitNum)
+      let total = 0
+      let posts = []
 
-      const posts = await prisma.post.findMany({
-        where: baseWhere,
-        skip,
-        take: limitNum,
-        orderBy: { createdAt: 'desc' },
-        include: {
-          author: { select: authorSelect },
-          communities: { include: { community: { select: { name: true } } } },
-          _count: { select: { likes: true, comments: true } }
+      if (!tab || tab === 'for_you') {
+        const studentWhere = {
+          ...baseWhere,
+          isAiAssisted: { not: true },
+          author: {
+            email: { not: { endsWith: '@scholarhub.dev' } }
+          }
         }
-      })
+
+        total = await prisma.post.count({ where: studentWhere })
+
+        const studentPosts = await prisma.post.findMany({
+          where: studentWhere,
+          skip,
+          take: limitNum,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            author: { select: authorSelect },
+            communities: { include: { community: { select: { name: true } } } },
+            _count: { select: { likes: true, comments: true } }
+          }
+        })
+
+        let facultyLessons = []
+        if (pageNum === 1 && !search) {
+          facultyLessons = await prisma.post.findMany({
+            where: {
+              status: 'approved',
+              OR: [
+                { isAiAssisted: true },
+                { author: { email: { endsWith: '@scholarhub.dev' } } }
+              ]
+            },
+            take: 15,
+            orderBy: { createdAt: 'desc' },
+            include: {
+              author: { select: authorSelect },
+              communities: { include: { community: { select: { name: true } } } },
+              _count: { select: { likes: true, comments: true } }
+            }
+          })
+        }
+
+        posts = [...studentPosts, ...facultyLessons]
+      } else {
+        total = await prisma.post.count({ where: baseWhere })
+        posts = await prisma.post.findMany({
+          where: baseWhere,
+          skip,
+          take: limitNum,
+          orderBy: { createdAt: 'desc' },
+          include: {
+            author: { select: authorSelect },
+            communities: { include: { community: { select: { name: true } } } },
+            _count: { select: { likes: true, comments: true } }
+          }
+        })
+      }
+
+      const totalPages = Math.ceil(total / limitNum) || 1
 
       const enriched = posts.map(p => {
         const { _count, ...rest } = p
