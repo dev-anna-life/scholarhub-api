@@ -185,7 +185,7 @@ export default async function handler(req, res) {
                 { author: { email: { endsWith: '@scholarhub.dev' } } }
               ]
             },
-            take: 15,
+            take: 35,
             orderBy: { createdAt: 'desc' },
             include: {
               author: { select: authorSelect },

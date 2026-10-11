@@ -20,6 +20,7 @@ const signupSchema = z.object({
   track: z.string().optional(),
   faculty: z.string().optional(),
   department: z.string().optional(),
+  skillDomain: z.string().optional(),
   status: z.string().optional(),
   secondaryClass: z.string().optional(),
   secondarySubjects: z.array(z.string()).optional(),
@@ -27,11 +28,62 @@ const signupSchema = z.object({
   referralCode: z.string().optional(),
 })
 
+function resolveHubIdsForUser({ course, faculty, track, skillDomain, interests = [] }) {
+  const hubIds = new Set(['cmtiv14br0010lsvobrandhub']) // Brand Challenge Hub is automatic for all users
+  const corpus = [course, faculty, track, skillDomain, ...(Array.isArray(interests) ? interests : [])]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+
+  if (corpus.includes('law') || corpus.includes('jurisprudence') || corpus.includes('legal')) {
+    hubIds.add('cmtiv114v0003lsvolm3vgkoj') // @law_hub
+  }
+  if (corpus.includes('med') || corpus.includes('anatomy') || corpus.includes('clinic') || corpus.includes('health') || corpus.includes('pharma') || corpus.includes('nurs')) {
+    hubIds.add('cmtiv11pk0004lsvo7qce9lrm') // @medical_hub
+  }
+  if (corpus.includes('art') || corpus.includes('lit') || corpus.includes('history') || corpus.includes('drama') || corpus.includes('english') || corpus.includes('humanit')) {
+    hubIds.add('cmtiv109i0001lsvolgr717yz') // @arts_hub
+  }
+  if (corpus.includes('account') || corpus.includes('financ') || corpus.includes('audit') || corpus.includes('bank')) {
+    hubIds.add('cmtiv12pl0006lsvoi5f4hncg') // @accounting_hub
+  }
+  if (corpus.includes('commerc') || corpus.includes('busin') || corpus.includes('econom') || corpus.includes('market') || corpus.includes('entrepreneur')) {
+    hubIds.add('cmtiv10qk0002lsvoau95i8lv') // @commerce_hub
+  }
+  if (corpus.includes('politic') || corpus.includes('govern') || corpus.includes('diplom') || corpus.includes('public admin')) {
+    hubIds.add('cmtiv128q0005lsvo9gsyi4c4') // @governance_hub
+  }
+  if (corpus.includes('design') || corpus.includes('ui/ux') || corpus.includes('figma') || corpus.includes('graphic')) {
+    hubIds.add('cmtiv133e0007lsvoinr72ybg') // @design_hub
+  }
+  if (corpus.includes('data') || corpus.includes('machine learning') || corpus.includes('artificial intelligence') || corpus.includes('analytics')) {
+    hubIds.add('cmtiv13yz0009lsvo8j9ddgy7') // @data_hub
+  }
+  if (corpus.includes('web') || corpus.includes('software') || corpus.includes('comput') || corpus.includes('cloud') || corpus.includes('coding') || corpus.includes('cyber')) {
+    hubIds.add('cmtiv13hs0008lsvopqjsfxml') // @web_hub
+  }
+  if (corpus.includes('creat') || corpus.includes('video') || corpus.includes('film') || corpus.includes('storytelling')) {
+    hubIds.add('cmtiv15cr0011lsvocreatorh') // @creator_hub
+  }
+  if (corpus.includes('scien') || corpus.includes('physic') || corpus.includes('chemis') || corpus.includes('biolog') || corpus.includes('engin') || corpus.includes('math')) {
+    if (!corpus.includes('medical') && !corpus.includes('data science') && !corpus.includes('political')) {
+      hubIds.add('cmtiv0zrm0000lsvoquuxye6h') // @science_hub
+    }
+  }
+
+  // Ensure at least one academic hub if none matched
+  if (hubIds.size === 1) {
+    hubIds.add('cmtiv0zrm0000lsvoquuxye6h')
+  }
+
+  return Array.from(hubIds)
+}
+
 async function ensureCommunity(name, type, school, faculty, department, userId) {
   let community
   if (name === 'General University Hub' || type === 'general') {
     community = await prisma.community.findFirst({
-      where: { name: { contains: 'General University Hub', mode: 'insensitive' } }
+      where: { name: { contains: name, mode: 'insensitive' } }
     })
   } else {
     community = await prisma.community.findFirst({
@@ -47,7 +99,7 @@ async function ensureCommunity(name, type, school, faculty, department, userId) 
     community = await prisma.community.create({
       data: {
         name, type, school: school || null, faculty: faculty || null,
-        department: department || null, createdById: userId,
+        department: null, createdById: userId,
         members: { create: { userId } },
       },
     })
@@ -79,7 +131,7 @@ export default async function handler(req, res) {
       return res.status(400).json({ message: errorMsg })
     }
 
-    const { name, email: rawEmail, username: rawUsername, password, phone, school, level, course, track, state, city, country, faculty, department, interests, referralCode, status, secondaryClass, secondarySubjects } = validationResult.data
+    const { name, email: rawEmail, username: rawUsername, password, phone, school, level, course, track, state, city, country, faculty, skillDomain, interests, referralCode, status, secondaryClass, secondarySubjects } = validationResult.data
     const email = rawEmail.trim().toLowerCase()
     const username = rawUsername.trim().toLowerCase()
 
@@ -111,9 +163,11 @@ export default async function handler(req, res) {
         status: status || 'Current Student',
         secondaryClass: ['Science', 'Arts'].includes(secondaryClass) ? secondaryClass : null,
         secondarySubjects: Array.isArray(secondarySubjects) ? secondarySubjects : [],
-        course: course || '', track: ['Science', 'Art', 'Commercial'].includes(track) ? track : null,
+        course: course || faculty || '',
+        track: ['Science', 'Art', 'Commercial'].includes(track) ? track : null,
         state: state || '', city: city || '', country: country || '',
-        faculty: faculty || '', department: department || '',
+        faculty: faculty || course || '',
+        department: '',
         interests: interests || [],
         coins: 50, monthlyCoins: 50,
         monthlyCoinsMonth: `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`,
@@ -134,22 +188,32 @@ export default async function handler(req, res) {
       })
     }
 
-    if (school && level?.toLowerCase() === 'university') {
-      if (department) {
-        await ensureCommunity(department, 'department', school, faculty || '', department, user.id)
-      }
-      if (faculty) {
-        await ensureCommunity(faculty, 'faculty', school, faculty, '', user.id)
+    // Communities by School & Course/Faculty (No restrictive department lock)
+    const isSecondary = level?.toLowerCase() === 'secondary' || level?.toLowerCase() === 'high school'
+    if (school && !isSecondary) {
+      const courseOrFac = course || faculty
+      if (courseOrFac) {
+        await ensureCommunity(courseOrFac, 'faculty', school, courseOrFac, '', user.id)
       }
       await ensureCommunity(school, 'school', school, '', '', user.id)
       await ensureCommunity('General University Hub', 'general', '', '', '', user.id)
-    }
-
-    if (level?.toLowerCase() === 'secondary') {
+    } else if (isSecondary) {
       if (school) {
         await ensureCommunity(school, 'school', school, '', '', user.id)
       }
       await ensureCommunity('General Secondary Hub', 'general', '', '', '', user.id)
+    }
+
+    // Auto-follow Brand Challenge Hub + Course Hub
+    const targetHubIds = resolveHubIdsForUser({ course, faculty, track, skillDomain, interests })
+    for (const hubId of targetHubIds) {
+      try {
+        await prisma.follow.upsert({
+          where: { followerId_followingId: { followerId: user.id, followingId: hubId } },
+          update: {},
+          create: { followerId: user.id, followingId: hubId }
+        })
+      } catch (_) {}
     }
 
     const token = generateToken(user.id)
@@ -164,6 +228,7 @@ export default async function handler(req, res) {
         course: user.course, track: user.track, state: user.state,
         faculty: user.faculty, department: user.department,
         interests: user.interests,
+        followingIds: targetHubIds,
         bio: user.bio, coins: user.coins,
         referralCode: user.referralCode,
         createdAt: user.createdAt,
